@@ -107,7 +107,7 @@ public class BaseWebView extends WebView implements DownloadListener {
     public final boolean webViewGoBack() {
         if (canGoBack() && canGoBackOrForward(-1)) {
             goBack();
-            String goBackAfterUrl = getOriginalUrl();
+            final String goBackAfterUrl = getOriginalUrl();
             if (TextUtils.equals(goBackAfterUrl, SchemeConsts.BLANK)) {
                 return webViewGoBack();
             }
@@ -172,7 +172,7 @@ public class BaseWebView extends WebView implements DownloadListener {
             destroy();
         }
 
-        if(mDownloadHelper != null){
+        if (mDownloadHelper != null) {
             mDownloadHelper.uninstallDownloadHelper();
         }
         mDownloadHelper = null;
@@ -182,7 +182,7 @@ public class BaseWebView extends WebView implements DownloadListener {
 
     @Override
     public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimetype, long contentLength) {
-        if(mDownloadHelper == null){
+        if (mDownloadHelper == null) {
             mDownloadHelper = WebViewDownloadHelper.installDownloadHelper(getContext());
         }
         mDownloadHelper.addDownloadTask(url, contentDisposition);
@@ -244,5 +244,4 @@ public class BaseWebView extends WebView implements DownloadListener {
         setWebViewClient(null);
         clearHistory();
     }
-
 }

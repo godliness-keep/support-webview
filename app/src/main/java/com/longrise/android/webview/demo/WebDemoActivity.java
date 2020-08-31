@@ -1,11 +1,10 @@
 package com.longrise.android.webview.demo;
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
-
-import androidx.annotation.Nullable;
 
 import com.longrise.android.mvp.internal.mvp.BasePresenter;
 import com.longrise.android.mvp.internal.mvp.BaseView;
@@ -23,7 +22,7 @@ public class WebDemoActivity<V extends BaseView, P extends BasePresenter<V>> ext
 
     private static final String TAG = "WebDemoActivity";
 
-    private final String URL = "https://www.jianshu.com/p/84d25f5763f9";
+    private final String URL = "http://zhyq.szns.gov.cn/OA/LEAP/FFPB/logIn.html?sign=1";
 
     private View mBack;
     private TextView mTitle;
@@ -80,7 +79,6 @@ public class WebDemoActivity<V extends BaseView, P extends BasePresenter<V>> ext
      */
     @Override
     public void onReceivedTitle(String title) {
-        Log.e(TAG, "title: " + title);
         mTitle.setText(title);
     }
 

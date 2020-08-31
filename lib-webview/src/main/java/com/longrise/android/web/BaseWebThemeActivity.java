@@ -86,22 +86,21 @@ public abstract class BaseWebThemeActivity<V extends BaseView, P extends BasePre
         Toast.makeText(this, "please override themeRightIconClick() method", Toast.LENGTH_SHORT).show();
     }
 
-    @Override
-    protected final void onCreate(@Nullable Bundle savedInstanceState) {
-        createWebTheme();
-        super.onCreate(savedInstanceState);
-    }
+    /**
+     * todo 这里不允许在重写
+     */
+//    @Override
+//    protected final void onCreate(@Nullable Bundle savedInstanceState) {
+//        createWebTheme();
+//        super.onCreate(savedInstanceState);
+//    }
 
     @Override
     public final void setContentView(int layoutResID) {
         if (mWebTheme != null) {
+//            mWebTheme.bindThemeView(this, layoutResID);
             mWebTheme.bindThemeView(this, getWebView());
         }
-    }
-
-    @Override
-    protected final int getLayoutResourceId(@Nullable Bundle bundle) {
-        return 0;
     }
 
     @Override

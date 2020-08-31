@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.os.Build;
 import android.support.annotation.NonNull;
 
-
+import com.longrise.android.jssdk.core.bridge.BaseBridge;
 import com.longrise.android.mvp.internal.mvp.BasePresenter;
 import com.longrise.android.mvp.internal.mvp.BaseView;
 import com.longrise.android.web.BaseWebActivity;
@@ -43,6 +43,14 @@ public final class Internal {
         return fileChooser;
     }
 
+    @NonNull
+    public static <V extends BaseView, P extends BasePresenter<V>> BaseBridge<BaseWebActivity<V, P>> createIfBridge(BaseBridge<BaseWebActivity<V, P>> bridge) {
+        if (bridge == null) {
+            return new DefaultBridge<V, P>();
+        }
+        return bridge;
+    }
+
     public static boolean activityIsFinished(Activity target) {
         if (target == null) {
             return true;
@@ -60,6 +68,9 @@ public final class Internal {
     }
 
     private static final class DefaultFileChooser<V extends BaseView, P extends BasePresenter<V>, T extends BaseWebActivity<V, P>> extends BaseFileChooser<T> {
+    }
+
+    private static final class DefaultBridge<V extends BaseView, P extends BasePresenter<V>> extends BaseBridge<BaseWebActivity<V, P>> {
     }
 
     private Internal() {

@@ -12,7 +12,6 @@ import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 
-
 import com.longrise.android.mvp.utils.MvpLog;
 import com.longrise.android.web.BaseWebActivity;
 import com.longrise.android.web.internal.Internal;
@@ -46,10 +45,10 @@ public abstract class BaseWebChromeClient<T extends BaseWebActivity> extends Web
 
     protected final boolean isFinished() {
         final boolean isAlive = Internal.activityIsFinished(mTarget.get());
-        if (!isAlive) {
+        if (isAlive) {
             mHandler.removeCallbacksAndMessages(null);
         }
-        return !isAlive;
+        return isAlive;
     }
 
     protected final void post(Runnable task) {

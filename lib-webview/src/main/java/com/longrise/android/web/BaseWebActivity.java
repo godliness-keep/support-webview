@@ -1,20 +1,14 @@
 package com.longrise.android.web;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
-import android.text.TextUtils;
-import android.util.AttributeSet;
-import android.util.Log;
 import android.view.KeyEvent;
-import android.view.View;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
-
 
 import com.longrise.android.jssdk.core.bridge.BaseBridge;
 import com.longrise.android.mvp.internal.BaseMvpActivity;
@@ -47,9 +41,12 @@ public abstract class BaseWebActivity<V extends BaseView, P extends BasePresente
 
     /**
      * Returns the current layout resource id
+     *
+     * @param state {@link android.app.Activity#onCreate(Bundle)}
+     * @return The current layout id
      */
     @Override
-    protected abstract int getLayoutResourceId(@Nullable Bundle bundle);
+    protected abstract int getLayoutResourceId(@Nullable Bundle state);
 
     /**
      * Here the {@link #findViewById(int)}
@@ -125,7 +122,7 @@ public abstract class BaseWebActivity<V extends BaseView, P extends BasePresente
     }
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected final void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         initWebFrame();
     }
@@ -216,15 +213,6 @@ public abstract class BaseWebActivity<V extends BaseView, P extends BasePresente
     }
 
     @Override
-    public View onCreateView(String name, Context context, AttributeSet attrs) {
-        Log.e(TAG, "name: " + name);
-        if (TextUtils.equals("", name)) {
-            return mWebView = (BaseWebView) super.onCreateView(name, context, attrs);
-        }
-        return super.onCreateView(name, context, attrs);
-    }
-
-    @Override
     protected void onDestroy() {
         if (mWebView != null) {
             mWebView.recycle();
@@ -277,12 +265,9 @@ public abstract class BaseWebActivity<V extends BaseView, P extends BasePresente
 
     @SuppressLint("AddJavascriptInterface")
     private void createWebBridge(WebView view) {
-        final BaseBridge<BaseWebActivity<V, P>> bridge = getBridge();
-        if (bridge != null) {
-            bridge.bindTarget(this, view);
-            // 适用于 API Level 17及以后，之前有安全问题
-            // todo 暂未做修复
-//            view.addJavascriptInterface(bridge, bridge.bridgeName());
-        }
+        final BaseBridge<BaseWebActivity<V, P>> bridge = Internal.createIfBridge(getBridge());
+        bridge.bindTarget(this, view);
+        // 适用于 API Level 17及以后，之前有安全问题，暂未做修复
+        view.addJavascriptInterface(bridge, bridge.bridgeName());
     }
 }
