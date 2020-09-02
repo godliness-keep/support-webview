@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.longrise.android.jssdk.Request;
 import com.longrise.android.webview.demo.x5demo.DemoBridge;
 import com.longrise.android.webview.demo.x5demo.DemoDownloader;
 import com.longrise.android.webview.demo.x5demo.DemoFileChooser;
