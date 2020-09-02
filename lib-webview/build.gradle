@@ -28,6 +28,6 @@ dependencies {
     compileOnly 'com.android.support:appcompat-v7:28.0.0'
     compileOnly 'com.android.support.constraint:constraint-layout:1.1.3'
 
-    api files('libs/jssdk.aar')
+    implementation files('libs/jssdk.aar')
     api files('libs/mvp.aar')
 }

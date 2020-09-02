@@ -2,13 +2,20 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="center"
     android:orientation="vertical">
 
-    <include layout="@layout/lib_mvp_include_default_title_bar_layout" />
+    <Button
+        android:id="@+id/webview_native"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="原生 WebView" />
 
-    <com.longrise.android.web.internal.BaseWebView
-        android:id="@+id/webview"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+    <Button
+        android:id="@+id/webview_x5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="X5 WebView" />
 
 </LinearLayout>

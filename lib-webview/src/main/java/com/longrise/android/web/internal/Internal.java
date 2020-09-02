@@ -20,25 +20,25 @@ import com.longrise.android.web.internal.bridge.BaseWebViewClient;
 public final class Internal {
 
     @NonNull
-    public static <V extends BaseView, P extends BasePresenter<V>, T extends BaseWebActivity<V, P>> BaseWebChromeClient<T> createIfWebChromeClick(BaseWebChromeClient<T> chromeClient) {
+    public static <V extends BaseView, P extends BasePresenter<V>, T extends BaseWebActivity<V, P>> BaseWebChromeClient<V, P, T> createIfWebChromeClick(BaseWebChromeClient<V, P, T> chromeClient) {
         if (chromeClient == null) {
-            return new DefaultChromeClient<V, P, T>();
+            return new DefaultChromeClient<>();
         }
         return chromeClient;
     }
 
     @NonNull
-    public static <V extends BaseView, P extends BasePresenter<V>, T extends BaseWebActivity<V, P>> BaseWebViewClient<T> createIfWebviewClient(BaseWebViewClient<T> webViewClient) {
+    public static <V extends BaseView, P extends BasePresenter<V>, T extends BaseWebActivity<V, P>> BaseWebViewClient<V, P, T> createIfWebviewClient(BaseWebViewClient<V, P, T> webViewClient) {
         if (webViewClient == null) {
-            return new DefaultWebClient<V, P, T>();
+            return new DefaultWebClient<>();
         }
         return webViewClient;
     }
 
     @NonNull
-    public static <V extends BaseView, P extends BasePresenter<V>, T extends BaseWebActivity<V, P>> BaseFileChooser<T> createIfFileChooser(BaseFileChooser<T> fileChooser) {
+    public static <V extends BaseView, P extends BasePresenter<V>, T extends BaseWebActivity<V, P>> BaseFileChooser<V, P, T> createIfFileChooser(BaseFileChooser<V, P, T> fileChooser) {
         if (fileChooser == null) {
-            return new DefaultFileChooser<V, P, T>();
+            return new DefaultFileChooser<>();
         }
         return fileChooser;
     }
@@ -46,7 +46,7 @@ public final class Internal {
     @NonNull
     public static <V extends BaseView, P extends BasePresenter<V>> BaseBridge<BaseWebActivity<V, P>> createIfBridge(BaseBridge<BaseWebActivity<V, P>> bridge) {
         if (bridge == null) {
-            return new DefaultBridge<V, P>();
+            return new DefaultBridge<>();
         }
         return bridge;
     }
@@ -61,13 +61,13 @@ public final class Internal {
         return target.isFinishing();
     }
 
-    private static final class DefaultChromeClient<V extends BaseView, P extends BasePresenter<V>, T extends BaseWebActivity<V, P>> extends BaseWebChromeClient<T> {
+    private static final class DefaultChromeClient<V extends BaseView, P extends BasePresenter<V>, T extends BaseWebActivity<V, P>> extends BaseWebChromeClient<V, P, T> {
     }
 
-    private static final class DefaultWebClient<V extends BaseView, P extends BasePresenter<V>, T extends BaseWebActivity<V, P>> extends BaseWebViewClient<T> {
+    private static final class DefaultWebClient<V extends BaseView, P extends BasePresenter<V>, T extends BaseWebActivity<V, P>> extends BaseWebViewClient<V, P, T> {
     }
 
-    private static final class DefaultFileChooser<V extends BaseView, P extends BasePresenter<V>, T extends BaseWebActivity<V, P>> extends BaseFileChooser<T> {
+    private static final class DefaultFileChooser<V extends BaseView, P extends BasePresenter<V>, T extends BaseWebActivity<V, P>> extends BaseFileChooser<V, P, T> {
     }
 
     private static final class DefaultBridge<V extends BaseView, P extends BasePresenter<V>> extends BaseBridge<BaseWebActivity<V, P>> {

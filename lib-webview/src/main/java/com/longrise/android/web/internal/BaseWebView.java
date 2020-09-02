@@ -5,6 +5,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -13,10 +14,18 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.accessibility.AccessibilityManager;
 import android.webkit.DownloadListener;
+import android.webkit.WebChromeClient;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
+import com.longrise.android.mvp.internal.mvp.BasePresenter;
+import com.longrise.android.mvp.internal.mvp.BaseView;
 import com.longrise.android.mvp.utils.MvpLog;
+import com.longrise.android.web.BaseWebActivity;
+import com.longrise.android.web.BuildConfig;
 import com.longrise.android.web.helper.WebViewDownloadHelper;
+import com.longrise.android.web.internal.bridge.BaseWebChromeClient;
+import com.longrise.android.web.internal.bridge.BaseWebViewClient;
 
 import java.lang.reflect.Method;
 
@@ -26,7 +35,7 @@ import java.lang.reflect.Method;
  * @author godliness
  */
 @SuppressWarnings("unused")
-public class BaseWebView extends WebView implements DownloadListener {
+public class BaseWebView<V extends BaseView, P extends BasePresenter<V>> extends WebView implements DownloadListener {
 
     public static final String NAME = BaseWebView.class.getName();
 
@@ -41,6 +50,9 @@ public class BaseWebView extends WebView implements DownloadListener {
     private IScrollChangeListener mScrollListener;
     private WebViewDownloadHelper mDownloadHelper;
 
+    private BaseWebChromeClient<V, P, BaseWebActivity<V, P>> mWebChromeClient;
+    private BaseWebViewClient<V, P, BaseWebActivity<V, P>> mWebViewClient;
+
     public BaseWebView(Context context) {
         this(context, null);
     }
@@ -50,24 +62,25 @@ public class BaseWebView extends WebView implements DownloadListener {
         setDownloadListener(this);
         removeJavascriptInterfaces();
         disableAccessibility(context);
-        MvpLog.e(NAME, "new BaseWebView");
-
     }
 
     @Nullable
-    public static BaseWebView createOrGetWebView(Context context) {
+    public static <V extends BaseView, P extends BasePresenter<V>> BaseWebView<V, P> createOrGetWebView(Context context) {
         return WebViewFactory.findWebView(context);
     }
 
     @Nullable
-    public static BaseWebView createOrGetWebViewAndInitSetting(Context context) {
-        final BaseWebView webView = WebViewFactory.findWebView(context);
+    public static <V extends BaseView, P extends BasePresenter<V>> BaseWebView<V, P> createOrGetWebViewAndInitSetting(Context context) {
+        final BaseWebView<V, P> webView = WebViewFactory.findWebView(context);
         if (webView != null) {
             SettingInit.initSetting(webView);
         }
         return webView;
     }
 
+    /**
+     * 设置监听 WebView 滑动
+     */
     public void setScrollChangedListener(IScrollChangeListener changedListener) {
         this.mScrollListener = changedListener;
     }
@@ -76,7 +89,6 @@ public class BaseWebView extends WebView implements DownloadListener {
     @Override
     public void addJavascriptInterface(Object object, String name) {
         super.addJavascriptInterface(object, name);
-        MvpLog.e(NAME, "bridge name: " + name);
     }
 
     @Override
@@ -100,15 +112,24 @@ public class BaseWebView extends WebView implements DownloadListener {
         try {
             super.loadUrl(url);
         } catch (Exception e) {
-            MvpLog.print(e);
+            if (BuildConfig.DEBUG) {
+                e.printStackTrace();
+            }
         }
+    }
+
+    public final boolean onHandleMessage(Message msg) {
+        if (mWebViewClient != null && mWebViewClient.onHandleMessage(msg)) {
+            return true;
+        }
+        return mWebChromeClient != null && mWebChromeClient.onHandleMessage(msg);
     }
 
     public final boolean webViewGoBack() {
         if (canGoBack() && canGoBackOrForward(-1)) {
             goBack();
-            final String goBackAfterUrl = getOriginalUrl();
-            if (TextUtils.equals(goBackAfterUrl, SchemeConsts.BLANK)) {
+            //isRedirect(getUrl()) ||
+            if (isBlankUrl(getOriginalUrl())) {
                 return webViewGoBack();
             }
             return true;
@@ -121,8 +142,8 @@ public class BaseWebView extends WebView implements DownloadListener {
         try {
             super.setOverScrollMode(mode);
         } catch (Throwable throwable) {
-            String messageCause = throwable.getCause() == null ? throwable.toString() : throwable.getCause().toString();
-            String trace = Log.getStackTraceString(throwable);
+            final String messageCause = throwable.getCause() == null ? throwable.toString() : throwable.getCause().toString();
+            final String trace = Log.getStackTraceString(throwable);
             for (String exception : WEB_VIEW_EXCEPTION) {
                 if (trace.contains(exception)) {
                     throwable.printStackTrace();
@@ -140,6 +161,7 @@ public class BaseWebView extends WebView implements DownloadListener {
         }
     }
 
+    @SuppressLint("ObsoleteSdkInt")
     @Override
     public boolean isPrivateBrowsingEnabled() {
         return !(Build.VERSION.SDK_INT == Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1 && getSettings() == null) && super.isPrivateBrowsingEnabled();
@@ -176,8 +198,6 @@ public class BaseWebView extends WebView implements DownloadListener {
             mDownloadHelper.uninstallDownloadHelper();
         }
         mDownloadHelper = null;
-
-        MvpLog.e(NAME, "recycle: " + recycled);
     }
 
     @Override
@@ -186,24 +206,44 @@ public class BaseWebView extends WebView implements DownloadListener {
             mDownloadHelper = WebViewDownloadHelper.installDownloadHelper(getContext());
         }
         mDownloadHelper.addDownloadTask(url, contentDisposition);
-        MvpLog.e(NAME, "onDownloadStart url: " + url + " userAgent: " + userAgent + " contentDisposition: " + contentDisposition + " mimitype: " + mimetype);
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    public void setWebChromeClient(WebChromeClient client) {
+        super.setWebChromeClient(client);
+        if (client instanceof BaseWebChromeClient) {
+            this.mWebChromeClient = (BaseWebChromeClient<V, P, BaseWebActivity<V, P>>) client;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public void setWebViewClient(WebViewClient client) {
+        super.setWebViewClient(client);
+        if (client instanceof BaseWebViewClient) {
+            this.mWebViewClient = (BaseWebViewClient<V, P, BaseWebActivity<V, P>>) client;
+        }
+    }
+
+    @SuppressLint("ObsoleteSdkInt")
     @TargetApi(11)
     private void removeJavascriptInterfaces() {
-        try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            try {
                 removeJavascriptInterface("searchBoxJavaBridge_");
                 removeJavascriptInterface("accessibility");
                 removeJavascriptInterface("accessibilityTraversal");
+            } catch (Exception e) {
+                if (BuildConfig.DEBUG) {
+                    e.printStackTrace();
+                }
             }
-        } catch (Throwable tr) {
-            MvpLog.print(tr);
         }
     }
 
     /**
-     * 问题主要在4.2.1和4.2.2比较集中，关闭辅助功能
+     * 问题主要在 4.2.1 和 4.2.2 比较集中，关闭辅助功能
      * <p>
      * {@link AccessibilityManager STATE_FLAG_ACCESSIBILITY_ENABLED}
      * java.lang.NullPointerException
@@ -214,12 +254,12 @@ public class BaseWebView extends WebView implements DownloadListener {
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.JELLY_BEAN_MR1) {
             /*4.2 (Build.VERSION_CODES.JELLY_BEAN_MR1)*/
             if (context != null) {
+                final AccessibilityManager am = (AccessibilityManager) context.getApplicationContext().getSystemService(Context.ACCESSIBILITY_SERVICE);
+                if (am == null || !am.isEnabled()) {
+                    //Not need to disable accessibility
+                    return;
+                }
                 try {
-                    AccessibilityManager am = (AccessibilityManager) context.getApplicationContext().getSystemService(Context.ACCESSIBILITY_SERVICE);
-                    if (!am.isEnabled()) {
-                        //Not need to disable accessibility
-                        return;
-                    }
                     final Method setState = am.getClass().getDeclaredMethod("setState", int.class);
                     setState.setAccessible(true);
                     setState.invoke(am, 0);
@@ -228,6 +268,17 @@ public class BaseWebView extends WebView implements DownloadListener {
                 }
             }
         }
+    }
+
+//    private boolean isRedirect(String current) {
+//        if (mWebChromeClient != null) {
+//            return mWebChromeClient.isRedirect(current);
+//        }
+//        return false;
+//    }
+
+    private boolean isBlankUrl(String current) {
+        return TextUtils.equals(current, SchemeConsts.BLANK);
     }
 
     private void release() {

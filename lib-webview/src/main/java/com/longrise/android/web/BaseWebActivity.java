@@ -5,16 +5,15 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
 import android.view.KeyEvent;
-import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 
 import com.longrise.android.jssdk.core.bridge.BaseBridge;
 import com.longrise.android.mvp.internal.BaseMvpActivity;
 import com.longrise.android.mvp.internal.mvp.BasePresenter;
 import com.longrise.android.mvp.internal.mvp.BaseView;
-import com.longrise.android.mvp.utils.MvpLog;
 import com.longrise.android.web.internal.BaseWebView;
 import com.longrise.android.web.internal.Internal;
 import com.longrise.android.web.internal.SchemeConsts;
@@ -36,8 +35,8 @@ public abstract class BaseWebActivity<V extends BaseView, P extends BasePresente
     private static final String TAG = "BaseWebActivity";
 
     private final Handler mHandler = new Handler(this);
-    private BaseWebView mWebView;
-    private BaseFileChooser<BaseWebActivity<V, P>> mFileChooser;
+    private BaseWebView<V, P> mWebView;
+    private BaseFileChooser<V, P, BaseWebActivity<V, P>> mFileChooser;
 
     /**
      * Returns the current layout resource id
@@ -50,6 +49,7 @@ public abstract class BaseWebActivity<V extends BaseView, P extends BasePresente
 
     /**
      * Here the {@link #findViewById(int)}
+     * 如果需要对 Window 进行操作 {@link #beforeSetContentView()}
      */
     @Override
     protected abstract void initView();
@@ -67,96 +67,89 @@ public abstract class BaseWebActivity<V extends BaseView, P extends BasePresente
      *
      * @return {@link BaseWebView}
      */
-    public abstract BaseWebView getWebView();
-
-    /**
-     * Perform page loading in {@link #initView()}
-     */
-    protected void loadUrl(WebParams params) {
-        if (params != null) {
-            loadUrl(params.path());
-        }
-    }
+    public abstract BaseWebView<V, P> getWebView();
 
     /**
      * Perform load Web address in {@link #initView()}
      */
-    protected void loadUrl(final String path) {
-        post(new Runnable() {
-            @Override
-            public void run() {
-                if (mWebView == null) {
-                    MvpLog.e(TAG, "mWebView == null");
-                    return;
-                }
-                mWebView.loadUrl(path);
-            }
-        });
-    }
-
-    protected void onHandleMessage(Message msg) {
-    }
-
-    protected BaseBridge<BaseWebActivity<V, P>> getBridge() {
-        return null;
-    }
-
-    protected BaseWebViewClient<BaseWebActivity<V, P>> getWebViewClient() {
-        return null;
-    }
-
-    protected BaseWebChromeClient<BaseWebActivity<V, P>> getWebChromeClient() {
-        return null;
-    }
-
-    protected BaseFileChooser<BaseWebActivity<V, P>> getFileChooser() {
-        return null;
-    }
-
-    protected final void post(Runnable task) {
-        postDelayed(task, 0);
-    }
-
-    protected final void postDelayed(Runnable task, int delayMillis) {
-        mHandler.postDelayed(task, delayMillis);
-    }
-
-    @Override
-    protected final void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        initWebFrame();
+    protected void loadUrl(String url) {
+        post(loadTask(url));
     }
 
     /**
-     * {@link BaseWebViewClient#shouldOverrideUrlLoading(WebView, WebResourceRequest)}
+     * 获取 Handler 实例
      */
-    @Override
-    public boolean shouldOverrideUrlLoading(String url) {
-        MvpLog.e(TAG, "url: " + url);
-        return false;
-    }
-
-    protected boolean webViewGoBack(boolean isFinish) {
-        if (mWebView != null) {
-            if (mWebView.webViewGoBack()) {
-                return true;
-            }
-        }
-        if (isFinish) {
-            finish();
-        }
-        return false;
-    }
-
     public final Handler getHandler() {
         return mHandler;
     }
 
+    /**
+     * 拦截通过 Handler 发送的任务
+     */
+    protected boolean onHandleMessage(Message msg) {
+        return false;
+    }
+
+    /**
+     * 通过 Handler 发送任务
+     */
+    protected final void post(Runnable task) {
+        postDelayed(task, 0);
+    }
+
+    /**
+     * 通过 Handler 发送 Delay 任务
+     */
+    protected final void postDelayed(Runnable task, int delayMillis) {
+        mHandler.postDelayed(task, delayMillis);
+    }
+
+    /**
+     * 扩展 Bridge {@link BaseBridge}
+     */
+    protected BaseBridge<BaseWebActivity<V, P>> getBridge() {
+        return null;
+    }
+
+    /**
+     * 扩展 WebViewClient {@link BaseWebViewClient}
+     */
+    protected BaseWebViewClient<V, P, BaseWebActivity<V, P>> getWebViewClient() {
+        return null;
+    }
+
+    /**
+     * 扩展 WebChromeClient {@link BaseWebChromeClient}
+     */
+    protected BaseWebChromeClient<V, P, BaseWebActivity<V, P>> getWebChromeClient() {
+        return null;
+    }
+
+    /**
+     * 扩展 FileChooser {@link BaseFileChooser}
+     */
+    protected BaseFileChooser<V, P, BaseWebActivity<V, P>> getFileChooser() {
+        return null;
+    }
+
+    /**
+     * 用于拦截 URL 加载 {@link BaseWebViewClient#shouldOverrideUrlLoading(WebView, String)}
+     *
+     * @return true 表示拦截本次加载，由开发人员实现
+     */
     @Override
-    public final boolean handleMessage(Message msg) {
-        onHandleMessage(msg);
-        if (mFileChooser != null) {
-            mFileChooser.onHandleMessage(msg);
+    public boolean shouldOverrideUrlLoading(String url) {
+        return false;
+    }
+
+    /**
+     * 通知 WebView 回退
+     *
+     * @return true 表示由 WebView 消费，否则开发人员决定
+     */
+    protected boolean webViewCanGoBack() {
+        if (mWebView != null) {
+            return mWebView.webViewGoBack();
         }
         return false;
     }
@@ -173,7 +166,7 @@ public abstract class BaseWebActivity<V extends BaseView, P extends BasePresente
     /**
      * {@link BaseWebChromeClient#openFileChooser}
      */
-    public final BaseFileChooser<BaseWebActivity<V, P>> createOrGetFileChooser() {
+    public final BaseFileChooser<V, P, BaseWebActivity<V, P>> createOrGetFileChooser() {
         if (mFileChooser == null) {
             mFileChooser = createFileChooser();
         }
@@ -181,11 +174,28 @@ public abstract class BaseWebActivity<V extends BaseView, P extends BasePresente
     }
 
     @Override
-    public final boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (webViewGoBack(false)) {
+    public final boolean handleMessage(Message msg) {
+        if (onHandleMessage(msg)) {
+            return true;
+        }
+        if (onClientHandleMessage(msg)) {
+            return true;
+        }
+        return onChooserHandleMessage(msg);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (webViewCanGoBack()) {
             return true;
         }
         return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    protected final void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        createWebFrame();
     }
 
     @Override
@@ -229,15 +239,15 @@ public abstract class BaseWebActivity<V extends BaseView, P extends BasePresente
         }
     }
 
-    private void initWebFrame() {
-        final BaseWebView webView = getWebView();
+    private void createWebFrame() {
+        final BaseWebView<V, P> webView = getWebView();
         if (webView == null) {
             throw new NullPointerException("getWebView() == null");
         }
         initAndCreateBridge(webView);
     }
 
-    private void initAndCreateBridge(BaseWebView webView) {
+    private void initAndCreateBridge(BaseWebView<V, P> webView) {
         SettingInit.initSetting(webView);
         createWebBridge(webView);
         createWebViewClient(webView);
@@ -245,20 +255,20 @@ public abstract class BaseWebActivity<V extends BaseView, P extends BasePresente
         this.mWebView = webView;
     }
 
-    private BaseFileChooser<BaseWebActivity<V, P>> createFileChooser() {
-        final BaseFileChooser<BaseWebActivity<V, P>> fileChooser = Internal.createIfFileChooser(getFileChooser());
+    private BaseFileChooser<V, P, BaseWebActivity<V, P>> createFileChooser() {
+        final BaseFileChooser<V, P, BaseWebActivity<V, P>> fileChooser = Internal.createIfFileChooser(getFileChooser());
         fileChooser.attachTarget(this);
         return fileChooser;
     }
 
     private void createWebViewClient(WebView view) {
-        final BaseWebViewClient<BaseWebActivity<V, P>> webViewClient = Internal.createIfWebviewClient(getWebViewClient());
+        final BaseWebViewClient<V, P, BaseWebActivity<V, P>> webViewClient = Internal.createIfWebviewClient(getWebViewClient());
         webViewClient.attachTarget(this);
         view.setWebViewClient(webViewClient);
     }
 
     private void createWebChromeClient(WebView view) {
-        final BaseWebChromeClient<BaseWebActivity<V, P>> chromeClient = Internal.createIfWebChromeClick(getWebChromeClient());
+        final BaseWebChromeClient<V, P, BaseWebActivity<V, P>> chromeClient = Internal.createIfWebChromeClick(getWebChromeClient());
         chromeClient.attachTarget(this);
         view.setWebChromeClient(chromeClient);
     }
@@ -269,5 +279,22 @@ public abstract class BaseWebActivity<V extends BaseView, P extends BasePresente
         bridge.bindTarget(this, view);
         // 适用于 API Level 17及以后，之前有安全问题，暂未做修复
         view.addJavascriptInterface(bridge, bridge.bridgeName());
+    }
+
+    private boolean onClientHandleMessage(Message msg) {
+        return mWebView != null && mWebView.onHandleMessage(msg);
+    }
+
+    private boolean onChooserHandleMessage(Message msg) {
+        return mFileChooser != null && mFileChooser.onHandleMessage(msg);
+    }
+
+    private Runnable loadTask(final String url) {
+        return new Runnable() {
+            @Override
+            public void run() {
+                mWebView.loadUrl(url);
+            }
+        };
     }
 }

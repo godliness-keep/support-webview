@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.net.http.SslError;
 import android.os.Build;
 import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.text.TextUtils;
@@ -17,7 +18,8 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.longrise.android.mvp.utils.MvpLog;
+import com.longrise.android.mvp.internal.mvp.BasePresenter;
+import com.longrise.android.mvp.internal.mvp.BaseView;
 import com.longrise.android.web.BaseWebActivity;
 import com.longrise.android.web.internal.Internal;
 import com.longrise.android.web.internal.SchemeConsts;
@@ -29,9 +31,11 @@ import java.lang.ref.WeakReference;
  * Created by godliness on 2019-07-09.
  *
  * @author godliness
+ * 如果不设置 WebViewClient 则由系统（Activity Manager）处理该 URL
+ * 通常是使用浏览器打开或弹出选择对话框
  */
 @SuppressWarnings({"unused", "WeakerAccess"})
-public abstract class BaseWebViewClient<T extends BaseWebActivity> extends WebViewClient {
+public abstract class BaseWebViewClient<V extends BaseView, P extends BasePresenter<V>, T extends BaseWebActivity<V, P>> extends WebViewClient {
 
     private static final String TAG = "BaseWebViewClient";
 
@@ -49,52 +53,85 @@ public abstract class BaseWebViewClient<T extends BaseWebActivity> extends WebVi
         addWebViewClientListener(target);
     }
 
+    /**
+     * 获取当前 Activity
+     */
     @Nullable
-    protected final T getTarget(){
+    protected final T getTarget() {
         return mTarget.get();
     }
 
+    /**
+     * 判断当前所依附的 Activity 是否已经 Finished
+     */
     protected final boolean isFinished() {
         return Internal.activityIsFinished(getTarget());
     }
 
+    /**
+     * 获取 Handler 实例
+     * 注：每个 Web 页面实例都有且共用一个 Handler 实例
+     * 即在 Activity、WebChromeClient、WebViewClient、FileChooser 之间
+     * 发送的消息可以相互接收到
+     */
+    protected final Handler getHandler(){
+        return mHandler;
+    }
+
+    /**
+     * 拦截通过 Handler 发送的消息
+     * 注：每个实例都有且共用同一个 Handler 实例
+     */
+    public boolean onHandleMessage(Message msg) {
+        return false;
+    }
+
+    /**
+     * 通过 Handler 发送一个任务
+     */
     protected final void post(Runnable action) {
         postDelayed(action, 0);
     }
 
+    /**
+     * 通过 Handler 发送一个 Delay 任务
+     */
     protected final void postDelayed(Runnable action, int delay) {
         if (!isFinished()) {
             mHandler.postDelayed(action, delay);
         }
     }
 
+    /**
+     * 获取当前对外通知的加载状态回调
+     */
     protected final WebCallback.WebViewClientListener getCallback() {
         return mClientCallback != null ? mClientCallback.get() : null;
     }
 
     /**
-     * 1、第一次加载Url，该方法并不会被回调
-     * 2、只有页面中超链接才会回调该方法
-     * 3、window.location.href 不会调用该方法
+     * shouldOverrideUrlLoading 规则较为繁琐，简单整理如下
+     * 1、通过 loadUrl 该方法不会被回调
+     * 2、WebView 的前进、后退、刷新、以及 POST 请求都不会回调
+     * 3、重定向不会回调（例如：window.location.href）
+     * <p>
+     * 4、只有页面中超链接才会回调该方法
      */
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
-        if (isFinished()) {
-            return true;
-        }
-        if (!redirectOverrideUrlLoading(view, url)) {
-            return super.shouldOverrideUrlLoading(view, url);
-        }
-        //拦截
-        return true;
+        return !canOverrideUrlLoading(view, url);
+        // 关于返回值的作用正确解读应该是
+        // 如果返回 true，表明由应用自行（开发者）处理（拦截），WebView 不处理
+        // 如果返回 false，则说明由 WebView 处理该 URL，即使用 WebView loadUrl
     }
 
     /**
-     * 5.0之后执行该方法
+     * 5.0 之后执行该方法
      */
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+        // do nothing
         return super.shouldOverrideUrlLoading(view, request);
     }
 
@@ -108,7 +145,6 @@ public abstract class BaseWebViewClient<T extends BaseWebActivity> extends WebVi
             notifyWebViewLoadedState();
         }
 
-        MvpLog.e(TAG, "onPageStarted");
 //        blockImageLoad(view);
     }
 
@@ -137,7 +173,6 @@ public abstract class BaseWebViewClient<T extends BaseWebActivity> extends WebVi
             return;
         }
         this.mLoadedError = true;
-        MvpLog.e(TAG, "onReceivedError : " + errorCode);
     }
 
     /**
@@ -146,9 +181,7 @@ public abstract class BaseWebViewClient<T extends BaseWebActivity> extends WebVi
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
-        final String description = (String) error.getDescription();
         final int errorCode = error.getErrorCode();
-        MvpLog.e(TAG, "onReceivedError: " + " errorCode: " + errorCode + " description: " + description);
         final String failingUrl = request.getUrl().toString();
         if (interceptErrorState(view, failingUrl, errorCode)) {
             return;
@@ -168,11 +201,9 @@ public abstract class BaseWebViewClient<T extends BaseWebActivity> extends WebVi
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onReceivedHttpError(WebView view, WebResourceRequest request, WebResourceResponse errorResponse) {
-        //任何HTTP请求产生的错误都会回调这个方法，包括主页面的html文档请求，iframe、图片等资源请求。
-        //在这个回调中，由于混杂了很多请求，不适合用来展示加载错误的页面，而适合做监控报警。
-        //当某个URL，或者某个资源收到大量报警时，说明页面或资源可能存在问题，这时候可以让相关运营及时响应修改。
-        final int errorCode = errorResponse.getStatusCode();
-        MvpLog.e(TAG, "onReceivedHttpError: " + errorCode + " errored url: " + request.getUrl());
+        // 任何 HTTP 请求产生的错误都会回调这个方法，包括主页面的html文档请求，iframe、图片等资源请求。
+        // 在这个回调中，由于混杂了很多请求，不适合用来展示加载错误的页面，而适合做监控报警。
+        // 当某个 URL，或者某个资源收到大量报警时，说明页面或资源可能存在问题，这时候可以让相关运营及时响应修改。
     }
 
     @Override
@@ -227,34 +258,38 @@ public abstract class BaseWebViewClient<T extends BaseWebActivity> extends WebVi
         return false;
     }
 
+    private boolean canOverrideUrlLoading(WebView view, String url) {
+        if (isFinished()) {
+            return false;
+        }
+        return canRedirectOverrideUrlLoading(view, url);
+    }
+
     private boolean beforeUrlLoading(String url) {
         final WebCallback.WebViewClientListener callback = getCallback();
         if (callback != null) {
-            //Give the outside world a chance to intercept
+            // 给外部一次拦截的机会
             return callback.shouldOverrideUrlLoading(url);
         }
         return false;
     }
 
-    private boolean redirectOverrideUrlLoading(WebView view, String url) {
+    private boolean canRedirectOverrideUrlLoading(WebView view, String url) {
         final boolean intercept = beforeUrlLoading(url);
-        MvpLog.e(TAG, "intercept: " + intercept);
-        if (intercept || TextUtils.isEmpty(url) || !isKnowScheme(url)) {
-            //Unable to process Url address
-            return true;
+        if (intercept || TextUtils.isEmpty(url) || !isEffectiveScheme(url)) {
+            // Unable to process Url address
+            return false;
         }
-        final WebView.HitTestResult hitTestResult = view.getHitTestResult();
-        if (hitTestResult == null) {
-            view.loadUrl(url);
-            return true;
-        }
-        return false;
+
+        // 重定向
+        final WebView.HitTestResult result = view.getHitTestResult();
+        return result == null || result.getExtra() != null;
     }
 
     /**
-     * 应该配置在xml
+     * 是否是有效的 scheme，如果是自定义动作 {@link #beforeUrlLoading(String)}
      */
-    private boolean isKnowScheme(String url) {
+    private boolean isEffectiveScheme(String url) {
         return url.startsWith(SchemeConsts.HTTP)
                 || url.startsWith(SchemeConsts.HTTPS)
                 || url.startsWith(SchemeConsts.FILE);
@@ -275,7 +310,6 @@ public abstract class BaseWebViewClient<T extends BaseWebActivity> extends WebVi
             final WebHistoryItem item = forwardList.getItemAtIndex(0);
             if (item != null && TextUtils.equals(item.getUrl(), SchemeConsts.BLANK)) {
                 view.clearHistory();
-                MvpLog.e(TAG, "clearForwardHistory");
             }
         }
     }

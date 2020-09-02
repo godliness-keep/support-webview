@@ -11,9 +11,10 @@ import android.support.annotation.RequiresApi;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 
-
-import com.longrise.android.mvp.utils.MvpLog;
+import com.longrise.android.mvp.internal.mvp.BasePresenter;
+import com.longrise.android.mvp.internal.mvp.BaseView;
 import com.longrise.android.web.BaseWebActivity;
+import com.longrise.android.web.BuildConfig;
 import com.longrise.android.web.internal.Internal;
 
 import java.lang.ref.WeakReference;
@@ -22,8 +23,10 @@ import java.lang.ref.WeakReference;
  * Created by godliness on 2019-07-09.
  *
  * @author godliness
+ * 负责响应 HTML 中符合 W3C 的动作语义，例如相册、拍照等
  */
-public abstract class BaseFileChooser<T extends BaseWebActivity> {
+@SuppressWarnings("unused")
+public abstract class BaseFileChooser<V extends BaseView, P extends BasePresenter<V>, T extends BaseWebActivity<V, P>> {
 
     private static final int REQUEST_CODE_VERSION_LESS_LOLLIPOP = 20;
     private static final int REQUEST_CODE_VERSION_LOLLIPOP = 21;
@@ -37,7 +40,19 @@ public abstract class BaseFileChooser<T extends BaseWebActivity> {
     public BaseFileChooser() {
     }
 
-    public void onHandleMessage(Message msg) {
+    /**
+     * 获取当前 Activity
+     */
+    @Nullable
+    protected final T getTarget() {
+        return mTarget.get();
+    }
+
+    /**
+     * 当前所依附的 Activity 是否已经 Finished
+     */
+    protected final boolean isFinished() {
+        return Internal.activityIsFinished(getTarget());
     }
 
     /**
@@ -48,29 +63,41 @@ public abstract class BaseFileChooser<T extends BaseWebActivity> {
         return false;
     }
 
-    @Nullable
-    protected final T getTarget() {
-        return mTarget.get();
-    }
-
-    protected final boolean isFinished() {
-        return Internal.activityIsFinished(getTarget());
-    }
-
+    /**
+     * 获取 Handler，重写 {@link #onHandleMessage(Message)} 来接消息
+     * 注：每个 Web 实例都共用同一个 Handler
+     */
     protected final Handler getHandler() {
         return mHandler;
     }
 
+    /**
+     * 拦截通过 Handler 发送的消息
+     * 注：每个实例都有且共用同一个 Handler 实例
+     */
+    public boolean onHandleMessage(Message msg) {
+        return false;
+    }
+
+    /**
+     * 利用 Handler 发送任务
+     */
     protected final void post(Runnable action) {
         postDelayed(action, 0);
     }
 
+    /**
+     * 利用 Handler 发送 Delay 任务
+     */
     protected final void postDelayed(Runnable action, int delay) {
         if (!isFinished()) {
             mHandler.postDelayed(action, delay);
         }
     }
 
+    /**
+     * 接收 Activity 的 result 事件，重写{@link #dispatchActivityOnResult(int, int, Intent)} 拦截相关事件
+     */
     public final void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         if (isFinished() || data == null || dispatchActivityOnResult(requestCode, resultCode, data)) {
             onReceiveValueEnd();
@@ -114,14 +141,21 @@ public abstract class BaseFileChooser<T extends BaseWebActivity> {
         }
         onReceiveValueEnd();
         this.mUploadFile = uploadFile;
-        final Intent target = new Intent(Intent.ACTION_GET_CONTENT);
-        target.addCategory(Intent.CATEGORY_OPENABLE);
-        target.setType(acceptType);
-        try {
-            getTarget().startActivityForResult(Intent.createChooser(target, "File Browser"), REQUEST_CODE_VERSION_LESS_LOLLIPOP);
-        } catch (Exception e) {
-            onReceiveValueEnd();
-            MvpLog.print(e);
+
+        final Intent chooser = new Intent(Intent.ACTION_GET_CONTENT);
+        chooser.addCategory(Intent.CATEGORY_OPENABLE);
+        chooser.setType(acceptType);
+
+        final T target = getTarget();
+        if (target != null) {
+            try {
+                target.startActivityForResult(Intent.createChooser(chooser, "File Browser"), REQUEST_CODE_VERSION_LESS_LOLLIPOP);
+            } catch (Exception e) {
+                onReceiveValueEnd();
+                if (BuildConfig.DEBUG) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
@@ -135,12 +169,17 @@ public abstract class BaseFileChooser<T extends BaseWebActivity> {
         }
         onReceiveValueEnd();
         this.mFilePathCallback = filePathCallback;
-        try {
-            final Intent intent = fileChooserParams.createIntent();
-            getTarget().startActivityForResult(intent, REQUEST_CODE_VERSION_LOLLIPOP);
-        } catch (Exception e) {
-            onReceiveValueEnd();
-            MvpLog.print(e);
+        final Intent chooser = fileChooserParams.createIntent();
+        final T target = getTarget();
+        if (target != null) {
+            try {
+                target.startActivityForResult(chooser, REQUEST_CODE_VERSION_LOLLIPOP);
+            } catch (Exception e) {
+                onReceiveValueEnd();
+                if (BuildConfig.DEBUG) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 }
