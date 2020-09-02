@@ -10,6 +10,9 @@ import com.longrise.android.x5web.internal.bridge.BaseWebBridge;
  * Created by godliness on 2020/9/1.
  *
  * @author godliness
+ *
+ * 一般来说，使用 jssdk 后 Bridge 的扩展几率不大
+ *
  */
 public final class DemoBridge extends BaseWebBridge<WebX5DemoActivity> {
 

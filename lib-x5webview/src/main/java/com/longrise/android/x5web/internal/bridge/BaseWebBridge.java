@@ -3,7 +3,7 @@ package com.longrise.android.x5web.internal.bridge;
 import android.os.Handler;
 import android.os.Message;
 
-import com.longrise.android.jssdk.core.bridge.BaseBridge;
+import com.longrise.android.jssdk_x5.core.bridge.BaseBridge;
 import com.longrise.android.x5web.BaseWebActivity;
 import com.tencent.smtt.sdk.WebView;
 

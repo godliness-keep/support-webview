@@ -5,9 +5,9 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.Toast;
 
 import com.longrise.android.webview.demo.R;
+import com.longrise.android.webview.demo.WebDemoActivity;
 import com.longrise.android.webview.demo.WebX5DemoActivity;
 
 /**
@@ -25,9 +25,8 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.webview_native).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                final Intent intent = new Intent(MainActivity.this, WebDemoActivity.class);
-//                startActivity(intent);
-                Toast.makeText(MainActivity.this, "暂未提供示例", Toast.LENGTH_SHORT).show();
+                final Intent intent = new Intent(MainActivity.this, WebDemoActivity.class);
+                startActivity(intent);
             }
         });
 

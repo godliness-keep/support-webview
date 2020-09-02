@@ -9,7 +9,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 
-import com.longrise.android.jssdk.core.bridge.BaseBridge;
+import com.longrise.android.jssdk_x5.core.bridge.BaseBridge;
 import com.longrise.android.x5web.internal.Internal;
 import com.longrise.android.x5web.internal.SchemeConsts;
 import com.longrise.android.x5web.internal.SettingInit;
