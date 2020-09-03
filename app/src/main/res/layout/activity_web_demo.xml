@@ -7,7 +7,7 @@
 
     <include layout="@layout/include_title_bar" />
 
-    <!-- X5 -->
+    <!-- 原生 WebView -->
     <com.longrise.android.web.internal.BaseWebView
         android:id="@+id/webview"
         android:layout_width="match_parent"

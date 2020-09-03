@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
 import android.view.KeyEvent;
 import android.webkit.WebView;
@@ -227,6 +226,7 @@ public abstract class BaseWebActivity<V extends BaseView, P extends BasePresente
         if (mWebView != null) {
             mWebView.recycle();
         }
+        mFileChooser = null;
         mHandler.removeCallbacksAndMessages(null);
         super.onDestroy();
     }

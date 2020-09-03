@@ -41,8 +41,8 @@ public final class WebDemoActivity<V extends BaseView, P extends BasePresenter<V
         mBack = findViewById(R.id.iv_back);
         mTitle = findViewById(R.id.tv_title);
         mProgress = findViewById(R.id.progress);
-
         mWebView = findViewById(R.id.webview);
+
         loadUrl("https://tieba.baidu.com/index.html");
     }
 
