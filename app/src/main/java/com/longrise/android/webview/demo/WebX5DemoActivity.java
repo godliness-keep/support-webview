@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -16,6 +17,7 @@ import com.longrise.android.webview.demo.x5demo.DemoWebChromeClient;
 import com.longrise.android.webview.demo.x5demo.DemoWebViewClient;
 import com.longrise.android.x5web.BaseWebActivity;
 import com.longrise.android.x5web.X5;
+import com.longrise.android.x5web.internal.SchemeConsts;
 import com.longrise.android.x5web.internal.X5WebView;
 import com.longrise.android.x5web.internal.bridge.BaseDownloader;
 import com.longrise.android.x5web.internal.bridge.BaseFileChooser;
@@ -116,6 +118,7 @@ public class WebX5DemoActivity extends BaseWebActivity<WebX5DemoActivity> implem
     @Override
     public void loadFailed() {
         Log.e(TAG, "加载失败");
+//        loadUrl(SchemeConsts.BLANK);
     }
 
     @Override
