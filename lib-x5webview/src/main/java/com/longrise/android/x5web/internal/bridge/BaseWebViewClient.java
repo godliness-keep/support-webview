@@ -1,6 +1,7 @@
 package com.longrise.android.x5web.internal.bridge;
 
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
