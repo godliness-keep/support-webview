@@ -1,7 +1,6 @@
 package com.longrise.android.x5web.internal.bridge;
 
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
@@ -10,7 +9,6 @@ import android.support.annotation.RequiresApi;
 import android.text.TextUtils;
 
 import com.longrise.android.x5web.BaseWebActivity;
-import com.longrise.android.x5web.X5;
 import com.longrise.android.x5web.internal.Internal;
 import com.longrise.android.x5web.internal.SchemeConsts;
 import com.longrise.android.x5web.internal.webcallback.WebCallback;
@@ -308,7 +306,7 @@ public abstract class BaseWebViewClient<T extends BaseWebActivity<T>> extends We
     }
 
     private void notifyWebViewLoadedState() {
-        mHandler.post(new Runnable() {
+        post(new Runnable() {
             @Override
             public void run() {
                 final WebCallback.WebViewClientListener callback = getCallback();

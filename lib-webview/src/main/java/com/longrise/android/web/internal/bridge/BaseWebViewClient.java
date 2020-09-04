@@ -1,29 +1,26 @@
 package com.longrise.android.web.internal.bridge;
 
 import android.graphics.Bitmap;
-import android.net.http.SslError;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.text.TextUtils;
-import android.webkit.SslErrorHandler;
-import android.webkit.WebBackForwardList;
-import android.webkit.WebHistoryItem;
-import android.webkit.WebResourceError;
-import android.webkit.WebResourceRequest;
-import android.webkit.WebResourceResponse;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 
-import com.longrise.android.mvp.internal.mvp.BasePresenter;
-import com.longrise.android.mvp.internal.mvp.BaseView;
-import com.longrise.android.web.BaseWebActivity;
-import com.longrise.android.web.internal.Internal;
-import com.longrise.android.web.internal.SchemeConsts;
-import com.longrise.android.web.internal.webcallback.WebCallback;
+import com.longrise.android.x5web.BaseWebActivity;
+import com.longrise.android.x5web.internal.Internal;
+import com.longrise.android.x5web.internal.SchemeConsts;
+import com.longrise.android.x5web.internal.webcallback.WebCallback;
+import com.tencent.smtt.export.external.interfaces.SslErrorHandler;
+import com.tencent.smtt.export.external.interfaces.WebResourceError;
+import com.tencent.smtt.export.external.interfaces.WebResourceRequest;
+import com.tencent.smtt.export.external.interfaces.WebResourceResponse;
+import com.tencent.smtt.sdk.WebBackForwardList;
+import com.tencent.smtt.sdk.WebHistoryItem;
+import com.tencent.smtt.sdk.WebSettings;
+import com.tencent.smtt.sdk.WebView;
+import com.tencent.smtt.sdk.WebViewClient;
 
 import java.lang.ref.WeakReference;
 
@@ -35,30 +32,25 @@ import java.lang.ref.WeakReference;
  * 通常是使用浏览器打开或弹出选择对话框
  */
 @SuppressWarnings({"unused", "WeakerAccess"})
-public abstract class BaseWebViewClient<V extends BaseView, P extends BasePresenter<V>, T extends BaseWebActivity<V, P>> extends WebViewClient {
+public abstract class BaseWebViewClient<T extends BaseWebActivity<T>> extends WebViewClient {
 
     private static final String TAG = "BaseWebViewClient";
 
     private Handler mHandler;
-    private WeakReference<T> mTarget;
+    private WeakReference<BaseWebActivity<T>> mTarget;
     private WeakReference<WebCallback.WebViewClientListener> mClientCallback;
 
     private boolean mBlockImageLoad;
     private boolean mLoadedError;
     private boolean mFirstFinished = true;
 
-    public final void attachTarget(T target) {
-        this.mHandler = target.getHandler();
-        this.mTarget = new WeakReference<>(target);
-        addWebViewClientListener(target);
-    }
-
     /**
      * 获取当前 Activity
      */
+    @SuppressWarnings("unchecked")
     @Nullable
     protected final T getTarget() {
-        return mTarget.get();
+        return (T) mTarget.get();
     }
 
     /**
@@ -74,7 +66,7 @@ public abstract class BaseWebViewClient<V extends BaseView, P extends BasePresen
      * 即在 Activity、WebChromeClient、WebViewClient、FileChooser 之间
      * 发送的消息可以相互接收到
      */
-    protected final Handler getHandler(){
+    protected final Handler getHandler() {
         return mHandler;
     }
 
@@ -87,7 +79,7 @@ public abstract class BaseWebViewClient<V extends BaseView, P extends BasePresen
     }
 
     /**
-     * 通过 Handler 发送一个任务
+     * 通过 Handler 发送任务
      */
     protected final void post(Runnable action) {
         postDelayed(action, 0);
@@ -118,11 +110,11 @@ public abstract class BaseWebViewClient<V extends BaseView, P extends BasePresen
      * 4、只有页面中超链接才会回调该方法
      */
     @Override
-    public boolean shouldOverrideUrlLoading(WebView view, String url) {
-        return !canOverrideUrlLoading(view, url);
+    public boolean shouldOverrideUrlLoading(WebView webView, String url) {
         // 关于返回值的作用正确解读应该是
         // 如果返回 true，表明由应用自行（开发者）处理（拦截），WebView 不处理
         // 如果返回 false，则说明由 WebView 处理该 URL，即使用 WebView loadUrl
+        return !canOverrideUrlLoading(webView, url);
     }
 
     /**
@@ -130,9 +122,8 @@ public abstract class BaseWebViewClient<V extends BaseView, P extends BasePresen
      */
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
-    public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-        // do nothing
-        return super.shouldOverrideUrlLoading(view, request);
+    public boolean shouldOverrideUrlLoading(WebView webView, WebResourceRequest webResourceRequest) {
+        return super.shouldOverrideUrlLoading(webView, webResourceRequest);
     }
 
     @Override
@@ -192,6 +183,7 @@ public abstract class BaseWebViewClient<V extends BaseView, P extends BasePresen
 
     @Override
     public void onLoadResource(WebView view, String url) {
+        // WebView 中所有的资源加载都会走这里
         super.onLoadResource(view, url);
     }
 
@@ -207,11 +199,10 @@ public abstract class BaseWebViewClient<V extends BaseView, P extends BasePresen
     }
 
     @Override
-    public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
+    public void onReceivedSslError(WebView webView, SslErrorHandler handler, com.tencent.smtt.export.external.interfaces.SslError sslError) {
         if (handler != null) {
             handler.proceed();
         }
-
 //        if (UrlUtils.isHost(getUrl())) {
 //            handler.proceed();
 //        } else {
@@ -315,7 +306,7 @@ public abstract class BaseWebViewClient<V extends BaseView, P extends BasePresen
     }
 
     private void notifyWebViewLoadedState() {
-        mHandler.post(new Runnable() {
+        post(new Runnable() {
             @Override
             public void run() {
                 final WebCallback.WebViewClientListener callback = getCallback();
@@ -329,5 +320,11 @@ public abstract class BaseWebViewClient<V extends BaseView, P extends BasePresen
                 }
             }
         });
+    }
+
+    public final void attachTarget(BaseWebActivity<T> target) {
+        this.mHandler = target.getHandler();
+        this.mTarget = new WeakReference<>(target);
+        addWebViewClientListener(target);
     }
 }

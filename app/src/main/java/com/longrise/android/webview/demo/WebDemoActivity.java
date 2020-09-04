@@ -62,7 +62,7 @@ public final class WebDemoActivity<V extends BaseView, P extends BasePresenter<V
      * @return {@link BaseWebView}
      */
     @Override
-    public BaseWebView<V, P> getWebView() {
+    public BaseWebView getWebView() {
         return mWebView;
     }
 

@@ -6,13 +6,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.webkit.WebView;
 
 import com.longrise.android.jssdk.core.bridge.BaseBridge;
-import com.longrise.android.mvp.internal.BaseMvpActivity;
-import com.longrise.android.mvp.internal.mvp.BasePresenter;
-import com.longrise.android.mvp.internal.mvp.BaseView;
 import com.longrise.android.web.internal.BaseWebView;
 import com.longrise.android.web.internal.Internal;
 import com.longrise.android.web.internal.SchemeConsts;
@@ -28,7 +26,7 @@ import com.longrise.android.web.internal.webcallback.WebCallback;
  * @author godliness
  */
 @SuppressWarnings("unused")
-public abstract class BaseWebActivity<V extends BaseView, P extends BasePresenter<V>> extends BaseMvpActivity<P> implements
+public abstract class BaseWebActivity extends AppCompatActivity implements
         WebCallback.WebChromeListener, WebCallback.WebViewClientListener, Handler.Callback {
 
     private static final String TAG = "BaseWebActivity";
@@ -43,14 +41,12 @@ public abstract class BaseWebActivity<V extends BaseView, P extends BasePresente
      * @param state {@link android.app.Activity#onCreate(Bundle)}
      * @return The current layout id
      */
-    @Override
     protected abstract int getLayoutResourceId(@Nullable Bundle state);
 
     /**
      * Here the {@link #findViewById(int)}
      * 如果需要对 Window 进行操作 {@link #beforeSetContentView()}
      */
-    @Override
     protected abstract void initView();
 
     /**
@@ -58,7 +54,6 @@ public abstract class BaseWebActivity<V extends BaseView, P extends BasePresente
      *
      * @param regEvent Current state
      */
-    @Override
     protected abstract void regEvent(boolean regEvent);
 
     /**

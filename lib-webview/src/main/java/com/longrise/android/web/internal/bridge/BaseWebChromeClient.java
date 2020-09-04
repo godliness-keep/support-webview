@@ -7,20 +7,17 @@ import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.text.TextUtils;
-import android.util.Log;
-import android.webkit.ConsoleMessage;
-import android.webkit.JsPromptResult;
-import android.webkit.ValueCallback;
-import android.webkit.WebChromeClient;
-import android.webkit.WebView;
 
-import com.longrise.android.mvp.internal.mvp.BasePresenter;
-import com.longrise.android.mvp.internal.mvp.BaseView;
-import com.longrise.android.web.BaseWebActivity;
-import com.longrise.android.web.BuildConfig;
-import com.longrise.android.web.internal.Internal;
-import com.longrise.android.web.internal.SchemeConsts;
-import com.longrise.android.web.internal.webcallback.WebCallback;
+import com.longrise.android.x5web.BaseWebActivity;
+import com.longrise.android.x5web.X5;
+import com.longrise.android.x5web.internal.Internal;
+import com.longrise.android.x5web.internal.SchemeConsts;
+import com.longrise.android.x5web.internal.webcallback.WebCallback;
+import com.tencent.smtt.export.external.interfaces.ConsoleMessage;
+import com.tencent.smtt.export.external.interfaces.JsPromptResult;
+import com.tencent.smtt.sdk.ValueCallback;
+import com.tencent.smtt.sdk.WebChromeClient;
+import com.tencent.smtt.sdk.WebView;
 
 import java.lang.ref.WeakReference;
 
@@ -30,51 +27,36 @@ import java.lang.ref.WeakReference;
  *
  * @author godliness
  */
-public abstract class BaseWebChromeClient<V extends BaseView, P extends BasePresenter<V>, T extends BaseWebActivity<V, P>> extends WebChromeClient {
+public abstract class BaseWebChromeClient<T extends BaseWebActivity<T>> extends WebChromeClient {
 
     private static final String TAG = "BaseWebChromeClient";
 
     private Handler mHandler;
-    private WeakReference<T> mTarget;
+    private WeakReference<BaseWebActivity<T>> mTarget;
     private WeakReference<WebCallback.WebChromeListener> mWebChromeCallback;
 
     private boolean mFirstLoad = true;
-//    private final ArraySet<Integer> mUrlHash = new ArraySet<>(5);
 
     /**
      * 获取当前 Activity 实例
      */
+    @SuppressWarnings("unchecked")
     @Nullable
     protected final T getTarget() {
-        return mTarget.get();
+        return (T) mTarget.get();
     }
-
-//    /**
-//     * 判断是否为重定向地址
-//     */
-//    public final boolean isRedirect(String url) {
-//        if (url != null) {
-//            return !mUrlHash.remove(url.hashCode());
-//        }
-//        return false;
-//    }
 
     /**
      * 判断当前宿主 Activity 是否已经 Finished
      */
     protected final boolean isFinished() {
-        final boolean isAlive = Internal.activityIsFinished(mTarget.get());
-        if (isAlive) {
-            mHandler.removeCallbacksAndMessages(null);
-        }
-        return isAlive;
+        return Internal.activityIsFinished(mTarget.get());
     }
 
     /**
      * 获取 Handler 实例
      * 注：每个 Web 页面实例都有且共用一个 Handler 实例
-     * 即在 Activity、WebChromeClient、WebViewClient、FileChooser 之间
-     * 发送的消息可以相互接收到
+     * 即在 Activity、WebChromeClient、WebViewClient、FileChooser 之间发送的消息可以相互接收到
      */
     protected final Handler getHandler() {
         return mHandler;
@@ -82,7 +64,6 @@ public abstract class BaseWebChromeClient<V extends BaseView, P extends BasePres
 
     /**
      * 拦截通过 Handler 发送的消息
-     * 注：每个实例都有且共用同一个 Handler 实例
      */
     public boolean onHandleMessage(Message msg) {
         return false;
@@ -120,7 +101,7 @@ public abstract class BaseWebChromeClient<V extends BaseView, P extends BasePres
         if (TextUtils.equals(title, SchemeConsts.BLANK)) {
             return;
         }
-        mHandler.post(new Runnable() {
+        post(new Runnable() {
             @Override
             public void run() {
                 final WebCallback.WebChromeListener callback = getCallback();
@@ -133,13 +114,9 @@ public abstract class BaseWebChromeClient<V extends BaseView, P extends BasePres
 
     @Override
     public void onProgressChanged(WebView view, final int newProgress) {
-        Log.e(TAG, "url: " + view.getUrl());
         if (isFinished()) {
             return;
         }
-        // 管理重定向问题
-//        overrideHistoryStack(view);
-
         post(new Runnable() {
             @Override
             public void run() {
@@ -182,7 +159,7 @@ public abstract class BaseWebChromeClient<V extends BaseView, P extends BasePres
             public void run() {
                 final T target = getTarget();
                 if (target != null) {
-                    final BaseFileChooser<V, P, BaseWebActivity<V, P>> fileChooser = target.createOrGetFileChooser();
+                    final BaseFileChooser<T> fileChooser = target.createOrGetFileChooser();
                     if (fileChooser != null) {
                         fileChooser.openFileChooser(uploadMsg, acceptType, capture);
                     }
@@ -205,7 +182,7 @@ public abstract class BaseWebChromeClient<V extends BaseView, P extends BasePres
             public void run() {
                 final T target = getTarget();
                 if (target != null) {
-                    final BaseFileChooser<V, P, BaseWebActivity<V, P>> fileChooser = target.createOrGetFileChooser();
+                    final BaseFileChooser<T> fileChooser = target.createOrGetFileChooser();
                     if (fileChooser != null) {
                         fileChooser.onShowFileChooser(filePathCallback, fileChooserParams);
                     }
@@ -221,7 +198,7 @@ public abstract class BaseWebChromeClient<V extends BaseView, P extends BasePres
             try {
                 result.cancel();
             } catch (Exception e) {
-                //ignore
+                X5.print(e);
             }
         }
         return super.onJsPrompt(view, url, message, defaultValue, result);
@@ -230,29 +207,14 @@ public abstract class BaseWebChromeClient<V extends BaseView, P extends BasePres
     @Override
     public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
         if (consoleMessage != null) {
-            if(BuildConfig.DEBUG){
-                Log.e(TAG, consoleMessage.messageLevel().name() + " : " + consoleMessage.message());
-            }
+            X5.debug(TAG, consoleMessage.messageLevel().name() + " : " + consoleMessage.message());
         }
         return super.onConsoleMessage(consoleMessage);
     }
 
-    private void addWebChromeListener(WebCallback.WebChromeListener chromeListener) {
-        this.mWebChromeCallback = new WeakReference<>(chromeListener);
-    }
-
-//    private void overrideHistoryStack(WebView view) {
-//        final WebView.HitTestResult result = view.getHitTestResult();
-//        if (result != null) {
-//            if (result.getExtra() != null) {
-//                mUrlHash.add(view.getUrl().hashCode());
-//            }
-//        }
-//    }
-
-    public final void attachTarget(T target) {
+    public final void attachTarget(BaseWebActivity<T> target) {
         this.mHandler = target.getHandler();
         this.mTarget = new WeakReference<>(target);
-        addWebChromeListener(target);
+        this.mWebChromeCallback = new WeakReference<WebCallback.WebChromeListener>(target);
     }
 }

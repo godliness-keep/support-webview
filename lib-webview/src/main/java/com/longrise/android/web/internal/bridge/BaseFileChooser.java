@@ -11,10 +11,7 @@ import android.support.annotation.RequiresApi;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 
-import com.longrise.android.mvp.internal.mvp.BasePresenter;
-import com.longrise.android.mvp.internal.mvp.BaseView;
 import com.longrise.android.web.BaseWebActivity;
-import com.longrise.android.web.BuildConfig;
 import com.longrise.android.web.internal.Internal;
 
 import java.lang.ref.WeakReference;
@@ -26,7 +23,7 @@ import java.lang.ref.WeakReference;
  * 负责响应 HTML 中符合 W3C 的动作语义，例如相册、拍照等
  */
 @SuppressWarnings("unused")
-public abstract class BaseFileChooser<V extends BaseView, P extends BasePresenter<V>, T extends BaseWebActivity<V, P>> {
+public abstract class BaseFileChooser<T extends BaseWebActivity> {
 
     private static final int REQUEST_CODE_VERSION_LESS_LOLLIPOP = 20;
     private static final int REQUEST_CODE_VERSION_LOLLIPOP = 21;
@@ -41,11 +38,17 @@ public abstract class BaseFileChooser<V extends BaseView, P extends BasePresente
     }
 
     /**
+     * 通过重写该方法拦截 Activity 的 onActivityResult 事件
+     */
+    protected abstract boolean dispatchActivityOnResult(int requestCode, int resultCode, Intent data);
+
+    /**
      * 获取当前 Activity
      */
+    @SuppressWarnings("unchecked")
     @Nullable
     protected final T getTarget() {
-        return mTarget.get();
+        return (T) mTarget.get();
     }
 
     /**
@@ -53,14 +56,6 @@ public abstract class BaseFileChooser<V extends BaseView, P extends BasePresente
      */
     protected final boolean isFinished() {
         return Internal.activityIsFinished(getTarget());
-    }
-
-    /**
-     * 通过重写该方法拦截 Activity 的 onActivityResult 事件
-     */
-    protected boolean dispatchActivityOnResult(int requestCode, int resultCode, Intent data) {
-        // 默认不拦截
-        return false;
     }
 
     /**
@@ -133,7 +128,7 @@ public abstract class BaseFileChooser<V extends BaseView, P extends BasePresente
     }
 
     /**
-     * For Android Version < 5.0  todo 4.4版本是个bug
+     * For Android Version < 5.0  todo 4.4 版本是个bug，系统无回调
      */
     final void openFileChooser(ValueCallback<Uri> uploadFile, String acceptType, String capture) {
         if (isFinished()) {
@@ -152,9 +147,7 @@ public abstract class BaseFileChooser<V extends BaseView, P extends BasePresente
                 target.startActivityForResult(Intent.createChooser(chooser, "File Browser"), REQUEST_CODE_VERSION_LESS_LOLLIPOP);
             } catch (Exception e) {
                 onReceiveValueEnd();
-                if (BuildConfig.DEBUG) {
-                    e.printStackTrace();
-                }
+                X5.print(e);
             }
         }
     }
@@ -176,9 +169,7 @@ public abstract class BaseFileChooser<V extends BaseView, P extends BasePresente
                 target.startActivityForResult(chooser, REQUEST_CODE_VERSION_LOLLIPOP);
             } catch (Exception e) {
                 onReceiveValueEnd();
-                if (BuildConfig.DEBUG) {
-                    e.printStackTrace();
-                }
+                X5.print(e);
             }
         }
     }
