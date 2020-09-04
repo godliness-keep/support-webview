@@ -1,26 +1,27 @@
 package com.longrise.android.web.internal.bridge;
 
 import android.graphics.Bitmap;
+import android.net.http.SslError;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.text.TextUtils;
+import android.webkit.SslErrorHandler;
+import android.webkit.WebBackForwardList;
+import android.webkit.WebHistoryItem;
+import android.webkit.WebResourceError;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
-import com.longrise.android.x5web.BaseWebActivity;
-import com.longrise.android.x5web.internal.Internal;
-import com.longrise.android.x5web.internal.SchemeConsts;
-import com.longrise.android.x5web.internal.webcallback.WebCallback;
-import com.tencent.smtt.export.external.interfaces.SslErrorHandler;
-import com.tencent.smtt.export.external.interfaces.WebResourceError;
-import com.tencent.smtt.export.external.interfaces.WebResourceRequest;
-import com.tencent.smtt.export.external.interfaces.WebResourceResponse;
-import com.tencent.smtt.sdk.WebBackForwardList;
-import com.tencent.smtt.sdk.WebHistoryItem;
-import com.tencent.smtt.sdk.WebSettings;
-import com.tencent.smtt.sdk.WebView;
-import com.tencent.smtt.sdk.WebViewClient;
+import com.longrise.android.web.BaseWebActivity;
+import com.longrise.android.web.internal.Internal;
+import com.longrise.android.web.internal.SchemeConsts;
+import com.longrise.android.web.internal.webcallback.WebCallback;
 
 import java.lang.ref.WeakReference;
 
@@ -199,7 +200,7 @@ public abstract class BaseWebViewClient<T extends BaseWebActivity<T>> extends We
     }
 
     @Override
-    public void onReceivedSslError(WebView webView, SslErrorHandler handler, com.tencent.smtt.export.external.interfaces.SslError sslError) {
+    public void onReceivedSslError(WebView webView, SslErrorHandler handler, SslError sslError) {
         if (handler != null) {
             handler.proceed();
         }
@@ -322,7 +323,8 @@ public abstract class BaseWebViewClient<T extends BaseWebActivity<T>> extends We
         });
     }
 
-    public final void attachTarget(BaseWebActivity<T> target) {
+    public final void attachTarget(BaseWebActivity<T> target, WebView view) {
+        view.setWebViewClient(this);
         this.mHandler = target.getHandler();
         this.mTarget = new WeakReference<>(target);
         addWebViewClientListener(target);

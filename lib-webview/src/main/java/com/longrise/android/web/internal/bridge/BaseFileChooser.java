@@ -12,6 +12,7 @@ import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 
 import com.longrise.android.web.BaseWebActivity;
+import com.longrise.android.web.WebLog;
 import com.longrise.android.web.internal.Internal;
 
 import java.lang.ref.WeakReference;
@@ -23,12 +24,12 @@ import java.lang.ref.WeakReference;
  * 负责响应 HTML 中符合 W3C 的动作语义，例如相册、拍照等
  */
 @SuppressWarnings("unused")
-public abstract class BaseFileChooser<T extends BaseWebActivity> {
+public abstract class BaseFileChooser<T extends BaseWebActivity<T>> {
 
     private static final int REQUEST_CODE_VERSION_LESS_LOLLIPOP = 20;
     private static final int REQUEST_CODE_VERSION_LOLLIPOP = 21;
 
-    private WeakReference<T> mTarget;
+    private WeakReference<BaseWebActivity<T>> mTarget;
     private Handler mHandler;
 
     private ValueCallback<Uri> mUploadFile;
@@ -122,7 +123,7 @@ public abstract class BaseFileChooser<T extends BaseWebActivity> {
         }
     }
 
-    public final void attachTarget(T target) {
+    public final void attachTarget(BaseWebActivity<T> target) {
         this.mTarget = new WeakReference<>(target);
         this.mHandler = target.getHandler();
     }
@@ -147,7 +148,7 @@ public abstract class BaseFileChooser<T extends BaseWebActivity> {
                 target.startActivityForResult(Intent.createChooser(chooser, "File Browser"), REQUEST_CODE_VERSION_LESS_LOLLIPOP);
             } catch (Exception e) {
                 onReceiveValueEnd();
-                X5.print(e);
+                WebLog.print(e);
             }
         }
     }
@@ -169,7 +170,7 @@ public abstract class BaseFileChooser<T extends BaseWebActivity> {
                 target.startActivityForResult(chooser, REQUEST_CODE_VERSION_LOLLIPOP);
             } catch (Exception e) {
                 onReceiveValueEnd();
-                X5.print(e);
+                WebLog.print(e);
             }
         }
     }

@@ -1,14 +1,15 @@
 package com.longrise.android.web.internal;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Build;
 import android.support.annotation.NonNull;
 
-import com.longrise.android.jssdk.core.bridge.BaseBridge;
 import com.longrise.android.mvp.internal.mvp.BasePresenter;
 import com.longrise.android.mvp.internal.mvp.BaseView;
 import com.longrise.android.web.BaseWebActivity;
 import com.longrise.android.web.internal.bridge.BaseFileChooser;
+import com.longrise.android.web.internal.bridge.BaseWebBridge;
 import com.longrise.android.web.internal.bridge.BaseWebChromeClient;
 import com.longrise.android.web.internal.bridge.BaseWebViewClient;
 
@@ -20,7 +21,7 @@ import com.longrise.android.web.internal.bridge.BaseWebViewClient;
 public final class Internal {
 
     @NonNull
-    public static <V extends BaseView, P extends BasePresenter<V>, T extends BaseWebActivity<V, P>> BaseWebChromeClient<V, P, T> createIfWebChromeClick(BaseWebChromeClient<V, P, T> chromeClient) {
+    public static <T extends BaseWebActivity> BaseWebChromeClient<T> createIfWebChromeClick(BaseWebChromeClient<T> chromeClient) {
         if (chromeClient == null) {
             return new DefaultChromeClient<>();
         }
@@ -28,7 +29,7 @@ public final class Internal {
     }
 
     @NonNull
-    public static <V extends BaseView, P extends BasePresenter<V>, T extends BaseWebActivity<V, P>> BaseWebViewClient<V, P, T> createIfWebviewClient(BaseWebViewClient<V, P, T> webViewClient) {
+    public static <T extends BaseWebActivity> BaseWebViewClient<T> createIfWebviewClient(BaseWebViewClient<T> webViewClient) {
         if (webViewClient == null) {
             return new DefaultWebClient<>();
         }
@@ -36,7 +37,7 @@ public final class Internal {
     }
 
     @NonNull
-    public static <V extends BaseView, P extends BasePresenter<V>, T extends BaseWebActivity<V, P>> BaseFileChooser<V, P, T> createIfFileChooser(BaseFileChooser<V, P, T> fileChooser) {
+    public static <T extends BaseWebActivity> BaseFileChooser<T> createIfFileChooser(BaseFileChooser<T> fileChooser) {
         if (fileChooser == null) {
             return new DefaultFileChooser<>();
         }
@@ -44,7 +45,7 @@ public final class Internal {
     }
 
     @NonNull
-    public static <V extends BaseView, P extends BasePresenter<V>> BaseBridge<BaseWebActivity<V, P>> createIfBridge(BaseBridge<BaseWebActivity<V, P>> bridge) {
+    public static <T extends BaseWebActivity> BaseWebBridge<T> createIfBridge(BaseWebBridge<T> bridge) {
         if (bridge == null) {
             return new DefaultBridge<>();
         }
@@ -61,16 +62,23 @@ public final class Internal {
         return target.isFinishing();
     }
 
-    private static final class DefaultChromeClient<V extends BaseView, P extends BasePresenter<V>, T extends BaseWebActivity<V, P>> extends BaseWebChromeClient<V, P, T> {
+    private static final class DefaultChromeClient<V extends BaseView, P extends BasePresenter<V>, T extends BaseWebActivity> extends BaseWebChromeClient<T> {
     }
 
-    private static final class DefaultWebClient<V extends BaseView, P extends BasePresenter<V>, T extends BaseWebActivity<V, P>> extends BaseWebViewClient<V, P, T> {
+    private static final class DefaultWebClient<T extends BaseWebActivity> extends BaseWebViewClient<T> {
     }
 
-    private static final class DefaultFileChooser<V extends BaseView, P extends BasePresenter<V>, T extends BaseWebActivity<V, P>> extends BaseFileChooser<V, P, T> {
+    private static final class DefaultFileChooser<T extends BaseWebActivity> extends BaseFileChooser<T> {
+        @Override
+        protected boolean dispatchActivityOnResult(int requestCode, int resultCode, Intent data) {
+            return false;
+        }
     }
 
-    private static final class DefaultBridge<V extends BaseView, P extends BasePresenter<V>> extends BaseBridge<BaseWebActivity<V, P>> {
+    private static final class DefaultBridge<T extends BaseWebActivity> extends BaseWebBridge<T> {
+        @Override
+        protected void onDestroy() {
+        }
     }
 
     private Internal() {

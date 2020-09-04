@@ -7,8 +7,6 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.longrise.android.mvp.internal.mvp.BasePresenter;
-import com.longrise.android.mvp.internal.mvp.BaseView;
 import com.longrise.android.web.BaseWebActivity;
 import com.longrise.android.web.internal.BaseWebView;
 
@@ -17,7 +15,7 @@ import com.longrise.android.web.internal.BaseWebView;
  *
  * @author godliness
  */
-public final class WebDemoActivity<V extends BaseView, P extends BasePresenter<V>> extends BaseWebActivity<V, P> implements View.OnClickListener {
+public final class WebDemoActivity extends BaseWebActivity<WebDemoActivity> implements View.OnClickListener {
 
     private static final String TAG = "WebDemoActivity";
 
@@ -25,7 +23,7 @@ public final class WebDemoActivity<V extends BaseView, P extends BasePresenter<V
     private TextView mTitle;
     private ProgressBar mProgress;
 
-    private BaseWebView<V, P> mWebView;
+    private BaseWebView<WebDemoActivity> mWebView;
 
     @Override
     protected int getLayoutResourceId(@Nullable Bundle state) {
@@ -56,13 +54,8 @@ public final class WebDemoActivity<V extends BaseView, P extends BasePresenter<V
         mBack.setOnClickListener(regEvent ? this : null);
     }
 
-    /**
-     * Returns the current WebView instance
-     *
-     * @return {@link BaseWebView}
-     */
     @Override
-    public BaseWebView getWebView() {
+    public BaseWebView<WebDemoActivity> getWebView() {
         return mWebView;
     }
 

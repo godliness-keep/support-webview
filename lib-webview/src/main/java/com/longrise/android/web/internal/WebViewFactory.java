@@ -6,8 +6,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.longrise.android.mvp.BuildConfig;
-import com.longrise.android.mvp.internal.mvp.BasePresenter;
-import com.longrise.android.mvp.internal.mvp.BaseView;
+import com.longrise.android.web.BaseWebActivity;
 
 import java.util.LinkedList;
 
@@ -16,17 +15,16 @@ import java.util.LinkedList;
  *
  * @author godliness
  */
-@SuppressWarnings("unchecked")
 final class WebViewFactory {
 
     private static final String TAG = "WebViewFactory";
 
     private static final int MAX_CACHE_SIZE = 2;
-    private static final LinkedList<BaseWebView> WEB_VIEWS = new LinkedList<>();
+    private static final LinkedList<BaseWebView<?>> WEB_VIEWS = new LinkedList<>();
 
     @Nullable
-    static <V extends BaseView, P extends BasePresenter<V>> BaseWebView<V, P> findWebView(@NonNull Context context) {
-        BaseWebView<V, P> webView = null;
+    static BaseWebView<?> findWebView(@NonNull Context context) {
+        BaseWebView<?> webView = null;
         synchronized (WEB_VIEWS) {
             if (WEB_VIEWS.size() > 0) {
                 webView = WEB_VIEWS.removeFirst();
@@ -50,7 +48,7 @@ final class WebViewFactory {
         return webView;
     }
 
-    static <V extends BaseView, P extends BasePresenter<V>> boolean recycle(BaseWebView<V, P> webView) {
+    static <T extends BaseWebActivity> boolean recycle(BaseWebView<T> webView) {
         synchronized (WEB_VIEWS) {
             if (WEB_VIEWS.size() < MAX_CACHE_SIZE) {
                 WEB_VIEWS.add(webView);

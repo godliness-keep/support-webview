@@ -18,12 +18,10 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.longrise.android.mvp.internal.mvp.BasePresenter;
-import com.longrise.android.mvp.internal.mvp.BaseView;
-import com.longrise.android.mvp.utils.MvpLog;
 import com.longrise.android.web.BaseWebActivity;
-import com.longrise.android.web.BuildConfig;
-import com.longrise.android.web.helper.WebViewDownloadHelper;
+import com.longrise.android.web.WebLog;
+import com.longrise.android.web.internal.bridge.BaseDownloader;
+import com.longrise.android.web.internal.bridge.BaseWebBridge;
 import com.longrise.android.web.internal.bridge.BaseWebChromeClient;
 import com.longrise.android.web.internal.bridge.BaseWebViewClient;
 
@@ -35,9 +33,9 @@ import java.lang.reflect.Method;
  * @author godliness
  */
 @SuppressWarnings("unused")
-public class BaseWebView<V extends BaseView, P extends BasePresenter<V>> extends WebView implements DownloadListener {
+public class BaseWebView<T extends BaseWebActivity<T>> extends WebView {
 
-    public static final String NAME = BaseWebView.class.getName();
+    public static final String NAME = BaseWebView.class.getSimpleName();
 
     private static final int SCROLL_TOP = 0;
     private static final int SCROLL_END = 1;
@@ -48,10 +46,11 @@ public class BaseWebView<V extends BaseView, P extends BasePresenter<V>> extends
             "android.webkit.WebViewFactory$MissingWebViewPackageException: Failed to load WebView provider: No WebView installed"};
 
     private IScrollChangeListener mScrollListener;
-    private WebViewDownloadHelper mDownloadHelper;
 
-    private BaseWebChromeClient<V, P, BaseWebActivity<V, P>> mWebChromeClient;
-    private BaseWebViewClient<V, P, BaseWebActivity<V, P>> mWebViewClient;
+    private BaseWebChromeClient<T> mWebChromeClient;
+    private BaseWebViewClient<T> mWebViewClient;
+    private BaseDownloader<T> mDownloader;
+    private BaseWebBridge<T> mBridge;
 
     public BaseWebView(Context context) {
         this(context, null);
@@ -59,19 +58,24 @@ public class BaseWebView<V extends BaseView, P extends BasePresenter<V>> extends
 
     public BaseWebView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        setDownloadListener(this);
         removeJavascriptInterfaces();
         disableAccessibility(context);
     }
 
+    /**
+     * 快速获取一个 BaseWebView
+     */
     @Nullable
-    public static <V extends BaseView, P extends BasePresenter<V>> BaseWebView<V, P> createOrGetWebView(Context context) {
+    public static BaseWebView<?> createOrGetWebView(Context context) {
         return WebViewFactory.findWebView(context);
     }
 
+    /**
+     * 快速获取一个 BaseWebView，并设置 WebSetting
+     */
     @Nullable
-    public static <V extends BaseView, P extends BasePresenter<V>> BaseWebView<V, P> createOrGetWebViewAndInitSetting(Context context) {
-        final BaseWebView<V, P> webView = WebViewFactory.findWebView(context);
+    public static BaseWebView<?> createOrGetWebViewAndInitSetting(Context context) {
+        final BaseWebView<?> webView = WebViewFactory.findWebView(context);
         if (webView != null) {
             SettingInit.initSetting(webView);
         }
@@ -81,18 +85,110 @@ public class BaseWebView<V extends BaseView, P extends BasePresenter<V>> extends
     /**
      * 设置监听 WebView 滑动
      */
-    public void setScrollChangedListener(IScrollChangeListener changedListener) {
+    public final void setScrollChangedListener(IScrollChangeListener changedListener) {
         this.mScrollListener = changedListener;
     }
 
+
+    /**
+     * 清除内存缓存
+     */
+    public final void clearMemoryCache() {
+        clearCache(false);
+    }
+
+    /**
+     * 清除全部缓存，包括文件缓存
+     */
+    public final void clearAllCache() {
+        clearCache(true);
+    }
+
+    /**
+     * WebView 是否可以回退
+     */
+    public final boolean webViewGoBack() {
+        if (canGoBack() && canGoBackOrForward(-1)) {
+            goBack();
+            if (isBlankUrl(getOriginalUrl())) {
+                return webViewGoBack();
+            }
+            return true;
+        }
+        return false;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public final void setWebChromeClient(WebChromeClient client) {
+        super.setWebChromeClient(client);
+        if (client instanceof BaseWebChromeClient<?>) {
+            this.mWebChromeClient = (BaseWebChromeClient<T>) client;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public final void setWebViewClient(WebViewClient client) {
+        super.setWebViewClient(client);
+        if (client instanceof BaseWebViewClient) {
+            this.mWebViewClient = (BaseWebViewClient<T>) client;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public void setDownloadListener(DownloadListener downloadListener) {
+        super.setDownloadListener(downloadListener);
+        if (downloadListener instanceof BaseDownloader) {
+            this.mDownloader = (BaseDownloader<T>) downloadListener;
+        }
+    }
+
     @SuppressLint({"JavascriptInterface", "AddJavascriptInterface"})
+    @SuppressWarnings("unchecked")
     @Override
     public void addJavascriptInterface(Object object, String name) {
         super.addJavascriptInterface(object, name);
+        if (object instanceof BaseWebBridge) {
+            this.mBridge = (BaseWebBridge<T>) object;
+        }
+    }
+
+    /**
+     * 回收 WebView，区别与 destroy，被回收的 WebView 可以二次复用
+     * 复用版的暂未完善
+     */
+    public final void recycle() {
+//        final boolean recycled = WebViewFactory.recycle(this);
+//        if (recycled) {
+//            release();
+//        } else {
+        destroy();
+//        }
+
+        if (mDownloader != null) {
+            mDownloader.onDestroy();
+            mDownloader = null;
+        }
+    }
+
+    /**
+     * 销毁 WebView
+     */
+    @Override
+    public void destroy() {
+        release();
+        super.destroy();
+        final Drawable drawable = getBackground();
+        if (drawable != null) {
+            setBackground(null);
+            drawable.setCallback(null);
+        }
     }
 
     @Override
-    protected void onScrollChanged(int left, int top, int oldLeft, int oldTop) {
+    protected final void onScrollChanged(int left, int top, int oldLeft, int oldTop) {
         super.onScrollChanged(left, top, oldLeft, oldTop);
         if (mScrollListener != null) {
             float webContent = getContentHeight() * getScale();
@@ -108,37 +204,29 @@ public class BaseWebView<V extends BaseView, P extends BasePresenter<V>> extends
     }
 
     @Override
-    public void loadUrl(String url) {
+    public final void loadUrl(String url) {
         try {
             super.loadUrl(url);
         } catch (Exception e) {
-            if (BuildConfig.DEBUG) {
-                e.printStackTrace();
-            }
+            WebLog.print(e);
         }
     }
 
     public final boolean onHandleMessage(Message msg) {
+        if (mBridge != null && mBridge.onHandleMessage(msg)) {
+            return true;
+        }
         if (mWebViewClient != null && mWebViewClient.onHandleMessage(msg)) {
             return true;
         }
-        return mWebChromeClient != null && mWebChromeClient.onHandleMessage(msg);
-    }
-
-    public final boolean webViewGoBack() {
-        if (canGoBack() && canGoBackOrForward(-1)) {
-            goBack();
-            //isRedirect(getUrl()) ||
-            if (isBlankUrl(getOriginalUrl())) {
-                return webViewGoBack();
-            }
+        if (mWebChromeClient != null && mWebChromeClient.onHandleMessage(msg)) {
             return true;
         }
-        return false;
+        return mDownloader != null && mDownloader.onHandleMessage(msg);
     }
 
     @Override
-    public void setOverScrollMode(int mode) {
+    public final void setOverScrollMode(int mode) {
         try {
             super.setOverScrollMode(mode);
         } catch (Throwable throwable) {
@@ -146,14 +234,14 @@ public class BaseWebView<V extends BaseView, P extends BasePresenter<V>> extends
             final String trace = Log.getStackTraceString(throwable);
             for (String exception : WEB_VIEW_EXCEPTION) {
                 if (trace.contains(exception)) {
-                    throwable.printStackTrace();
+                    WebLog.print(throwable);
                     //此时 WebView 处于不可用状态
                     return;
                 }
             }
             if (throwable instanceof NoClassDefFoundError) {
                 // java.lang.NoClassDefFoundError android/webkit/JniUtil
-                throwable.printStackTrace();
+                WebLog.print(throwable);
                 // 此时 WebView 处于不可用状态
                 return;
             }
@@ -163,67 +251,8 @@ public class BaseWebView<V extends BaseView, P extends BasePresenter<V>> extends
 
     @SuppressLint("ObsoleteSdkInt")
     @Override
-    public boolean isPrivateBrowsingEnabled() {
+    public final boolean isPrivateBrowsingEnabled() {
         return !(Build.VERSION.SDK_INT == Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1 && getSettings() == null) && super.isPrivateBrowsingEnabled();
-    }
-
-    public final void clearMemoryCache() {
-        clearCache(false);
-    }
-
-    public final void clearAllCache() {
-        clearCache(true);
-    }
-
-    @Override
-    public void destroy() {
-        release();
-        super.destroy();
-        final Drawable drawable = getBackground();
-        if (drawable != null) {
-            setBackground(null);
-            drawable.setCallback(null);
-        }
-    }
-
-    public final void recycle() {
-        final boolean recycled = WebViewFactory.recycle(this);
-        if (recycled) {
-            release();
-        } else {
-            destroy();
-        }
-
-        if (mDownloadHelper != null) {
-            mDownloadHelper.uninstallDownloadHelper();
-        }
-        mDownloadHelper = null;
-    }
-
-    @Override
-    public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimetype, long contentLength) {
-        if (mDownloadHelper == null) {
-            mDownloadHelper = WebViewDownloadHelper.installDownloadHelper(getContext());
-        }
-        mDownloadHelper.addDownloadTask(url, contentDisposition);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public void setWebChromeClient(WebChromeClient client) {
-        super.setWebChromeClient(client);
-        if (client instanceof BaseWebChromeClient) {
-            this.mWebChromeClient = (BaseWebChromeClient<V, P, BaseWebActivity<V, P>>) client;
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public void setWebViewClient(WebViewClient client) {
-        super.setWebViewClient(client);
-        if (client instanceof BaseWebViewClient) {
-            this.mWebViewClient = (BaseWebViewClient<V, P, BaseWebActivity<V, P>>) client;
-        }
     }
 
     @SuppressLint("ObsoleteSdkInt")
@@ -235,9 +264,7 @@ public class BaseWebView<V extends BaseView, P extends BasePresenter<V>> extends
                 removeJavascriptInterface("accessibility");
                 removeJavascriptInterface("accessibilityTraversal");
             } catch (Exception e) {
-                if (BuildConfig.DEBUG) {
-                    e.printStackTrace();
-                }
+                WebLog.print(e);
             }
         }
     }
@@ -264,18 +291,12 @@ public class BaseWebView<V extends BaseView, P extends BasePresenter<V>> extends
                     setState.setAccessible(true);
                     setState.invoke(am, 0);
                 } catch (Exception e) {
-                    MvpLog.print(e);
+                    WebLog.print(e);
                 }
             }
         }
     }
 
-//    private boolean isRedirect(String current) {
-//        if (mWebChromeClient != null) {
-//            return mWebChromeClient.isRedirect(current);
-//        }
-//        return false;
-//    }
 
     private boolean isBlankUrl(String current) {
         return TextUtils.equals(current, SchemeConsts.BLANK);
@@ -293,6 +314,7 @@ public class BaseWebView<V extends BaseView, P extends BasePresenter<V>> extends
         removeAllViews();
         setWebChromeClient(null);
         setWebViewClient(null);
+        setDownloadListener(null);
         clearHistory();
     }
 }

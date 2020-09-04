@@ -7,17 +7,17 @@ import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.text.TextUtils;
+import android.webkit.ConsoleMessage;
+import android.webkit.JsPromptResult;
+import android.webkit.ValueCallback;
+import android.webkit.WebChromeClient;
+import android.webkit.WebView;
 
-import com.longrise.android.x5web.BaseWebActivity;
-import com.longrise.android.x5web.X5;
-import com.longrise.android.x5web.internal.Internal;
-import com.longrise.android.x5web.internal.SchemeConsts;
-import com.longrise.android.x5web.internal.webcallback.WebCallback;
-import com.tencent.smtt.export.external.interfaces.ConsoleMessage;
-import com.tencent.smtt.export.external.interfaces.JsPromptResult;
-import com.tencent.smtt.sdk.ValueCallback;
-import com.tencent.smtt.sdk.WebChromeClient;
-import com.tencent.smtt.sdk.WebView;
+import com.longrise.android.web.BaseWebActivity;
+import com.longrise.android.web.WebLog;
+import com.longrise.android.web.internal.Internal;
+import com.longrise.android.web.internal.SchemeConsts;
+import com.longrise.android.web.internal.webcallback.WebCallback;
 
 import java.lang.ref.WeakReference;
 
@@ -198,7 +198,7 @@ public abstract class BaseWebChromeClient<T extends BaseWebActivity<T>> extends 
             try {
                 result.cancel();
             } catch (Exception e) {
-                X5.print(e);
+                WebLog.print(e);
             }
         }
         return super.onJsPrompt(view, url, message, defaultValue, result);
@@ -207,12 +207,13 @@ public abstract class BaseWebChromeClient<T extends BaseWebActivity<T>> extends 
     @Override
     public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
         if (consoleMessage != null) {
-            X5.debug(TAG, consoleMessage.messageLevel().name() + " : " + consoleMessage.message());
+            WebLog.debug(TAG, consoleMessage.messageLevel().name() + " : " + consoleMessage.message());
         }
         return super.onConsoleMessage(consoleMessage);
     }
 
-    public final void attachTarget(BaseWebActivity<T> target) {
+    public final void attachTarget(BaseWebActivity<T> target, WebView view) {
+        view.setWebChromeClient(this);
         this.mHandler = target.getHandler();
         this.mTarget = new WeakReference<>(target);
         this.mWebChromeCallback = new WeakReference<WebCallback.WebChromeListener>(target);

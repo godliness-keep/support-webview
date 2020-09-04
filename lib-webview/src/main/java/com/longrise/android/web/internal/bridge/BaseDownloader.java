@@ -4,6 +4,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.webkit.DownloadListener;
+import android.webkit.WebView;
 
 import com.longrise.android.web.BaseWebActivity;
 import com.longrise.android.web.internal.Internal;
@@ -16,10 +17,10 @@ import java.lang.ref.WeakReference;
  * @author godliness
  * 负责触发需要下载的相关
  */
-public abstract class BaseDownloader<T extends BaseWebActivity> implements DownloadListener {
+public abstract class BaseDownloader<T extends BaseWebActivity<T>> implements DownloadListener {
 
     private Handler mHandler;
-    private WeakReference<T> mTarget;
+    private WeakReference<BaseWebActivity<T>> mTarget;
 
     /**
      * Notify the host application that a file should be downloaded
@@ -40,9 +41,10 @@ public abstract class BaseDownloader<T extends BaseWebActivity> implements Downl
     /**
      * 获取当前 Activity {@link T}
      */
+    @SuppressWarnings("unchecked")
     @Nullable
     protected final T getTarget() {
-        return mTarget.get();
+        return (T) mTarget.get();
     }
 
     /**
@@ -84,7 +86,8 @@ public abstract class BaseDownloader<T extends BaseWebActivity> implements Downl
         return false;
     }
 
-    public final void attachTarget(T target) {
+    public final void attachTarget(BaseWebActivity<T> target, WebView view) {
+        view.setDownloadListener(this);
         this.mHandler = target.getHandler();
         this.mTarget = new WeakReference<>(target);
     }
