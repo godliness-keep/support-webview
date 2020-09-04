@@ -2,6 +2,7 @@ package com.longrise.android.webview.demo;
 
 import android.os.Bundle;
 import android.os.Message;
+import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.ScaleGestureDetector;
@@ -46,7 +47,21 @@ public class WebX5DemoActivity extends BaseWebActivity<WebX5DemoActivity> implem
      */
     @Override
     protected int getLayoutResourceId(@Nullable Bundle state) {
+        if (state == null) {
+            getExtraData();
+        } else {
+            onRestoreState(state);
+        }
         return R.layout.activity_x5web_demo;
+    }
+
+    private void getExtraData() {
+        // 获取携带的附加参数
+    }
+
+    private void onRestoreState(Bundle state) {
+        // 表示 Activity 回收后恢复
+        // 配合 onSaveInstanceState 即可
     }
 
     /**
