@@ -11,6 +11,8 @@ import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.longrise.android.jssdk.receiver.IParamsReceiver;
+import com.longrise.android.jssdk.receiver.base.EventName;
 import com.longrise.android.web.BaseWebActivity;
 import com.longrise.android.web.internal.BaseWebView;
 
@@ -48,11 +50,24 @@ public final class WebDemoActivity extends BaseWebActivity<WebDemoActivity> impl
         mProgress = findViewById(R.id.progress);
         mWebView = findViewById(R.id.webview);
 
-        loadUrl("https://www.163.com");
+        loadUrl("file:///android_asset/main.html");
+//        loadUrl("http://zhyq.szns.gov.cn/OA/LEAP/FFPB/logIn.html?sign=1");
 
         mWebContent = findViewById(R.id.web_content);
         mLoadFailedView = LayoutInflater.from(this).inflate(R.layout.load_failed, mWebView, false);
+        View remove = mLoadFailedView.findViewById(R.id.remove);
+        remove.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final ViewParent vp = mLoadFailedView.getParent();
+                if (vp instanceof ViewGroup) {
+                    ((ViewGroup) vp).removeView(mLoadFailedView);
+                }
+            }
+        });
     }
+
+
 
     /**
      * Register event or unregister

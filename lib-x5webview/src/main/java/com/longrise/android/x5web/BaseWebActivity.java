@@ -138,8 +138,10 @@ public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppC
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (webViewCanGoBack()) {
-            return true;
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if (webViewCanGoBack()) {
+                return true;
+            }
         }
         return super.onKeyDown(keyCode, event);
     }

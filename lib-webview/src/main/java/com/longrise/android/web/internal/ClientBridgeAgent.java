@@ -37,7 +37,7 @@ public final class ClientBridgeAgent {
 
         caleLoadActor(newProgress);
 
-        if (mLoadActor >= 2) {
+        if (mLoadActor >= 2 && mLoadFailed) {
             notifyLoadCompleted();
         }
     }

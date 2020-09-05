@@ -4,12 +4,12 @@ import android.os.Bundle;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.longrise.android.jssdk.Request;
+import com.longrise.android.jssdk.receiver.IParamsReceiver;
+import com.longrise.android.jssdk.receiver.base.EventName;
 import com.longrise.android.webview.demo.x5demo.DemoBridge;
 import com.longrise.android.webview.demo.x5demo.DemoDownloader;
 import com.longrise.android.webview.demo.x5demo.DemoFileChooser;
@@ -17,7 +17,6 @@ import com.longrise.android.webview.demo.x5demo.DemoWebChromeClient;
 import com.longrise.android.webview.demo.x5demo.DemoWebViewClient;
 import com.longrise.android.x5web.BaseWebActivity;
 import com.longrise.android.x5web.X5;
-import com.longrise.android.x5web.internal.SchemeConsts;
 import com.longrise.android.x5web.internal.X5WebView;
 import com.longrise.android.x5web.internal.bridge.BaseDownloader;
 import com.longrise.android.x5web.internal.bridge.BaseFileChooser;
@@ -59,7 +58,9 @@ public class WebX5DemoActivity extends BaseWebActivity<WebX5DemoActivity> implem
         mProgress = findViewById(R.id.progress);
         mWebView = findViewById(R.id.x5webview);
 
-        loadUrl("https://tieba.baidu.com/index.html");
+        loadUrl("file:///android_asset/main.html");
+
+        mParamsReceiver.alive().lifecycle(this);
     }
 
     /**
@@ -205,5 +206,51 @@ public class WebX5DemoActivity extends BaseWebActivity<WebX5DemoActivity> implem
          *  示例，如何对 Downloader 做二次扩展
          */
         return new DemoDownloader();
+    }
+
+    /**
+     * 含有参数的接收者
+     */
+    private final IParamsReceiver<Params> mParamsReceiver = new IParamsReceiver<Params>() {
+        @Override
+        @EventName("shareFeiji")
+        public void onEvent(Params params) {
+            Log.e(TAG, "接收到JS传递参数：" + params);
+            final Bean[] beans = new Bean[100];
+            for (int i = 0; i < 100; i++) {
+                final Bean bean = new Bean();
+                bean.like = "心，是一个容器，不停地累积，关于你的点点滴滴";
+                bean.sex = "boy " + i;
+                beans[i] = bean;
+            }
+            // 如果需要返回，可以选择使用
+            callback(beans);
+        }
+    };
+
+    private static class Params {
+
+        private String name;
+
+        private int age;
+
+        private String sex;
+
+        @Override
+        public String toString() {
+            return "Params{" +
+                    "name='" + name + '\'' +
+                    ", age=" + age +
+                    ", sex='" + sex + '\'' +
+                    '}';
+        }
+    }
+
+    private static class Bean {
+
+        private String like;
+
+        private String sex;
+
     }
 }
