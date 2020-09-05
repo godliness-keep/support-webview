@@ -15,6 +15,8 @@ import com.longrise.android.jssdk.receiver.IParamsReceiver;
 import com.longrise.android.jssdk.receiver.base.EventName;
 import com.longrise.android.web.BaseWebActivity;
 import com.longrise.android.web.internal.BaseWebView;
+import com.longrise.android.webview.demo.mode.Bean;
+import com.longrise.android.webview.demo.mode.Params;
 
 /**
  * Created by godliness on 2020/9/2.
@@ -166,40 +168,4 @@ public final class WebDemoActivity extends BaseWebActivity<WebDemoActivity> impl
             callback(beans);
         }
     };
-
-    private static class Params {
-
-        @Expose
-        @SerializedName("name")
-        private String name;
-
-        @Expose
-        @SerializedName("age")
-        private int age;
-
-        @Expose
-        @SerializedName("sex")
-        private String sex;
-
-        @Override
-        public String toString() {
-            return "Params{" +
-                    "name='" + name + '\'' +
-                    ", age=" + age +
-                    ", sex='" + sex + '\'' +
-                    '}';
-        }
-    }
-
-    private static class Bean {
-
-        @Expose
-        @SerializedName("like")
-        private String like;
-
-        @Expose
-        @SerializedName("sex")
-        private String sex;
-
-    }
 }

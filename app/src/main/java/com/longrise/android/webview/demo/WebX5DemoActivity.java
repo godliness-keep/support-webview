@@ -8,10 +8,10 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
 import com.longrise.android.jssdk_x5.receiver.IParamsReceiver;
 import com.longrise.android.jssdk_x5.receiver.base.EventName;
+import com.longrise.android.webview.demo.mode.Bean;
+import com.longrise.android.webview.demo.mode.Params;
 import com.longrise.android.webview.demo.x5demo.DemoBridge;
 import com.longrise.android.webview.demo.x5demo.DemoDownloader;
 import com.longrise.android.webview.demo.x5demo.DemoFileChooser;
@@ -230,39 +230,4 @@ public class WebX5DemoActivity extends BaseWebActivity<WebX5DemoActivity> implem
         }
     };
 
-    private static class Params {
-
-        @Expose
-        @SerializedName("name")
-        private String name;
-
-        @Expose
-        @SerializedName("age")
-        private int age;
-
-        @Expose
-        @SerializedName("sex")
-        private String sex;
-
-        @Override
-        public String toString() {
-            return "Params{" +
-                    "name='" + name + '\'' +
-                    ", age=" + age +
-                    ", sex='" + sex + '\'' +
-                    '}';
-        }
-    }
-
-    private static class Bean {
-
-        @Expose
-        @SerializedName("like")
-        private String like;
-
-        @Expose
-        @SerializedName("sex")
-        private String sex;
-
-    }
 }
