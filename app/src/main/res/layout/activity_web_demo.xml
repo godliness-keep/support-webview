@@ -7,10 +7,17 @@
 
     <include layout="@layout/include_title_bar" />
 
-    <!-- 原生 WebView -->
-    <com.longrise.android.web.internal.BaseWebView
-        android:id="@+id/webview"
+    <FrameLayout
+        android:id="@+id/web_content"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent">
+
+        <!-- 原生 WebView -->
+        <com.longrise.android.web.internal.BaseWebView
+            android:id="@+id/webview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </FrameLayout>
 
 </LinearLayout>

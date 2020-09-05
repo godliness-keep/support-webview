@@ -1,6 +1,5 @@
 package com.longrise.android.x5web;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -19,7 +18,7 @@ import com.longrise.android.x5web.internal.bridge.BaseFileChooser;
 import com.longrise.android.x5web.internal.bridge.BaseWebBridge;
 import com.longrise.android.x5web.internal.bridge.BaseWebChromeClient;
 import com.longrise.android.x5web.internal.bridge.BaseWebViewClient;
-import com.longrise.android.x5web.internal.webcallback.WebCallback;
+import com.longrise.android.x5web.internal.webcallback.WebLoadListener;
 import com.tencent.smtt.sdk.DownloadListener;
 import com.tencent.smtt.sdk.WebView;
 
@@ -31,12 +30,12 @@ import com.tencent.smtt.sdk.WebView;
  */
 @SuppressWarnings("unused")
 public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppCompatActivity implements
-        WebCallback.WebChromeListener, WebCallback.WebViewClientListener, Handler.Callback {
+        WebLoadListener, Handler.Callback {
 
     private static final String TAG = "BaseWebActivity";
 
     private final Handler mHandler = new Handler(this);
-    private X5WebView<T> mWebView;
+    private X5WebView mWebView;
     private BaseFileChooser<T> mFileChooser;
 
     /**
@@ -64,7 +63,7 @@ public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppC
      *
      * @return {@link X5WebView}
      */
-    public abstract X5WebView<T> getWebView();
+    public abstract X5WebView getWebView();
 
     /**
      * Perform load Web address in {@link #initView()}
@@ -213,6 +212,11 @@ public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppC
         super.onCreate(savedInstanceState);
         beforeSetContentView();
         setContentView(getLayoutResourceId(savedInstanceState));
+    }
+
+    @Override
+    public final void onContentChanged() {
+        super.onContentChanged();
         initView();
         createWebFrame();
         regEvent(true);
@@ -263,14 +267,15 @@ public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppC
     }
 
     private void createWebFrame() {
-        final X5WebView<T> webView = getWebView();
+        final X5WebView webView = getWebView();
         if (webView == null) {
             throw new NullPointerException("getWebView() == null");
         }
+        webView.registerCallback(this);
         initAndCreateBridge(webView);
     }
 
-    private void initAndCreateBridge(X5WebView<T> webView) {
+    private void initAndCreateBridge(X5WebView webView) {
         SettingInit.initSetting(webView);
         createWebBridge(webView);
         createWebViewClient(webView);
@@ -287,29 +292,23 @@ public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppC
 
     private void createWebViewClient(WebView view) {
         final BaseWebViewClient<T> webViewClient = Internal.createIfWebviewClient(getWebViewClient());
-        webViewClient.attachTarget(this);
-        view.setWebViewClient(webViewClient);
+        webViewClient.attachTarget(this, view);
     }
 
     private void createWebChromeClient(WebView view) {
         final BaseWebChromeClient<T> chromeClient = Internal.createIfWebChromeClick(getWebChromeClient());
-        chromeClient.attachTarget(this);
-        view.setWebChromeClient(chromeClient);
+        chromeClient.attachTarget(this, view);
     }
 
-    @SuppressLint("AddJavascriptInterface")
     private void createWebBridge(WebView view) {
         final BaseWebBridge<T> bridge = Internal.createIfBridge(getBridge());
         bridge.bindTarget(this, view);
-        // 适用于 API Level 17及以后，之前有安全问题，暂未做修复
-        view.addJavascriptInterface(bridge, bridge.bridgeName());
     }
 
     private void createDownloadHelper(WebView view) {
         final BaseDownloader<T> downloader = getDownloadHelper();
         if (downloader != null) {
-            downloader.attachTarget(this);
-            view.setDownloadListener(downloader);
+            downloader.attachTarget(this, view);
         }
     }
 

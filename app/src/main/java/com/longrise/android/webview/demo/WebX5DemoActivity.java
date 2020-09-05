@@ -5,12 +5,14 @@ import android.os.Message;
 import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.longrise.android.jssdk.Request;
+import com.longrise.android.jssdk_x5.receiver.IParamsReceiver;
+import com.longrise.android.jssdk_x5.receiver.base.EventName;
+import com.longrise.android.webview.demo.mode.Bean;
+import com.longrise.android.webview.demo.mode.Params;
 import com.longrise.android.webview.demo.x5demo.DemoBridge;
 import com.longrise.android.webview.demo.x5demo.DemoDownloader;
 import com.longrise.android.webview.demo.x5demo.DemoFileChooser;
@@ -18,7 +20,6 @@ import com.longrise.android.webview.demo.x5demo.DemoWebChromeClient;
 import com.longrise.android.webview.demo.x5demo.DemoWebViewClient;
 import com.longrise.android.x5web.BaseWebActivity;
 import com.longrise.android.x5web.X5;
-import com.longrise.android.x5web.internal.SchemeConsts;
 import com.longrise.android.x5web.internal.X5WebView;
 import com.longrise.android.x5web.internal.bridge.BaseDownloader;
 import com.longrise.android.x5web.internal.bridge.BaseFileChooser;
@@ -40,7 +41,7 @@ public class WebX5DemoActivity extends BaseWebActivity<WebX5DemoActivity> implem
     private TextView mTitle;
     private ProgressBar mProgress;
 
-    private X5WebView<WebX5DemoActivity> mWebView;
+    private X5WebView mWebView;
 
     /**
      * 返回布局资源 id
@@ -74,7 +75,9 @@ public class WebX5DemoActivity extends BaseWebActivity<WebX5DemoActivity> implem
         mProgress = findViewById(R.id.progress);
         mWebView = findViewById(R.id.x5webview);
 
-        loadUrl("https://tieba.baidu.com/index.html");
+        loadUrl("file:///android_asset/main.html");
+
+        mParamsReceiver.alive().lifecycle(this);
     }
 
     /**
@@ -89,7 +92,7 @@ public class WebX5DemoActivity extends BaseWebActivity<WebX5DemoActivity> implem
      * 返回页面的 WebView 引用
      */
     @Override
-    public X5WebView<WebX5DemoActivity> getWebView() {
+    public X5WebView getWebView() {
         return mWebView;
     }
 
@@ -221,4 +224,25 @@ public class WebX5DemoActivity extends BaseWebActivity<WebX5DemoActivity> implem
          */
         return new DemoDownloader();
     }
+
+    /**
+     * 含有参数的接收者
+     */
+    private final IParamsReceiver<Params> mParamsReceiver = new IParamsReceiver<Params>() {
+        @Override
+        @EventName("shareFeiji")
+        public void onEvent(Params params) {
+            Log.e(TAG, "接收到JS传递参数：" + params);
+            final Bean[] beans = new Bean[100];
+            for (int i = 0; i < 100; i++) {
+                final Bean bean = new Bean();
+                bean.like = "心，是一个容器，不停地累积，关于你的点点滴滴";
+                bean.sex = "boy " + i;
+                beans[i] = bean;
+            }
+            // 如果需要返回，可以选择使用
+            callback(beans);
+        }
+    };
+
 }

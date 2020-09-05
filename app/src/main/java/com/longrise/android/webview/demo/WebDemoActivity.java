@@ -3,21 +3,27 @@ package com.longrise.android.webview.demo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewParent;
+import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.longrise.android.mvp.internal.mvp.BasePresenter;
-import com.longrise.android.mvp.internal.mvp.BaseView;
+import com.longrise.android.jssdk.receiver.IParamsReceiver;
+import com.longrise.android.jssdk.receiver.base.EventName;
 import com.longrise.android.web.BaseWebActivity;
 import com.longrise.android.web.internal.BaseWebView;
+import com.longrise.android.webview.demo.mode.Bean;
+import com.longrise.android.webview.demo.mode.Params;
 
 /**
  * Created by godliness on 2020/9/2.
  *
  * @author godliness
  */
-public final class WebDemoActivity<V extends BaseView, P extends BasePresenter<V>> extends BaseWebActivity<V, P> implements View.OnClickListener {
+public final class WebDemoActivity extends BaseWebActivity<WebDemoActivity> implements View.OnClickListener {
 
     private static final String TAG = "WebDemoActivity";
 
@@ -25,7 +31,10 @@ public final class WebDemoActivity<V extends BaseView, P extends BasePresenter<V
     private TextView mTitle;
     private ProgressBar mProgress;
 
-    private BaseWebView<V, P> mWebView;
+    private BaseWebView mWebView;
+
+    private FrameLayout mWebContent;
+    private View mLoadFailedView;
 
     @Override
     protected int getLayoutResourceId(@Nullable Bundle state) {
@@ -43,8 +52,16 @@ public final class WebDemoActivity<V extends BaseView, P extends BasePresenter<V
         mProgress = findViewById(R.id.progress);
         mWebView = findViewById(R.id.webview);
 
-        loadUrl("https://tieba.baidu.com/index.html");
+        loadUrl("file:///android_asset/main.html");
+
+        /*这里简单示例在加载出错时处理方式*/
+        mWebContent = findViewById(R.id.web_content);
+        mLoadFailedView = LayoutInflater.from(this).inflate(R.layout.load_failed, mWebView, false);
+
+        /* 注册事件 */
+        mParamsReceiver.alive().lifecycle(this);
     }
+
 
     /**
      * Register event or unregister
@@ -56,13 +73,8 @@ public final class WebDemoActivity<V extends BaseView, P extends BasePresenter<V
         mBack.setOnClickListener(regEvent ? this : null);
     }
 
-    /**
-     * Returns the current WebView instance
-     *
-     * @return {@link BaseWebView}
-     */
     @Override
-    public BaseWebView<V, P> getWebView() {
+    public BaseWebView getWebView() {
         return mWebView;
     }
 
@@ -103,6 +115,11 @@ public final class WebDemoActivity<V extends BaseView, P extends BasePresenter<V
     @Override
     public void loadSucceed() {
         Log.e(TAG, "loadSucceed");
+
+        final ViewParent vp = mLoadFailedView.getParent();
+        if (vp instanceof ViewGroup) {
+            ((ViewGroup) vp).removeView(mLoadFailedView);
+        }
     }
 
     /**
@@ -111,6 +128,11 @@ public final class WebDemoActivity<V extends BaseView, P extends BasePresenter<V
     @Override
     public void loadFailed() {
         Log.e(TAG, "loadFailed");
+
+        final ViewParent vp = mLoadFailedView.getParent();
+        if (vp == null) {
+            mWebContent.addView(mLoadFailedView);
+        }
     }
 
     @Override
@@ -119,4 +141,31 @@ public final class WebDemoActivity<V extends BaseView, P extends BasePresenter<V
             finish();
         }
     }
+
+
+    /**
+     * todo 以下仅为示例如何使用 jssdk 快速实现与 JavaScript 与 Java 相互交互
+     * */
+
+    /**
+     * 含有参数的接收者
+     */
+    private final IParamsReceiver<Params> mParamsReceiver = new IParamsReceiver<Params>() {
+        @Override
+        @EventName("shareFeiji")
+        public void onEvent(Params params) {
+            Log.e(TAG, "接收到JS传递参数：" + params);
+
+            final Bean[] beans = new Bean[100];
+            for (int i = 0; i < 100; i++) {
+                final Bean bean = new Bean();
+                bean.like = "心，是一个容器，不停地累积，关于你的点点滴滴";
+                bean.sex = "boy " + i;
+                beans[i] = bean;
+            }
+
+            // 如果需要返回，可以选择使用
+            callback(beans);
+        }
+    };
 }

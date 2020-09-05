@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!--<link rel="stylesheet" href="main.css">-->
+    <title>main</title>
+    <!--<script src="jquery-3.1.0.js"></script>-->
+    <script type="text/javascript" src="js-sdk/core/wxBridge.js"></script>
+    <script type="text/javascript" src="js-sdk/utils/platform.js"></script>
+    <script type="text/javascript" src="js-sdk/core/lrBridgeCore.js"></script>
+    <script type="text/javascript" src="js-sdk/core/receiver.js"></script>
+    <script type="text/javascript" src="js-sdk/core/chunkParse.js"></script>
+</head>
+<body>
+
+<button type="button" onclick="callAndroidMethod()" class="buttonT">
+    callAndroidFromH5有callback
+</button>
+<a href="second.html">点击跳转到下一个页面</a>
+
+<script>
+            // 初始话JS-SDK框架
+			lr.ready()
+
+            // 初始化JS-SDK(wx)框架
+			var config = {
+			    debug: false,
+			 	methodList: [
+			 		'chooseImage',
+			 		'getNetworkType'
+			 	]
+			}
+			wx.config(config);
+
+			receiver.callFromNativeNoParamsWithReturn = function(params) {
+				alert('调用JavaScript login 事件，来自Native的参数: ' + JSON.stringify(params))
+
+				return '说点什么吧？我想打死你';
+			}
+
+			//调用Native方法
+			function callAndroidMethod() {
+
+				// alert(JSON.stringify(bean))
+				 <!--var chooseImage = {-->
+				 	<!--count: 5,-->
+				 	<!--sizeType: ['original', 'compressed'],-->
+				 	<!--sourceType: ['album', 'camera'],-->
+				 	<!--success: function(res) {-->
+				 		<!--alert(JSON.stringify(res.localIds));-->
+				 	<!--}-->
+				 <!--}-->
+
+				 <!--let message = {-->
+				    <!--success:function(res){-->
+				        <!--alert(JSON.stringify(res))-->
+				    <!--}-->
+				 <!--}-->
+
+				 <!--wx.getNetworkType(message);-->
+
+
+				<!--let params = [-->
+				    <!--{-->
+				 	    <!--link: '中国特色社会主义道路',-->
+				 	    <!--age: '人民日益增长的物质文化需求同落后的生产关系之间的矛盾'-->
+				    <!--},-->
+				    <!--{-->
+				        <!--link:'非物质文化异常',-->
+				        <!--age:'北京面人糖文化传承人'-->
+				    <!--}-->
+
+				<!--]-->
+				 <!--let message = {-->
+				 	<!--methodName: 'fromJavaScriptWithParamsWithReturn',-->
+				 	<!--params: params,-->
+				 	<!--success: function(res) {-->
+				 		<!--alert('来自 Native 的返回：' + JSON.stringify(res))-->
+				 	<!--},-->
+				 	<!--failed: function(res) {-->
+				 		<!--alert('来自 Native 的返回：' + JSON.stringify(res))-->
+				 	<!--}-->
+				 <!--}-->
+				 <!--lr.callNative(message)-->
+
+				let params = {
+					name: '中国特色社会主义道路',
+					sex: '人民日益增长的物质文化需求同落后的生产关系之间的矛盾',
+					age:100
+				}
+
+				let message = {
+					eventName: 'shareFeiji',
+					params: params,
+					success: function(res) {
+						alert('来自 Native 的返回：' + JSON.stringify(res))
+					},
+					failed: function(res) {
+						alert('来自 Native 的返回：' + JSON.stringify(res))
+					}
+				}
+				lr.callEvent(message)
+
+			}
+
+			function callFromNativeNoParamsNoReturn() {
+				alert('callFromNativeNoParamsNoReturn');
+			}
+
+			function callFromNativeWithParamsNoReturn(request) {
+				var jsonRequest = JSON.parse(request);
+				alert('来自Native的参数：' + JSON.stringify(jsonRequest.params));
+			}
+
+			function callFromNativeNoParamsWithReturn(request) {
+				alert('callFromNativeNoParamsWithReturn');
+			}
+
+			// 来自Native的调用，有返回值
+			function callFromNativeWithParamsWithReturn(request) {
+				var jsonRequest = JSON.parse(request);
+
+				var params = {
+					name: 'godliness',
+					age: 18,
+					sex: 'boy'
+				}
+
+				var message = {
+					id: jsonRequest.id,
+					result: params
+				}
+				lr.notifyNative(message)
+			}
+
+</script>
+
+</body>
+
+</html>

@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import com.longrise.android.x5web.BaseWebActivity;
 import com.longrise.android.x5web.internal.Internal;
 import com.tencent.smtt.sdk.DownloadListener;
+import com.tencent.smtt.sdk.WebView;
 
 import java.lang.ref.WeakReference;
 
@@ -89,7 +90,8 @@ public abstract class BaseDownloader<T extends BaseWebActivity<T>> implements Do
         return false;
     }
 
-    public final void attachTarget(BaseWebActivity<T> target) {
+    public final void attachTarget(BaseWebActivity<T> target, WebView view) {
+        view.setDownloadListener(this);
         this.mHandler = target.getHandler();
         this.mTarget = new WeakReference<>(target);
     }

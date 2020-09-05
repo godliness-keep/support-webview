@@ -3,11 +3,8 @@ package com.longrise.android.web.internal;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
-import com.longrise.android.mvp.BuildConfig;
-import com.longrise.android.mvp.internal.mvp.BasePresenter;
-import com.longrise.android.mvp.internal.mvp.BaseView;
+import com.longrise.android.web.WebLog;
 
 import java.util.LinkedList;
 
@@ -16,7 +13,6 @@ import java.util.LinkedList;
  *
  * @author godliness
  */
-@SuppressWarnings("unchecked")
 final class WebViewFactory {
 
     private static final String TAG = "WebViewFactory";
@@ -25,32 +21,30 @@ final class WebViewFactory {
     private static final LinkedList<BaseWebView> WEB_VIEWS = new LinkedList<>();
 
     @Nullable
-    static <V extends BaseView, P extends BasePresenter<V>> BaseWebView<V, P> findWebView(@NonNull Context context) {
-        BaseWebView<V, P> webView = null;
+    static BaseWebView findWebView(@NonNull Context context) {
+        BaseWebView webView = null;
         synchronized (WEB_VIEWS) {
             if (WEB_VIEWS.size() > 0) {
                 webView = WEB_VIEWS.removeFirst();
 
-                if (BuildConfig.DEBUG) {
+                if (WebLog.isDebug()) {
                     final int size = webView.copyBackForwardList().getSize();
-                    Log.d(TAG, "back stack size: " + size + " current url: " + webView.getOriginalUrl());
+                    WebLog.debug(TAG, "back stack size: " + size + " current url: " + webView.getOriginalUrl());
                 }
             }
         }
         if (webView == null) {
             try {
-                return new BaseWebView<>(context.getApplicationContext());
+                return new BaseWebView(context.getApplicationContext());
             } catch (Exception e) {
-                if (BuildConfig.DEBUG) {
-                    // 部分可能会出现无 WebView 的情况
-                    e.printStackTrace();
-                }
+                // 部分可能会出现无 WebView 的情况
+                WebLog.print(e);
             }
         }
         return webView;
     }
 
-    static <V extends BaseView, P extends BasePresenter<V>> boolean recycle(BaseWebView<V, P> webView) {
+    static boolean recycle(BaseWebView webView) {
         synchronized (WEB_VIEWS) {
             if (WEB_VIEWS.size() < MAX_CACHE_SIZE) {
                 WEB_VIEWS.add(webView);

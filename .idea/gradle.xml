@@ -13,6 +13,8 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/jssdk" />
+            <option value="$PROJECT_DIR$/jssdk-x5" />
             <option value="$PROJECT_DIR$/lib-webview" />
             <option value="$PROJECT_DIR$/lib-x5webview" />
           </set>

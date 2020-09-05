@@ -1,10 +1,13 @@
 package com.longrise.android.webview.demo.x5demo;
 
 import android.os.Message;
+import android.webkit.JavascriptInterface;
 
 import com.longrise.android.webview.demo.WebX5DemoActivity;
 import com.longrise.android.x5web.X5;
 import com.longrise.android.x5web.internal.bridge.BaseWebBridge;
+
+import java.util.StringJoiner;
 
 /**
  * Created by godliness on 2020/9/1.
