@@ -29,7 +29,7 @@ public final class WebDemoActivity extends BaseWebActivity<WebDemoActivity> impl
     private TextView mTitle;
     private ProgressBar mProgress;
 
-    private BaseWebView<WebDemoActivity> mWebView;
+    private BaseWebView mWebView;
 
     private FrameLayout mWebContent;
     private View mLoadFailedView;
@@ -51,22 +51,14 @@ public final class WebDemoActivity extends BaseWebActivity<WebDemoActivity> impl
         mWebView = findViewById(R.id.webview);
 
         loadUrl("file:///android_asset/main.html");
-//        loadUrl("http://zhyq.szns.gov.cn/OA/LEAP/FFPB/logIn.html?sign=1");
 
+        /*这里简单示例在加载出错时处理方式*/
         mWebContent = findViewById(R.id.web_content);
         mLoadFailedView = LayoutInflater.from(this).inflate(R.layout.load_failed, mWebView, false);
-        View remove = mLoadFailedView.findViewById(R.id.remove);
-        remove.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final ViewParent vp = mLoadFailedView.getParent();
-                if (vp instanceof ViewGroup) {
-                    ((ViewGroup) vp).removeView(mLoadFailedView);
-                }
-            }
-        });
-    }
 
+        /* 注册事件 */
+        mParamsReceiver.alive().lifecycle(this);
+    }
 
 
     /**
@@ -80,7 +72,7 @@ public final class WebDemoActivity extends BaseWebActivity<WebDemoActivity> impl
     }
 
     @Override
-    public BaseWebView<WebDemoActivity> getWebView() {
+    public BaseWebView getWebView() {
         return mWebView;
     }
 
@@ -146,5 +138,68 @@ public final class WebDemoActivity extends BaseWebActivity<WebDemoActivity> impl
         if (!webViewCanGoBack()) {
             finish();
         }
+    }
+
+
+    /**
+     * todo 以下仅为示例如何使用 jssdk 快速实现与 JavaScript 与 Java 相互交互
+     * */
+
+    /**
+     * 含有参数的接收者
+     */
+    private final IParamsReceiver<Params> mParamsReceiver = new IParamsReceiver<Params>() {
+        @Override
+        @EventName("shareFeiji")
+        public void onEvent(Params params) {
+            Log.e(TAG, "接收到JS传递参数：" + params);
+
+            final Bean[] beans = new Bean[100];
+            for (int i = 0; i < 100; i++) {
+                final Bean bean = new Bean();
+                bean.like = "心，是一个容器，不停地累积，关于你的点点滴滴";
+                bean.sex = "boy " + i;
+                beans[i] = bean;
+            }
+
+            // 如果需要返回，可以选择使用
+            callback(beans);
+        }
+    };
+
+    private static class Params {
+
+        @Expose
+        @SerializedName("name")
+        private String name;
+
+        @Expose
+        @SerializedName("age")
+        private int age;
+
+        @Expose
+        @SerializedName("sex")
+        private String sex;
+
+        @Override
+        public String toString() {
+            return "Params{" +
+                    "name='" + name + '\'' +
+                    ", age=" + age +
+                    ", sex='" + sex + '\'' +
+                    '}';
+        }
+    }
+
+    private static class Bean {
+
+        @Expose
+        @SerializedName("like")
+        private String like;
+
+        @Expose
+        @SerializedName("sex")
+        private String sex;
+
     }
 }

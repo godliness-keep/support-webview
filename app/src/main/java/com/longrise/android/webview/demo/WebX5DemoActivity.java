@@ -8,8 +8,10 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.longrise.android.jssdk.receiver.IParamsReceiver;
-import com.longrise.android.jssdk.receiver.base.EventName;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+import com.longrise.android.jssdk_x5.receiver.IParamsReceiver;
+import com.longrise.android.jssdk_x5.receiver.base.EventName;
 import com.longrise.android.webview.demo.x5demo.DemoBridge;
 import com.longrise.android.webview.demo.x5demo.DemoDownloader;
 import com.longrise.android.webview.demo.x5demo.DemoFileChooser;
@@ -38,7 +40,7 @@ public class WebX5DemoActivity extends BaseWebActivity<WebX5DemoActivity> implem
     private TextView mTitle;
     private ProgressBar mProgress;
 
-    private X5WebView<WebX5DemoActivity> mWebView;
+    private X5WebView mWebView;
 
     /**
      * 返回布局资源 id
@@ -75,7 +77,7 @@ public class WebX5DemoActivity extends BaseWebActivity<WebX5DemoActivity> implem
      * 返回页面的 WebView 引用
      */
     @Override
-    public X5WebView<WebX5DemoActivity> getWebView() {
+    public X5WebView getWebView() {
         return mWebView;
     }
 
@@ -230,10 +232,16 @@ public class WebX5DemoActivity extends BaseWebActivity<WebX5DemoActivity> implem
 
     private static class Params {
 
+        @Expose
+        @SerializedName("name")
         private String name;
 
+        @Expose
+        @SerializedName("age")
         private int age;
 
+        @Expose
+        @SerializedName("sex")
         private String sex;
 
         @Override
@@ -248,8 +256,12 @@ public class WebX5DemoActivity extends BaseWebActivity<WebX5DemoActivity> implem
 
     private static class Bean {
 
+        @Expose
+        @SerializedName("like")
         private String like;
 
+        @Expose
+        @SerializedName("sex")
         private String sex;
 
     }

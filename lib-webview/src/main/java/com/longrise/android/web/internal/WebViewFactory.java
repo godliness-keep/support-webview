@@ -18,11 +18,11 @@ final class WebViewFactory {
     private static final String TAG = "WebViewFactory";
 
     private static final int MAX_CACHE_SIZE = 2;
-    private static final LinkedList<BaseWebView<?>> WEB_VIEWS = new LinkedList<>();
+    private static final LinkedList<BaseWebView> WEB_VIEWS = new LinkedList<>();
 
     @Nullable
-    static BaseWebView<?> findWebView(@NonNull Context context) {
-        BaseWebView<?> webView = null;
+    static BaseWebView findWebView(@NonNull Context context) {
+        BaseWebView webView = null;
         synchronized (WEB_VIEWS) {
             if (WEB_VIEWS.size() > 0) {
                 webView = WEB_VIEWS.removeFirst();
@@ -35,7 +35,7 @@ final class WebViewFactory {
         }
         if (webView == null) {
             try {
-                return new BaseWebView<>(context.getApplicationContext());
+                return new BaseWebView(context.getApplicationContext());
             } catch (Exception e) {
                 // 部分可能会出现无 WebView 的情况
                 WebLog.print(e);
@@ -44,7 +44,7 @@ final class WebViewFactory {
         return webView;
     }
 
-    static boolean recycle(BaseWebView<?> webView) {
+    static boolean recycle(BaseWebView webView) {
         synchronized (WEB_VIEWS) {
             if (WEB_VIEWS.size() < MAX_CACHE_SIZE) {
                 WEB_VIEWS.add(webView);

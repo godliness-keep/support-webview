@@ -14,12 +14,12 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.accessibility.AccessibilityManager;
 
-import com.longrise.android.x5web.BaseWebActivity;
 import com.longrise.android.x5web.X5;
 import com.longrise.android.x5web.internal.bridge.BaseDownloader;
 import com.longrise.android.x5web.internal.bridge.BaseWebBridge;
 import com.longrise.android.x5web.internal.bridge.BaseWebChromeClient;
 import com.longrise.android.x5web.internal.bridge.BaseWebViewClient;
+import com.longrise.android.x5web.internal.webcallback.WebLoadListener;
 import com.tencent.smtt.sdk.DownloadListener;
 import com.tencent.smtt.sdk.WebChromeClient;
 import com.tencent.smtt.sdk.WebView;
@@ -32,10 +32,7 @@ import java.lang.reflect.Method;
  *
  * @author godliness
  */
-@SuppressWarnings({"unused", "unchecked"})
-public class X5WebView<T extends BaseWebActivity<T>> extends WebView {
-
-    public static final String NAME = X5WebView.class.getSimpleName();
+public class X5WebView extends WebView {
 
     private static final int SCROLL_TOP = 0;
     private static final int SCROLL_END = 1;
@@ -47,10 +44,12 @@ public class X5WebView<T extends BaseWebActivity<T>> extends WebView {
 
     private IScrollChangeListener mScrollListener;
 
-    private BaseWebChromeClient<T> mWebChromeClient;
-    private BaseWebViewClient<T> mWebViewClient;
-    private BaseDownloader<T> mDownloader;
-    private BaseWebBridge<T> mBridge;
+    private BaseWebChromeClient<?> mWebChromeClient;
+    private BaseWebViewClient<?> mWebViewClient;
+    private BaseDownloader<?> mDownloader;
+    private BaseWebBridge<?> mBridge;
+
+    private ClientBridgeAgent mClientBridge;
 
     public X5WebView(Context context) {
         this(context, null);
@@ -60,13 +59,15 @@ public class X5WebView<T extends BaseWebActivity<T>> extends WebView {
         super(context, attrs);
         removeJavascriptInterfaces();
         disableAccessibility(context);
+
+        this.mClientBridge = ClientBridgeAgent.getInstance();
     }
 
     /**
      * 快速获取一个 X5WebView
      */
     @Nullable
-    public static X5WebView<?> createOrGetWebView(Context context) {
+    public static X5WebView createOrGetWebView(Context context) {
         return WebViewFactory.findWebView(context);
     }
 
@@ -74,8 +75,8 @@ public class X5WebView<T extends BaseWebActivity<T>> extends WebView {
      * 快速获取一个 X5WebView，并设置 WebSetting
      */
     @Nullable
-    public static X5WebView<?> createOrGetWebViewAndInitSetting(Context context) {
-        final X5WebView<?> webView = WebViewFactory.findWebView(context);
+    public static X5WebView createOrGetWebViewAndInitSetting(Context context) {
+        final X5WebView webView = WebViewFactory.findWebView(context);
         if (webView != null) {
             SettingInit.initSetting(webView);
         }
@@ -117,20 +118,25 @@ public class X5WebView<T extends BaseWebActivity<T>> extends WebView {
         return false;
     }
 
+    public void registerCallback(WebLoadListener webCallback) {
+        mClientBridge.registerCallback(webCallback);
+    }
+
     @Override
     public final void setWebChromeClient(WebChromeClient client) {
         super.setWebChromeClient(client);
         if (client instanceof BaseWebChromeClient<?>) {
-            this.mWebChromeClient = (BaseWebChromeClient<T>) client;
+            this.mWebChromeClient = (BaseWebChromeClient<?>) client;
+            this.mWebChromeClient.invokeClientBridge(mClientBridge);
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public final void setWebViewClient(WebViewClient client) {
         super.setWebViewClient(client);
         if (client instanceof BaseWebViewClient) {
-            this.mWebViewClient = (BaseWebViewClient<T>) client;
+            this.mWebViewClient = (BaseWebViewClient<?>) client;
+            this.mWebViewClient.invokeClientBridge(mClientBridge);
         }
     }
 
@@ -138,7 +144,7 @@ public class X5WebView<T extends BaseWebActivity<T>> extends WebView {
     public void setDownloadListener(DownloadListener downloadListener) {
         super.setDownloadListener(downloadListener);
         if (downloadListener instanceof BaseDownloader) {
-            this.mDownloader = (BaseDownloader<T>) downloadListener;
+            this.mDownloader = (BaseDownloader<?>) downloadListener;
         }
     }
 
@@ -147,7 +153,7 @@ public class X5WebView<T extends BaseWebActivity<T>> extends WebView {
     public void addJavascriptInterface(Object object, String name) {
         super.addJavascriptInterface(object, name);
         if (object instanceof BaseWebBridge) {
-            this.mBridge = (BaseWebBridge<T>) object;
+            this.mBridge = (BaseWebBridge<?>) object;
         }
     }
 
@@ -180,6 +186,10 @@ public class X5WebView<T extends BaseWebActivity<T>> extends WebView {
         if (drawable != null) {
             setBackground(null);
             drawable.setCallback(null);
+        }
+        if (mClientBridge != null) {
+            mClientBridge.destroy();
+            mClientBridge = null;
         }
     }
 
@@ -226,7 +236,7 @@ public class X5WebView<T extends BaseWebActivity<T>> extends WebView {
         try {
             super.setOverScrollMode(mode);
         } catch (Throwable throwable) {
-            final String messageCause = throwable.getCause() == null ? throwable.toString() : throwable.getCause().toString();
+//            final String messageCause = throwable.getCause() == null ? throwable.toString() : throwable.getCause().toString();
             final String trace = Log.getStackTraceString(throwable);
             for (String exception : WEB_VIEW_EXCEPTION) {
                 if (trace.contains(exception)) {

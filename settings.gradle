@@ -1,5 +1,7 @@
 include ':lib-x5webview'
 include ':app',
         ':lib-webview'
+//include ':jssdk-x5'
+//include ':jssdk'
 
 rootProject.name = "BaseWebview"

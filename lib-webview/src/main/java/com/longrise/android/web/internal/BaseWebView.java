@@ -18,7 +18,6 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.longrise.android.web.BaseWebActivity;
 import com.longrise.android.web.WebLog;
 import com.longrise.android.web.internal.bridge.BaseDownloader;
 import com.longrise.android.web.internal.bridge.BaseWebBridge;
@@ -33,10 +32,7 @@ import java.lang.reflect.Method;
  *
  * @author godliness
  */
-@SuppressWarnings("unused")
-public final class BaseWebView<T extends BaseWebActivity<T>> extends WebView {
-
-    public static final String NAME = BaseWebView.class.getSimpleName();
+public final class BaseWebView extends WebView {
 
     private static final int SCROLL_TOP = 0;
     private static final int SCROLL_END = 1;
@@ -48,10 +44,10 @@ public final class BaseWebView<T extends BaseWebActivity<T>> extends WebView {
 
     private IScrollChangeListener mScrollListener;
 
-    private BaseWebChromeClient<T> mWebChromeClient;
-    private BaseWebViewClient<T> mWebViewClient;
-    private BaseDownloader<T> mDownloader;
-    private BaseWebBridge<T> mBridge;
+    private BaseWebChromeClient<?> mWebChromeClient;
+    private BaseWebViewClient<?> mWebViewClient;
+    private BaseDownloader<?> mDownloader;
+    private BaseWebBridge<?> mBridge;
 
     private ClientBridgeAgent mClientBridge;
 
@@ -71,7 +67,7 @@ public final class BaseWebView<T extends BaseWebActivity<T>> extends WebView {
      * 快速获取一个 BaseWebView
      */
     @Nullable
-    public static BaseWebView<?> createOrGetWebView(Context context) {
+    public static BaseWebView createOrGetWebView(Context context) {
         return WebViewFactory.findWebView(context);
     }
 
@@ -79,8 +75,8 @@ public final class BaseWebView<T extends BaseWebActivity<T>> extends WebView {
      * 快速获取一个 BaseWebView，并设置 WebSetting
      */
     @Nullable
-    public static BaseWebView<?> createOrGetWebViewAndInitSetting(Context context) {
-        final BaseWebView<?> webView = WebViewFactory.findWebView(context);
+    public static BaseWebView createOrGetWebViewAndInitSetting(Context context) {
+        final BaseWebView webView = WebViewFactory.findWebView(context);
         if (webView != null) {
             SettingInit.initSetting(webView);
         }
@@ -126,42 +122,38 @@ public final class BaseWebView<T extends BaseWebActivity<T>> extends WebView {
         mClientBridge.registerCallback(webCallback);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public final void setWebChromeClient(WebChromeClient client) {
         super.setWebChromeClient(client);
         if (client instanceof BaseWebChromeClient<?>) {
-            this.mWebChromeClient = (BaseWebChromeClient<T>) client;
+            this.mWebChromeClient = (BaseWebChromeClient<?>) client;
             this.mWebChromeClient.invokeClientBridge(mClientBridge);
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public final void setWebViewClient(WebViewClient client) {
         super.setWebViewClient(client);
         if (client instanceof BaseWebViewClient) {
-            this.mWebViewClient = (BaseWebViewClient<T>) client;
+            this.mWebViewClient = (BaseWebViewClient<?>) client;
             this.mWebViewClient.invokeClientBridge(mClientBridge);
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void setDownloadListener(DownloadListener downloadListener) {
         super.setDownloadListener(downloadListener);
         if (downloadListener instanceof BaseDownloader) {
-            this.mDownloader = (BaseDownloader<T>) downloadListener;
+            this.mDownloader = (BaseDownloader<?>) downloadListener;
         }
     }
 
     @SuppressLint({"JavascriptInterface", "AddJavascriptInterface"})
-    @SuppressWarnings("unchecked")
     @Override
     public void addJavascriptInterface(Object object, String name) {
         super.addJavascriptInterface(object, name);
         if (object instanceof BaseWebBridge) {
-            this.mBridge = (BaseWebBridge<T>) object;
+            this.mBridge = (BaseWebBridge<?>) object;
         }
     }
 
@@ -244,7 +236,7 @@ public final class BaseWebView<T extends BaseWebActivity<T>> extends WebView {
         try {
             super.setOverScrollMode(mode);
         } catch (Throwable throwable) {
-            final String messageCause = throwable.getCause() == null ? throwable.toString() : throwable.getCause().toString();
+//            final String messageCause = throwable.getCause() == null ? throwable.toString() : throwable.getCause().toString();
             final String trace = Log.getStackTraceString(throwable);
             for (String exception : WEB_VIEW_EXCEPTION) {
                 if (trace.contains(exception)) {
@@ -331,5 +323,4 @@ public final class BaseWebView<T extends BaseWebActivity<T>> extends WebView {
         setDownloadListener(null);
         clearHistory();
     }
-
 }

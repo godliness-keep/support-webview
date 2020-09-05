@@ -34,7 +34,7 @@ public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppC
     private static final String TAG = "BaseWebActivity";
 
     private final Handler mHandler = new Handler(this);
-    private BaseWebView<T> mWebView;
+    private BaseWebView mWebView;
     private BaseFileChooser<T> mFileChooser;
 
     /**
@@ -62,7 +62,7 @@ public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppC
      *
      * @return {@link BaseWebView}
      */
-    public abstract BaseWebView<T> getWebView();
+    public abstract BaseWebView getWebView();
 
     /**
      * Perform load Web address in {@link #initView()}
@@ -266,7 +266,7 @@ public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppC
     }
 
     private void createWebFrame() {
-        final BaseWebView<T> webView = getWebView();
+        final BaseWebView webView = getWebView();
         if (webView == null) {
             throw new NullPointerException("getWebView() == null");
         }
@@ -274,7 +274,7 @@ public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppC
         initAndCreateBridge(webView);
     }
 
-    private void initAndCreateBridge(BaseWebView<T> webView) {
+    private void initAndCreateBridge(BaseWebView webView) {
         SettingInit.initSetting(webView);
         createWebBridge(webView);
         createWebViewClient(webView);

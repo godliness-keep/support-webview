@@ -135,7 +135,7 @@ public abstract class BaseWebViewClient<T extends BaseWebActivity<T>> extends We
         // 关于返回值的作用正确解读应该是
         // 如果返回 true，表明由应用自行（开发者）处理（拦截），WebView 不处理
         // 如果返回 false，则说明由 WebView 处理该 URL，即使用 WebView loadUrl
-        return !canOverrideUrlLoading(webView, url);
+        return canInterceptUrlLoading(webView, url);
     }
 
     /**
@@ -149,9 +149,6 @@ public abstract class BaseWebViewClient<T extends BaseWebActivity<T>> extends We
         return super.shouldOverrideUrlLoading(webView, webResourceRequest);
     }
 
-    /**
-     *
-     */
     @Override
     public void onPageStarted(WebView view, String url, Bitmap favicon) {
         if (isFinished()) {
@@ -245,9 +242,16 @@ public abstract class BaseWebViewClient<T extends BaseWebActivity<T>> extends We
 //        }
     }
 
-    /**
-     * 阻塞图片加载
-     */
+    public final void invokeClientBridge(ClientBridgeAgent agent) {
+        this.mClientBridge = agent;
+    }
+
+    public final void attachTarget(BaseWebActivity<T> target, WebView view) {
+        view.setWebViewClient(this);
+        this.mHandler = target.getHandler();
+        this.mTarget = new WeakReference<>(target);
+    }
+
     private void blockImageLoad(WebView view) {
         if (!mBlockImageLoad) {
             final WebSettings settings = view.getSettings();
@@ -258,9 +262,6 @@ public abstract class BaseWebViewClient<T extends BaseWebActivity<T>> extends We
         }
     }
 
-    /**
-     * 开始图片加载
-     */
     private void toImageLoad(WebView view) {
         if (mBlockImageLoad) {
             final WebSettings settings = view.getSettings();
@@ -279,42 +280,6 @@ public abstract class BaseWebViewClient<T extends BaseWebActivity<T>> extends We
         }
         return false;
     }
-
-    private boolean canOverrideUrlLoading(WebView view, String url) {
-        if (isFinished()) {
-            return false;
-        }
-        return isInterceptUrlLoading(view, url);
-    }
-
-    private boolean beforeUrlLoading(String url) {
-        if (mClientBridge != null) {
-            // 给外部一次拦截的机会
-            // 可以重写 BaseWebActivity的shouldOverrideUrlLoading
-            return mClientBridge.beforeUrlLoading(url);
-        }
-        return false;
-    }
-
-    private boolean isInterceptUrlLoading(WebView view, String url) {
-        final boolean intercept = beforeUrlLoading(url);
-        if (intercept || TextUtils.isEmpty(url) || !isEffectiveScheme(url)) {
-            // Unable to process Url address
-            return false;
-        }
-        // 是否需要拦截 url 加载
-        return shouldInterceptUrlLoading(view, url);
-    }
-
-//    private boolean canRedirectOverrideUrlLoading(WebView view, String url) {
-//        final boolean intercept = beforeUrlLoading(url);
-//        if (intercept || TextUtils.isEmpty(url) || !isEffectiveScheme(url)) {
-//            // Unable to process Url address
-//            return false;
-//        }
-//        // 是否需要拦截 url 加载
-//        return shouldInterceptRedirectLoad(view, url);
-//    }
 
     /**
      * 是否是有效的 scheme，如果是自定义动作 {@link #beforeUrlLoading(String)}
@@ -344,13 +309,28 @@ public abstract class BaseWebViewClient<T extends BaseWebActivity<T>> extends We
         }
     }
 
-    public final void invokeClientBridge(ClientBridgeAgent agent) {
-        this.mClientBridge = agent;
+    private boolean canInterceptUrlLoading(WebView view, String url){
+        if(isFinished()){
+            return true;
+        }
+        return isInterceptUrlLoading(view, url);
     }
 
-    public final void attachTarget(BaseWebActivity<T> target, WebView view) {
-        view.setWebViewClient(this);
-        this.mHandler = target.getHandler();
-        this.mTarget = new WeakReference<>(target);
+    private boolean isInterceptUrlLoading(WebView view, String url){
+        final boolean intercept = beforeUrlLoading(url);
+        if (intercept || TextUtils.isEmpty(url) || !isEffectiveScheme(url)) {
+            // Unable to process Url address
+            return true;
+        }
+        return shouldInterceptUrlLoading(view, url);
+    }
+
+    private boolean beforeUrlLoading(String url) {
+        if (mClientBridge != null) {
+            // 给外部一次拦截的机会
+            // 可以重写 BaseWebActivity的shouldOverrideUrlLoading
+            return mClientBridge.beforeUrlLoading(url);
+        }
+        return false;
     }
 }
