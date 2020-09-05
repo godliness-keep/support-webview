@@ -311,7 +311,14 @@ public class X5WebView extends WebView {
     private void release() {
         final ViewParent viewParent = getParent();
         if (viewParent instanceof ViewGroup) {
-            ((ViewGroup) viewParent).removeView(this);
+            try {
+                ((ViewGroup) viewParent).removeView(this);
+            } catch (Exception e) {
+                // X5 这里居然有异常
+                if (X5.isDebug()) {
+                    throw e;
+                }
+            }
         }
         stopLoading();
         clearMatches();
