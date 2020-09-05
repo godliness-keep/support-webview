@@ -19,9 +19,9 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import com.longrise.android.web.BaseWebActivity;
+import com.longrise.android.web.internal.ClientBridgeAgent;
 import com.longrise.android.web.internal.Internal;
 import com.longrise.android.web.internal.SchemeConsts;
-import com.longrise.android.web.internal.webcallback.WebCallback;
 
 import java.lang.ref.WeakReference;
 
@@ -39,11 +39,17 @@ public abstract class BaseWebViewClient<T extends BaseWebActivity<T>> extends We
 
     private Handler mHandler;
     private WeakReference<BaseWebActivity<T>> mTarget;
-    private WeakReference<WebCallback.WebViewClientListener> mClientCallback;
+    private ClientBridgeAgent mClientBridge;
 
     private boolean mBlockImageLoad;
-    private boolean mLoadedError;
     private boolean mFirstFinished = true;
+
+    /**
+     * 是否优先加载 DOM，暂时阻塞图片加载
+     */
+    protected boolean isPriorityResourceLoad() {
+        return false;
+    }
 
     /**
      * 获取当前 Activity
@@ -96,13 +102,6 @@ public abstract class BaseWebViewClient<T extends BaseWebActivity<T>> extends We
     }
 
     /**
-     * 获取当前对外通知的加载状态回调
-     */
-    protected final WebCallback.WebViewClientListener getCallback() {
-        return mClientCallback != null ? mClientCallback.get() : null;
-    }
-
-    /**
      * shouldOverrideUrlLoading 规则较为繁琐，简单整理如下
      * 1、通过 loadUrl 该方法不会被回调
      * 2、WebView 的前进、后退、刷新、以及 POST 请求都不会回调
@@ -133,11 +132,13 @@ public abstract class BaseWebViewClient<T extends BaseWebActivity<T>> extends We
             return;
         }
 
-        if (mLoadedError) {
-            notifyWebViewLoadedState();
+        if (mClientBridge != null) {
+            mClientBridge.onPageStarted();
         }
 
-//        blockImageLoad(view);
+        if (isPriorityResourceLoad()) {
+            blockImageLoad(view);
+        }
     }
 
     @Override
@@ -146,14 +147,18 @@ public abstract class BaseWebViewClient<T extends BaseWebActivity<T>> extends We
             return;
         }
 
-        notifyWebViewLoadedState();
+        if (mClientBridge != null) {
+            mClientBridge.onPageFinished();
+        }
 
         if (mFirstFinished) {
             clearForwardHistory(view);
             mFirstFinished = false;
         }
 
-//        toImageLoad(view);
+        if (isPriorityResourceLoad()) {
+            toImageLoad(view);
+        }
     }
 
     /**
@@ -164,7 +169,9 @@ public abstract class BaseWebViewClient<T extends BaseWebActivity<T>> extends We
         if (interceptErrorState(view, failingUrl, errorCode)) {
             return;
         }
-        this.mLoadedError = true;
+        if (mClientBridge != null) {
+            mClientBridge.onReceivedError();
+        }
     }
 
     /**
@@ -178,8 +185,9 @@ public abstract class BaseWebViewClient<T extends BaseWebActivity<T>> extends We
         if (interceptErrorState(view, failingUrl, errorCode)) {
             return;
         }
-
-        this.mLoadedError = true;
+        if (mClientBridge != null) {
+            mClientBridge.onReceivedError();
+        }
     }
 
     @Override
@@ -237,10 +245,6 @@ public abstract class BaseWebViewClient<T extends BaseWebActivity<T>> extends We
         }
     }
 
-    private void addWebViewClientListener(WebCallback.WebViewClientListener clientListener) {
-        this.mClientCallback = new WeakReference<>(clientListener);
-    }
-
     private boolean interceptErrorState(WebView view, String failingUrl, int errorCode) {
         if (errorCode != -8 && errorCode != -2) {
             final boolean isErrorUrl = !TextUtils.equals(failingUrl, view.getUrl()) && !TextUtils.equals(failingUrl, view.getOriginalUrl());
@@ -258,10 +262,9 @@ public abstract class BaseWebViewClient<T extends BaseWebActivity<T>> extends We
     }
 
     private boolean beforeUrlLoading(String url) {
-        final WebCallback.WebViewClientListener callback = getCallback();
-        if (callback != null) {
+        if (mClientBridge != null) {
             // 给外部一次拦截的机会
-            return callback.shouldOverrideUrlLoading(url);
+            return mClientBridge.beforeUrlLoading(url);
         }
         return false;
     }
@@ -306,27 +309,13 @@ public abstract class BaseWebViewClient<T extends BaseWebActivity<T>> extends We
         }
     }
 
-    private void notifyWebViewLoadedState() {
-        post(new Runnable() {
-            @Override
-            public void run() {
-                final WebCallback.WebViewClientListener callback = getCallback();
-                if (callback != null) {
-                    if (mLoadedError) {
-                        callback.loadFailed();
-                        mLoadedError = false;
-                    } else {
-                        callback.loadSucceed();
-                    }
-                }
-            }
-        });
+    public final void invokeClientBridge(ClientBridgeAgent agent) {
+        this.mClientBridge = agent;
     }
 
     public final void attachTarget(BaseWebActivity<T> target, WebView view) {
         view.setWebViewClient(this);
         this.mHandler = target.getHandler();
         this.mTarget = new WeakReference<>(target);
-        addWebViewClientListener(target);
     }
 }

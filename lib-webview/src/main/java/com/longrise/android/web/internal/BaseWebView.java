@@ -24,6 +24,7 @@ import com.longrise.android.web.internal.bridge.BaseDownloader;
 import com.longrise.android.web.internal.bridge.BaseWebBridge;
 import com.longrise.android.web.internal.bridge.BaseWebChromeClient;
 import com.longrise.android.web.internal.bridge.BaseWebViewClient;
+import com.longrise.android.web.internal.webcallback.WebLoadListener;
 
 import java.lang.reflect.Method;
 
@@ -33,7 +34,7 @@ import java.lang.reflect.Method;
  * @author godliness
  */
 @SuppressWarnings("unused")
-public class BaseWebView<T extends BaseWebActivity<T>> extends WebView {
+public final class BaseWebView<T extends BaseWebActivity<T>> extends WebView {
 
     public static final String NAME = BaseWebView.class.getSimpleName();
 
@@ -52,6 +53,8 @@ public class BaseWebView<T extends BaseWebActivity<T>> extends WebView {
     private BaseDownloader<T> mDownloader;
     private BaseWebBridge<T> mBridge;
 
+    private ClientBridgeAgent mClientBridge;
+
     public BaseWebView(Context context) {
         this(context, null);
     }
@@ -60,6 +63,8 @@ public class BaseWebView<T extends BaseWebActivity<T>> extends WebView {
         super(context, attrs);
         removeJavascriptInterfaces();
         disableAccessibility(context);
+
+        this.mClientBridge = ClientBridgeAgent.getInstance();
     }
 
     /**
@@ -89,7 +94,6 @@ public class BaseWebView<T extends BaseWebActivity<T>> extends WebView {
         this.mScrollListener = changedListener;
     }
 
-
     /**
      * 清除内存缓存
      */
@@ -118,12 +122,17 @@ public class BaseWebView<T extends BaseWebActivity<T>> extends WebView {
         return false;
     }
 
+    public void registerCallback(WebLoadListener webCallback) {
+        mClientBridge.registerCallback(webCallback);
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public final void setWebChromeClient(WebChromeClient client) {
         super.setWebChromeClient(client);
         if (client instanceof BaseWebChromeClient<?>) {
             this.mWebChromeClient = (BaseWebChromeClient<T>) client;
+            this.mWebChromeClient.invokeClientBridge(mClientBridge);
         }
     }
 
@@ -133,6 +142,7 @@ public class BaseWebView<T extends BaseWebActivity<T>> extends WebView {
         super.setWebViewClient(client);
         if (client instanceof BaseWebViewClient) {
             this.mWebViewClient = (BaseWebViewClient<T>) client;
+            this.mWebViewClient.invokeClientBridge(mClientBridge);
         }
     }
 
@@ -184,6 +194,10 @@ public class BaseWebView<T extends BaseWebActivity<T>> extends WebView {
         if (drawable != null) {
             setBackground(null);
             drawable.setCallback(null);
+        }
+        if (mClientBridge != null) {
+            mClientBridge.destroy();
+            mClientBridge = null;
         }
     }
 
@@ -317,4 +331,5 @@ public class BaseWebView<T extends BaseWebActivity<T>> extends WebView {
         setDownloadListener(null);
         clearHistory();
     }
+
 }

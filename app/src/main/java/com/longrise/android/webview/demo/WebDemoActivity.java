@@ -3,7 +3,11 @@ package com.longrise.android.webview.demo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewParent;
+import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -25,6 +29,9 @@ public final class WebDemoActivity extends BaseWebActivity<WebDemoActivity> impl
 
     private BaseWebView<WebDemoActivity> mWebView;
 
+    private FrameLayout mWebContent;
+    private View mLoadFailedView;
+
     @Override
     protected int getLayoutResourceId(@Nullable Bundle state) {
         return R.layout.activity_web_demo;
@@ -41,7 +48,10 @@ public final class WebDemoActivity extends BaseWebActivity<WebDemoActivity> impl
         mProgress = findViewById(R.id.progress);
         mWebView = findViewById(R.id.webview);
 
-        loadUrl("https://tieba.baidu.com/index.html");
+        loadUrl("https://www.163.com");
+
+        mWebContent = findViewById(R.id.web_content);
+        mLoadFailedView = LayoutInflater.from(this).inflate(R.layout.load_failed, mWebView, false);
     }
 
     /**
@@ -96,6 +106,11 @@ public final class WebDemoActivity extends BaseWebActivity<WebDemoActivity> impl
     @Override
     public void loadSucceed() {
         Log.e(TAG, "loadSucceed");
+
+        final ViewParent vp = mLoadFailedView.getParent();
+        if (vp instanceof ViewGroup) {
+            ((ViewGroup) vp).removeView(mLoadFailedView);
+        }
     }
 
     /**
@@ -104,6 +119,11 @@ public final class WebDemoActivity extends BaseWebActivity<WebDemoActivity> impl
     @Override
     public void loadFailed() {
         Log.e(TAG, "loadFailed");
+
+        final ViewParent vp = mLoadFailedView.getParent();
+        if (vp == null) {
+            mWebContent.addView(mLoadFailedView);
+        }
     }
 
     @Override

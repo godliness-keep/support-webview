@@ -212,7 +212,8 @@ public abstract class BaseWebChromeClient<T extends BaseWebActivity<T>> extends 
         return super.onConsoleMessage(consoleMessage);
     }
 
-    public final void attachTarget(BaseWebActivity<T> target) {
+    public final void attachTarget(BaseWebActivity<T> target, WebView view) {
+        view.setWebChromeClient(this);
         this.mHandler = target.getHandler();
         this.mTarget = new WeakReference<>(target);
         this.mWebChromeCallback = new WeakReference<WebCallback.WebChromeListener>(target);

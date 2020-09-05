@@ -15,9 +15,9 @@ import android.webkit.WebView;
 
 import com.longrise.android.web.BaseWebActivity;
 import com.longrise.android.web.WebLog;
+import com.longrise.android.web.internal.ClientBridgeAgent;
 import com.longrise.android.web.internal.Internal;
 import com.longrise.android.web.internal.SchemeConsts;
-import com.longrise.android.web.internal.webcallback.WebCallback;
 
 import java.lang.ref.WeakReference;
 
@@ -33,7 +33,7 @@ public abstract class BaseWebChromeClient<T extends BaseWebActivity<T>> extends 
 
     private Handler mHandler;
     private WeakReference<BaseWebActivity<T>> mTarget;
-    private WeakReference<WebCallback.WebChromeListener> mWebChromeCallback;
+    private ClientBridgeAgent mClientBridge;
 
     private boolean mFirstLoad = true;
 
@@ -85,14 +85,6 @@ public abstract class BaseWebChromeClient<T extends BaseWebActivity<T>> extends 
         }
     }
 
-    /**
-     * 获取对外通知的 Callback
-     */
-    @Nullable
-    protected final WebCallback.WebChromeListener getCallback() {
-        return mWebChromeCallback != null ? mWebChromeCallback.get() : null;
-    }
-
     @Override
     public void onReceivedTitle(WebView view, final String title) {
         if (isFinished()) {
@@ -101,15 +93,9 @@ public abstract class BaseWebChromeClient<T extends BaseWebActivity<T>> extends 
         if (TextUtils.equals(title, SchemeConsts.BLANK)) {
             return;
         }
-        post(new Runnable() {
-            @Override
-            public void run() {
-                final WebCallback.WebChromeListener callback = getCallback();
-                if (callback != null) {
-                    callback.onReceivedTitle(title);
-                }
-            }
-        });
+        if (mClientBridge != null) {
+            mClientBridge.onReceivedTitle(title);
+        }
     }
 
     @Override
@@ -117,15 +103,10 @@ public abstract class BaseWebChromeClient<T extends BaseWebActivity<T>> extends 
         if (isFinished()) {
             return;
         }
-        post(new Runnable() {
-            @Override
-            public void run() {
-                final WebCallback.WebChromeListener callback = getCallback();
-                if (callback != null) {
-                    callback.onProgressChanged(newProgress);
-                }
-            }
-        });
+
+        if (mClientBridge != null) {
+            mClientBridge.onProgressChanged(newProgress);
+        }
 
         if (mFirstLoad) {
             view.clearHistory();
@@ -212,10 +193,13 @@ public abstract class BaseWebChromeClient<T extends BaseWebActivity<T>> extends 
         return super.onConsoleMessage(consoleMessage);
     }
 
+    public final void invokeClientBridge(ClientBridgeAgent agent) {
+        this.mClientBridge = agent;
+    }
+
     public final void attachTarget(BaseWebActivity<T> target, WebView view) {
         view.setWebChromeClient(this);
         this.mHandler = target.getHandler();
         this.mTarget = new WeakReference<>(target);
-        this.mWebChromeCallback = new WeakReference<WebCallback.WebChromeListener>(target);
     }
 }

@@ -322,7 +322,8 @@ public abstract class BaseWebViewClient<T extends BaseWebActivity<T>> extends We
         });
     }
 
-    public final void attachTarget(BaseWebActivity<T> target) {
+    public final void attachTarget(BaseWebActivity<T> target, WebView view) {
+        view.setWebViewClient(this);
         this.mHandler = target.getHandler();
         this.mTarget = new WeakReference<>(target);
         addWebViewClientListener(target);

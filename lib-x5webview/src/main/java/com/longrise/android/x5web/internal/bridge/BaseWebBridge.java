@@ -1,5 +1,6 @@
 package com.longrise.android.x5web.internal.bridge;
 
+import android.annotation.SuppressLint;
 import android.os.Handler;
 import android.os.Message;
 
@@ -18,13 +19,6 @@ public abstract class BaseWebBridge<T extends BaseWebActivity<T>> extends BaseBr
 
     private Handler mHandler;
     private WeakReference<WebView> mView;
-
-    @SuppressWarnings("unchecked")
-    public final void bindTarget(BaseWebActivity<T> target, WebView view) {
-        super.bindTarget((T) target);
-        this.mHandler = target.getHandler();
-        this.mView = new WeakReference<>(view);
-    }
 
     /**
      * 对应{@link T#onDestroy()}
@@ -53,5 +47,15 @@ public abstract class BaseWebBridge<T extends BaseWebActivity<T>> extends BaseBr
     @Override
     protected final WebView getWebView() {
         return mView.get();
+    }
+
+    @SuppressLint("AddJavascriptInterface")
+    @SuppressWarnings("unchecked")
+    public final void bindTarget(BaseWebActivity<T> target, WebView view) {
+        super.bindTarget((T) target);
+        // 适用于 API Level 17及以后，之前有安全问题，暂未做修复
+        view.addJavascriptInterface(this, bridgeName());
+        this.mHandler = target.getHandler();
+        this.mView = new WeakReference<>(view);
     }
 }

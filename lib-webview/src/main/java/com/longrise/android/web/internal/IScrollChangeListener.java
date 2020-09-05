@@ -4,6 +4,7 @@ package com.longrise.android.web.internal;
  * Created by godliness on 2019-07-17.
  *
  * @author godliness
+ * WebView 滑动监听
  */
 public interface IScrollChangeListener {
 

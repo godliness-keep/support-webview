@@ -1,6 +1,5 @@
 package com.longrise.android.web;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -21,7 +20,7 @@ import com.longrise.android.web.internal.bridge.BaseFileChooser;
 import com.longrise.android.web.internal.bridge.BaseWebBridge;
 import com.longrise.android.web.internal.bridge.BaseWebChromeClient;
 import com.longrise.android.web.internal.bridge.BaseWebViewClient;
-import com.longrise.android.web.internal.webcallback.WebCallback;
+import com.longrise.android.web.internal.webcallback.WebLoadListener;
 
 /**
  * Created by godliness on 2019-07-09.
@@ -30,7 +29,7 @@ import com.longrise.android.web.internal.webcallback.WebCallback;
  */
 @SuppressWarnings("unused")
 public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppCompatActivity implements
-        WebCallback.WebChromeListener, WebCallback.WebViewClientListener, Handler.Callback {
+        WebLoadListener, Handler.Callback {
 
     private static final String TAG = "BaseWebActivity";
 
@@ -208,7 +207,13 @@ public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppC
     @Override
     protected final void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        beforeSetContentView();
         setContentView(getLayoutResourceId(savedInstanceState));
+    }
+
+    @Override
+    public final void onContentChanged() {
+        super.onContentChanged();
         initView();
         createWebFrame();
         regEvent(true);
@@ -223,19 +228,19 @@ public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppC
     }
 
     @Override
-    public void finish() {
-        if (mWebView != null) {
-            mWebView.loadUrl(SchemeConsts.BLANK);
-        }
-        super.finish();
-    }
-
-    @Override
     protected void onPause() {
         super.onPause();
         if (mWebView != null) {
             mWebView.onPause();
         }
+    }
+
+    @Override
+    public void finish() {
+        if (mWebView != null) {
+            mWebView.loadUrl(SchemeConsts.BLANK);
+        }
+        super.finish();
     }
 
     @Override
@@ -263,6 +268,7 @@ public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppC
         if (webView == null) {
             throw new NullPointerException("getWebView() == null");
         }
+        webView.registerCallback(this);
         initAndCreateBridge(webView);
     }
 

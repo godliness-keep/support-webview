@@ -3,10 +3,8 @@ package com.longrise.android.web.internal;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
-import com.longrise.android.mvp.BuildConfig;
-import com.longrise.android.web.BaseWebActivity;
+import com.longrise.android.web.WebLog;
 
 import java.util.LinkedList;
 
@@ -29,9 +27,9 @@ final class WebViewFactory {
             if (WEB_VIEWS.size() > 0) {
                 webView = WEB_VIEWS.removeFirst();
 
-                if (BuildConfig.DEBUG) {
+                if (WebLog.isDebug()) {
                     final int size = webView.copyBackForwardList().getSize();
-                    Log.d(TAG, "back stack size: " + size + " current url: " + webView.getOriginalUrl());
+                    WebLog.debug(TAG, "back stack size: " + size + " current url: " + webView.getOriginalUrl());
                 }
             }
         }
@@ -39,16 +37,14 @@ final class WebViewFactory {
             try {
                 return new BaseWebView<>(context.getApplicationContext());
             } catch (Exception e) {
-                if (BuildConfig.DEBUG) {
-                    // 部分可能会出现无 WebView 的情况
-                    e.printStackTrace();
-                }
+                // 部分可能会出现无 WebView 的情况
+                WebLog.print(e);
             }
         }
         return webView;
     }
 
-    static <T extends BaseWebActivity> boolean recycle(BaseWebView<T> webView) {
+    static boolean recycle(BaseWebView<?> webView) {
         synchronized (WEB_VIEWS) {
             if (WEB_VIEWS.size() < MAX_CACHE_SIZE) {
                 WEB_VIEWS.add(webView);

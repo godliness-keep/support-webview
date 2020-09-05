@@ -36,7 +36,19 @@ public abstract class BaseDownloader<T extends BaseWebActivity<T>> implements Do
     public abstract void onDownloadStart(String url, String userAgent,
                                          String contentDisposition, String mimetype, long contentLength);
 
+    /**
+     * 对应 {@link T#onDestroy()}
+     */
     public abstract void onDestroy();
+
+    /**
+     * 拦截由 Handler 发送的消息
+     *
+     * @return true 表示拦截
+     */
+    public boolean onHandleMessage(Message msg) {
+        return false;
+    }
 
     /**
      * 获取当前 Activity {@link T}
@@ -75,15 +87,6 @@ public abstract class BaseDownloader<T extends BaseWebActivity<T>> implements Do
         if (!isFinished()) {
             mHandler.postDelayed(action, delay);
         }
-    }
-
-    /**
-     * 拦截由 Handler 发送的消息
-     *
-     * @return true 表示拦截
-     */
-    public boolean onHandleMessage(Message msg) {
-        return false;
     }
 
     public final void attachTarget(BaseWebActivity<T> target, WebView view) {
