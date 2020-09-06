@@ -207,10 +207,11 @@ public abstract class BaseWebChromeClient<T extends BaseWebActivity<T>> extends 
     }
 
     /**
-     * 响应 console {@link X5#onConsoleMessage(ConsoleMessage)}
+     * 响应 JavaScript console 消息 {@link X5#onConsoleMessage(ConsoleMessage)}
      */
     @Override
-    public boolean onConsoleMessage(ConsoleMessage console) {
+    public final boolean onConsoleMessage(ConsoleMessage console) {
+        // 需要注意，X5 WebView 参数可以多个
         return X5.onConsoleMessage(console);
     }
 

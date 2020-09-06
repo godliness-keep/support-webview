@@ -179,7 +179,7 @@ public abstract class BaseWebChromeClient<T extends BaseWebActivity<T>> extends 
      * 警示框 {@link WebLog#onJsAlert(Context, String, String, JsResult)}
      */
     @Override
-    public boolean onJsAlert(WebView webView, String s, String s1, final JsResult jsResult) {
+    public final boolean onJsAlert(WebView webView, String s, String s1, final JsResult jsResult) {
         if (isFinished()) {
             return true;
         }
@@ -190,7 +190,7 @@ public abstract class BaseWebChromeClient<T extends BaseWebActivity<T>> extends 
      * 提示框 {@link WebLog#onJsPrompt(Context, String, String, String, JsPromptResult)}
      */
     @Override
-    public boolean onJsPrompt(WebView view, String url, String message, String defaultValue, JsPromptResult result) {
+    public final boolean onJsPrompt(WebView view, String url, String message, String defaultValue, JsPromptResult result) {
         if (isFinished()) {
             return true;
         }
@@ -201,7 +201,7 @@ public abstract class BaseWebChromeClient<T extends BaseWebActivity<T>> extends 
      * 确定框 {@link WebLog#onJsConfirm(Context, String, String, JsResult)}
      */
     @Override
-    public boolean onJsConfirm(WebView webView, String s, String s1, JsResult jsResult) {
+    public final boolean onJsConfirm(WebView webView, String s, String s1, JsResult jsResult) {
         if (isFinished()) {
             return true;
         }
@@ -209,11 +209,24 @@ public abstract class BaseWebChromeClient<T extends BaseWebActivity<T>> extends 
     }
 
     /**
-     * 响应 console {@link WebLog#onConsoleMessage(ConsoleMessage)}
+     * 响应 JavaScript console 消息{@link WebLog#onConsoleMessage(ConsoleMessage)}
      */
     @Override
-    public boolean onConsoleMessage(ConsoleMessage console) {
+    public final boolean onConsoleMessage(ConsoleMessage console) {
+        // 高版本走这里
+        // 需要注意，原生 WebView 参数只能一个
         return WebLog.onConsoleMessage(console);
+    }
+
+    /**
+     * 响应 JavaScript console 消息{@link WebLog#onConsoleMessage(ConsoleMessage)}
+     */
+    @Override
+    public final void onConsoleMessage(String message, int lineNumber, String sourceID) {
+        // 低版本走这里
+        // 需要注意，原生 WebView 参数只能一个
+        final ConsoleMessage console = new ConsoleMessage(message, sourceID, lineNumber, ConsoleMessage.MessageLevel.DEBUG);
+        WebLog.onConsoleMessage(console);
     }
 
     public final void invokeClientBridge(ClientBridgeAgent agent) {

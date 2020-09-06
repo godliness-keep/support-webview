@@ -116,24 +116,37 @@ public class WebLog {
 
     static {
         if (isDebug()) {
-            sLogger = new BaseLogger() {
+            setLogger(new BaseLogger() {
                 @Override
                 public boolean onConsoleMessage(ConsoleMessage console) {
                     final String levelName = console.messageLevel().name();
-                    final String messages = "lineNumber: " + console.lineNumber() + " " + "sourceId: " + console.sourceId();
+                    final String[] tags = console.message().split("\u0020");
+                    final String tag = tags.length > 1 ? tags[0] : "";
+                    final StringBuilder message = new StringBuilder();
+                    for (int i = 1; i < tags.length; i++) {
+                        message.append(tags[i]);
+                    }
+                    message.append(" lineNumber: ")
+                            .append(console.lineNumber())
+                            .append(" sourceId: ")
+                            .append(console.sourceId());
+
                     switch (levelName) {
                         case "ERROR":
-                            error(console.message(), messages);
+                            WebLog.error(tag, message.toString());
                             return true;
 
                         case "WARNING":
-                            warn(console.message(), messages);
+                            WebLog.warn(tag, message.toString());
+                            return true;
+
+                        case "LOG":
+                            WebLog.log(tag, message.toString());
                             return true;
 
                         case "DEBUG":
-                        case "LOG":
                         case "TIP":
-                            debug(console.message(), messages);
+                            WebLog.debug(tag, message.toString());
                             return true;
 
                         default:
@@ -168,7 +181,7 @@ public class WebLog {
                 private AlertDialog.Builder createAlertBuilder(Context cxt, String title, String message) {
                     return new AlertDialog.Builder(cxt).setTitle(title).setMessage(message);
                 }
-            };
+            });
         }
     }
 

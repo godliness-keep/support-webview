@@ -92,7 +92,7 @@
 					eventName: 'shareFeiji',
 					params: params,
 					success: function(res) {
-					    console.log('main', JSON.stringify(res))
+					    console.error(JSON.stringify(res))
 						alert('来自 Native 的返回：' + JSON.stringify(res))
 					},
 					failed: function(res) {
