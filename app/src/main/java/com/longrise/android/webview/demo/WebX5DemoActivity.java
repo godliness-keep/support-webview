@@ -233,8 +233,8 @@ public class WebX5DemoActivity extends BaseWebActivity<WebX5DemoActivity> implem
         @EventName("shareFeiji")
         public void onEvent(Params params) {
             Log.e(TAG, "接收到JS传递参数：" + params);
-            final Bean[] beans = new Bean[100];
-            for (int i = 0; i < 100; i++) {
+            final Bean[] beans = new Bean[1];
+            for (int i = 0; i < 1; i++) {
                 final Bean bean = new Bean();
                 bean.like = "心，是一个容器，不停地累积，关于你的点点滴滴";
                 bean.sex = "boy " + i;

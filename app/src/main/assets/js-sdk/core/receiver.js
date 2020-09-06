@@ -1,7 +1,7 @@
-let receiverManager = (function() {
+var receiverManager = (function() {
 
-	let events = {}
-	let lifecycles = {}
+	var events = {}
+	var lifecycles = {}
 
 	function addEventInternal(eventName) {
 		events[eventName] = document;
@@ -11,22 +11,22 @@ let receiverManager = (function() {
 		if (lifecycles[document] == null) {
 			lifecycles[document] = {}
 		}
-		let eventMap = lifecycles[document]
+		var eventMap = lifecycles[document]
 		eventMap[eventName] = event
 	}
 
 	function dispatchReceiverInternal(request) {
-		let host = events[request.eventName];
-		let eventMap = lifecycles[host];
-		let targetMethod = eventMap[request.eventName];
-		let targetResult;
+		var host = events[request.eventName];
+		var eventMap = lifecycles[host];
+		var targetMethod = eventMap[request.eventName];
+		var targetResult;
 		if (targetMethod.length > 0) {
 			targetResult = targetMethod(request.params);
 		} else {
 			targetResult = targetMethod();
 		}
 		if (targetResult != null) {
-			let message = {
+			var message = {
 				id: request.id,
 				result: targetResult
 			}
@@ -35,7 +35,7 @@ let receiverManager = (function() {
 	}
 
 	function removeLifecycleInternal(host) {
-		let eventMap = lifecycles[host]
+		var eventMap = lifecycles[host]
 		if (eventMap != null) {
 			for (key in eventMap) {
 				delete events[key]
@@ -77,15 +77,15 @@ let receiverManager = (function() {
 	}
 })()
 
-let receiver = new Proxy(receiverManager, {
-
-	set: function(target, key, value) {
-		if (typeof value === 'function') {
-			target.addEvent(key);
-			target.addLifecycle(key, value);
-		} else {
-			throw 'The property \'' + key + '\' must function type'
-		}
-	}
-});
+//const receiver = new Proxy(receiverManager, {
+//
+//	set: function(target, key, value) {
+//		if (typeof value === 'function') {
+//			target.addEvent(key);
+//			target.addLifecycle(key, value);
+//		} else {
+//			throw 'The property \'' + key + '\' must function type'
+//		}
+//	}
+//});
 

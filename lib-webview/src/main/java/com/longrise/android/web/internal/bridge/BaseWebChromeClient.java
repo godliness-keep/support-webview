@@ -1,5 +1,6 @@
 package com.longrise.android.web.internal.bridge;
 
+import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
@@ -9,6 +10,7 @@ import android.support.annotation.RequiresApi;
 import android.text.TextUtils;
 import android.webkit.ConsoleMessage;
 import android.webkit.JsPromptResult;
+import android.webkit.JsResult;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
@@ -173,24 +175,45 @@ public abstract class BaseWebChromeClient<T extends BaseWebActivity<T>> extends 
         return true;
     }
 
+    /**
+     * 警示框 {@link WebLog#onJsAlert(Context, String, String, JsResult)}
+     */
     @Override
-    public boolean onJsPrompt(WebView view, String url, String message, String defaultValue, JsPromptResult result) {
-        if (!isFinished()) {
-            try {
-                result.cancel();
-            } catch (Exception e) {
-                WebLog.print(e);
-            }
+    public boolean onJsAlert(WebView webView, String s, String s1, final JsResult jsResult) {
+        if (isFinished()) {
+            return true;
         }
-        return super.onJsPrompt(view, url, message, defaultValue, result);
+        return WebLog.onJsAlert(getTarget(), s, s1, jsResult);
     }
 
+    /**
+     * 提示框 {@link WebLog#onJsPrompt(Context, String, String, String, JsPromptResult)}
+     */
     @Override
-    public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
-        if (consoleMessage != null) {
-            WebLog.debug(TAG, consoleMessage.messageLevel().name() + " : " + consoleMessage.message());
+    public boolean onJsPrompt(WebView view, String url, String message, String defaultValue, JsPromptResult result) {
+        if (isFinished()) {
+            return true;
         }
-        return super.onConsoleMessage(consoleMessage);
+        return WebLog.onJsPrompt(getTarget(), url, message, defaultValue, result);
+    }
+
+    /**
+     * 确定框 {@link WebLog#onJsConfirm(Context, String, String, JsResult)}
+     */
+    @Override
+    public boolean onJsConfirm(WebView webView, String s, String s1, JsResult jsResult) {
+        if (isFinished()) {
+            return true;
+        }
+        return WebLog.onJsConfirm(getTarget(), s, s1, jsResult);
+    }
+
+    /**
+     * 响应 console {@link WebLog#onConsoleMessage(ConsoleMessage)}
+     */
+    @Override
+    public boolean onConsoleMessage(ConsoleMessage console) {
+        return WebLog.onConsoleMessage(console);
     }
 
     public final void invokeClientBridge(ClientBridgeAgent agent) {

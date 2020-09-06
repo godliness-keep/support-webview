@@ -1,5 +1,6 @@
 package com.longrise.android.x5web.internal.bridge;
 
+import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
@@ -15,6 +16,7 @@ import com.longrise.android.x5web.internal.Internal;
 import com.longrise.android.x5web.internal.SchemeConsts;
 import com.tencent.smtt.export.external.interfaces.ConsoleMessage;
 import com.tencent.smtt.export.external.interfaces.JsPromptResult;
+import com.tencent.smtt.export.external.interfaces.JsResult;
 import com.tencent.smtt.sdk.ValueCallback;
 import com.tencent.smtt.sdk.WebChromeClient;
 import com.tencent.smtt.sdk.WebView;
@@ -103,11 +105,9 @@ public abstract class BaseWebChromeClient<T extends BaseWebActivity<T>> extends 
         if (isFinished()) {
             return;
         }
-
         if (mClientBridge != null) {
             mClientBridge.onProgressChanged(newProgress);
         }
-
         if (mFirstLoad) {
             view.clearHistory();
             mFirstLoad = false;
@@ -150,7 +150,7 @@ public abstract class BaseWebChromeClient<T extends BaseWebActivity<T>> extends 
     }
 
     /**
-     * For android version >= 5.0  todo 4.4版本是个 Bug 无回调，需要另行约定
+     * For android version >= 5.0  todo 4.4 版本是个 Bug 无回调，需要另行约定
      */
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -173,24 +173,45 @@ public abstract class BaseWebChromeClient<T extends BaseWebActivity<T>> extends 
         return true;
     }
 
+    /**
+     * 警示框 {@link X5#onJsAlert(Context, String, String, JsResult)}
+     */
     @Override
-    public boolean onJsPrompt(WebView view, String url, String message, String defaultValue, JsPromptResult result) {
-        if (!isFinished()) {
-            try {
-                result.cancel();
-            } catch (Exception e) {
-                X5.print(e);
-            }
+    public final boolean onJsAlert(WebView webView, String s, String s1, final JsResult jsResult) {
+        if (isFinished()) {
+            return true;
         }
-        return super.onJsPrompt(view, url, message, defaultValue, result);
+        return X5.onJsAlert(getTarget(), s, s1, jsResult);
     }
 
+    /**
+     * 提示框 {@link X5#onJsPrompt(Context, String, String, String, JsPromptResult)}
+     */
     @Override
-    public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
-        if (consoleMessage != null) {
-            X5.debug(TAG, consoleMessage.messageLevel().name() + " : " + consoleMessage.message());
+    public final boolean onJsPrompt(WebView view, String url, String message, String defaultValue, JsPromptResult result) {
+        if (isFinished()) {
+            return true;
         }
-        return super.onConsoleMessage(consoleMessage);
+        return X5.onJsPrompt(getTarget(), url, message, defaultValue, result);
+    }
+
+    /**
+     * 确定框 {@link X5#onJsConfirm(Context, String, String, JsResult)}
+     */
+    @Override
+    public final boolean onJsConfirm(WebView webView, String s, String s1, JsResult jsResult) {
+        if (isFinished()) {
+            return true;
+        }
+        return X5.onJsConfirm(getTarget(), s, s1, jsResult);
+    }
+
+    /**
+     * 响应 console {@link X5#onConsoleMessage(ConsoleMessage)}
+     */
+    @Override
+    public boolean onConsoleMessage(ConsoleMessage console) {
+        return X5.onConsoleMessage(console);
     }
 
     public final void invokeClientBridge(ClientBridgeAgent agent) {

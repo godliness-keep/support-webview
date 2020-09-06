@@ -52,7 +52,7 @@ public final class WebDemoActivity extends BaseWebActivity<WebDemoActivity> impl
         mProgress = findViewById(R.id.progress);
         mWebView = findViewById(R.id.webview);
 
-        loadUrl("file:///android_asset/main.html");
+        loadUrl("https://www.baidu.com");
 
         /*这里简单示例在加载出错时处理方式*/
         mWebContent = findViewById(R.id.web_content);
@@ -156,8 +156,8 @@ public final class WebDemoActivity extends BaseWebActivity<WebDemoActivity> impl
         public void onEvent(Params params) {
             Log.e(TAG, "接收到JS传递参数：" + params);
 
-            final Bean[] beans = new Bean[100];
-            for (int i = 0; i < 100; i++) {
+            final Bean[] beans = new Bean[1];
+            for (int i = 0; i < 1; i++) {
                 final Bean bean = new Bean();
                 bean.like = "心，是一个容器，不停地累积，关于你的点点滴滴";
                 bean.sex = "boy " + i;

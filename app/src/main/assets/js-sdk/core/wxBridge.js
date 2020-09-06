@@ -20,7 +20,7 @@ var wx = (function() {
 			imgUrl: message.imgUrl
 		}
 
-		let request = {
+		var request = {
 			methodName: 'onMenuShareWeibo',
 			params: params,
 			success: message.success,
@@ -46,7 +46,7 @@ var wx = (function() {
 			link: message.link,
 			imgUrl: message.imgUrl
 		}
-		let request = {
+		var request = {
 			methodName: 'onMenuShareQZone',
 			params: params,
 			success: message.success,
@@ -71,11 +71,11 @@ var wx = (function() {
 			sizeType: message.sizeType,
 			sourceType: message.sourceType,
 		}
-		let request = {
+		var request = {
 			methodName: 'chooseImage',
 			params: params,
 			success: function(res) {
-				let result = {
+				var result = {
 					localIds: res.result
 				}
 				message.success(result)
@@ -94,7 +94,7 @@ var wx = (function() {
 			current: message.current,
 			urls: message.urls
 		}
-		let request = {
+		var request = {
 			methodName: 'previewImage',
 			params: params
 		}
@@ -107,16 +107,16 @@ var wx = (function() {
 	 * @param {Array} message.isShowProgressTips - 默认为1，显示进度提示.
 	 */
 	function uploadImage(message) {
-		let params = {
+		var params = {
 			localId: message.localId,
 			isShowProgressTips: message.isShowProgressTips,
 		}
 
-		let request = {
+		var request = {
 			methodName: 'uploadImage',
 			params: params,
 			success: function(res) {
-				let result = {
+				var result = {
 					serverId: res.result
 				}
 				message.success(result);
@@ -135,11 +135,11 @@ var wx = (function() {
 			serverId: message.serverId,
 			isShowProgressTips: message.isShowProgressTips,
 		}
-		let request = {
+		var request = {
 			methodName: 'downloadImage',
 			params: params,
 			success: function(res) {
-				let result = {
+				var result = {
 					localId: res.result
 				}
 				message.success(result);
@@ -156,11 +156,11 @@ var wx = (function() {
 		var params = {
 			localId: message.localId
 		}
-		let request = {
+		var request = {
 			methodName: 'getLocalImgData',
 			params: params,
 			success: function(res) {
-				let result = {
+				var result = {
 					localData: res.result
 				}
 				message.success(result);
@@ -172,7 +172,7 @@ var wx = (function() {
 	//---------------------------------------------------------------------------
 	//录音
 	function startRecord(message) {
-		let request = {
+		var request = {
 			methodName: 'startRecord'
 		}
 
@@ -181,10 +181,10 @@ var wx = (function() {
 
 	// 暂停录音
 	function stopRecord(message) {
-		let request = {
+		var request = {
 			methodName: 'stopRecord',
 			success: function(res) {
-				let result = {
+				var result = {
 					localId: res.result
 				}
 				message.success(result);
@@ -197,10 +197,10 @@ var wx = (function() {
 	// 自动停止录音
 	// 录音时间超过一分钟没有停止的时候会执行 complete 回调
 	function onVoiceRecordEnd(message) {
-		let request = {
+		var request = {
 			methodName: 'onVoiceRecordEnd',
 			success: function(res) {
-				let result = {
+				var result = {
 					localId: res.result
 				}
 				message.complete(result);
@@ -215,7 +215,7 @@ var wx = (function() {
 		var params = {
 			localId: message.localId
 		}
-		let request = {
+		var request = {
 			methodName: 'playVoice',
 			params: params
 		}
@@ -228,7 +228,7 @@ var wx = (function() {
 		var params = {
 			localId: message.localId
 		}
-		let request = {
+		var request = {
 			methodName: 'pauseVoice',
 			params: params
 		}
@@ -242,7 +242,7 @@ var wx = (function() {
 		var params = {
 			localId: message.localId
 		}
-		let request = {
+		var request = {
 			methodName: 'stopVoice',
 			params: params
 		}
@@ -251,10 +251,10 @@ var wx = (function() {
 
 	// 监听语音播放完毕接口
 	function onVoicePlayEnd(message) {
-		let request = {
+		var request = {
 			methodName: 'onVoicePlayEnd',
 			success: function(res) {
-				let result = {
+				var result = {
 					localId: res.result
 				}
 				message.success(result);
@@ -270,11 +270,11 @@ var wx = (function() {
 			localId: message.localId,
 			isShowProgressTips: message.isShowProgressTips
 		}
-		let request = {
+		var request = {
 			methodName: 'uploadVoice',
 			params: params,
 			success: function(res) {
-				let result = {
+				var result = {
 					serverId: res.result
 				}
 				message.success(result);
@@ -290,11 +290,11 @@ var wx = (function() {
 			serverId: message.serverId,
 			isShowProgressTips: message.isShowProgressTips
 		}
-		let request = {
+		var request = {
 			methodName: 'downloadVoice',
 			params: params,
 			success: function(res) {
-				let result = {
+				var result = {
 					localId: res.result
 				}
 				message.success(result);
@@ -309,11 +309,11 @@ var wx = (function() {
 			localId: message.localId,
 			isShowProgressTips: message.isShowProgressTips
 		}
-		let request = {
+		var request = {
 			methodName: 'translateVoice',
 			params: params,
 			success: function(res) {
-				let result = {
+				var result = {
 					translateResult: res.result
 				}
 				message.success(result);
@@ -328,10 +328,10 @@ var wx = (function() {
 
 	//获取网络状态
 	function getNetworkType(message) {
-		let request = {
+		var request = {
 			methodName: 'getNetworkType',
 			success: function(res) {
-				let result = {
+				var result = {
 					networkType: res.result
 				}
 				message.success(result);
@@ -362,7 +362,7 @@ var wx = (function() {
 			scale: message.scale,
 			infoUrl: message.infoUrl
 		}
-		let request = {
+		var request = {
 			methodName: 'openLocation',
 			params: params
 		}
@@ -379,7 +379,7 @@ var wx = (function() {
 		var params = {
 			type: message.type
 		}
-		let request = {
+		var request = {
 			methodName: 'getLocation',
 			params: params,
 			success: function(res) {
@@ -398,7 +398,7 @@ var wx = (function() {
 		var params = {
 			ticket: message.ticket
 		}
-		let request = {
+		var request = {
 			methodName: 'startSearchBeacons',
 			params: params,
 			success: function(res) {
@@ -410,7 +410,7 @@ var wx = (function() {
 	//关闭查找周边ibeacon设备接口
 	function stopSearchBeacons(message) {
 
-		let request = {
+		var request = {
 			methodName: 'stopSearchBeacons',
 			success: function(res) {
 				message.complete(res.result);
@@ -422,7 +422,7 @@ var wx = (function() {
 	//监听周边ibeacon设备接口
 	function onSearchBeacons(message) {
 
-		let request = {
+		var request = {
 			methodName: 'onSearchBeacons',
 			success: function(res) {
 				message.complete(res.result);
@@ -435,7 +435,7 @@ var wx = (function() {
 	//界面操作
 	//关闭当前网页窗口接口
 	function closeWindow(message) {
-		let request = {
+		var request = {
 			methodName: 'closeWindow'
 		}
 		lr.callNative(request);
@@ -447,7 +447,7 @@ var wx = (function() {
 		var params = {
 			menuList: message.menuList
 		}
-		let request = {
+		var request = {
 			methodName: 'hideMenuItems',
 			params: params
 		}
@@ -460,7 +460,7 @@ var wx = (function() {
 		var params = {
 			menuList: message.menuList
 		}
-		let request = {
+		var request = {
 			methodName: 'showMenuItems',
 			params: params
 		}
@@ -469,7 +469,7 @@ var wx = (function() {
 
 	//隐藏所有非基础按钮接口
 	function hideAllNonBaseMenuItem(message) {
-		let request = {
+		var request = {
 			methodName: 'hideAllNonBaseMenuItem'
 		}
 		lr.callNative(request);
@@ -477,7 +477,7 @@ var wx = (function() {
 
 	//显示所有功能按钮接口
 	function showAllNonBaseMenuItem(message) {
-		let request = {
+		var request = {
 			methodName: 'showAllNonBaseMenuItem'
 		}
 		lr.callNative(request);
@@ -493,11 +493,11 @@ var wx = (function() {
 			needResult: message.needResult,
 			scanType: message.scanType
 		}
-		let request = {
+		var request = {
 			methodName: 'scanQRCode',
 			params: params,
 			success: function(res) {
-				let result = {
+				var result = {
 					resultStr: res.result
 				}
 				message.success(result);
@@ -514,7 +514,7 @@ var wx = (function() {
 			productId: message.productId,
 			viewType: message.viewType
 		}
-		let request = {
+		var request = {
 			methodName: 'openProductSpecificView',
 			params: params
 		}
@@ -532,11 +532,11 @@ var wx = (function() {
 			signType: message.signType,
 			cardSign: message.cardSign
 		}
-		let request = {
+		var request = {
 			methodName: 'chooseCard',
 			params: params,
 			success: function(res) {
-				let result = {
+				var result = {
 					cardList: res.result
 				}
 				message.success(result);
@@ -552,11 +552,11 @@ var wx = (function() {
 		var params = {
 			cardList: message.cardList
 		}
-		let request = {
+		var request = {
 			methodName: 'addCard',
 			params: params,
 			success: function(res) {
-				let result = {
+				var result = {
 					cardList: res.result
 				}
 				message.success(result);
@@ -573,7 +573,7 @@ var wx = (function() {
 		var params = {
 			cardList: message.cardList
 		}
-		let request = {
+		var request = {
 			methodName: 'openCard',
 			params: params
 		}
@@ -599,7 +599,7 @@ var wx = (function() {
 			signType: message.signType,
 			paySign: message.paySign
 		}
-		let request = {
+		var request = {
 			methodName: 'chooseWXPay',
 			params: params,
 			success: function(res) {
@@ -614,7 +614,7 @@ var wx = (function() {
 	 *
 	 */
 	function openAddress(message) {
-		let request = {
+		var request = {
 			methodName: 'openAddress',
 			success: function(res) {
 				message.success(res.result);
@@ -630,7 +630,7 @@ var wx = (function() {
 				var params = {
 					debug: message.debug
 				}
-				let request = {
+				var request = {
 					methodName: 'config',
 					params: params
 				}

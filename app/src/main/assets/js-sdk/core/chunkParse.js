@@ -1,9 +1,9 @@
-let chunkParse = (function() {
+var chunkParse = (function() {
 
-	let stream = {}
+	const stream = {}
 
 	function parseInternal(chunk) {
-		let chunkParse = getChunkParse(chunk);
+		var chunkParse = getChunkParse(chunk);
 		if (chunkParse != null) {
 			if (stream[chunkParse.sid] == null) {
 				stream[chunkParse.sid] = {
@@ -24,16 +24,16 @@ let chunkParse = (function() {
 	}
 
 	function getChunkParse(chunk) {
-		let length = chunk.length;
-		let ssi = chunk.indexOf(':');
+		var length = chunk.length;
+		var ssi = chunk.indexOf(':');
 		if (length > ssi + 2 &&
 			chunk.charAt(ssi + 1) == '/' &&
 			chunk.charAt(ssi + 2) == '/') {
 
-			let chunkParse = {};
-			let end = ssi + 3;
+			var chunkParse = {};
+			var end = ssi + 3;
 			while (end < length) {
-				let char = chunk.charAt(end);
+				var char = chunk.charAt(end);
 				if (char == '/' ||
 					char == '\\' ||
 					char == '?' ||
@@ -42,7 +42,7 @@ let chunkParse = (function() {
 				}
 				end++;
 			}
-			let breakUp = chunk.substring(ssi + 3, end).split(':');
+			var breakUp = chunk.substring(ssi + 3, end).split(':');
 			chunkParse.sid = breakUp[0];
 			chunkParse.count = breakUp[1];
 			chunkParse.data = chunk.substring(end + 1, length);
@@ -52,10 +52,10 @@ let chunkParse = (function() {
 	}
 
 	function hashCode(src) {
-		let hash = 0;
-		let len = src.length;
+		var hash = 0;
+		var len = src.length;
 		if (len > 0) {
-			for (let i = 0; i < len; i++) {
+			for (var i = 0; i < len; i++) {
 				hash = 31 * hash + src.charAt(i);
 			}
 			return hash;

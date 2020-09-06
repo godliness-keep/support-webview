@@ -31,11 +31,11 @@
 			}
 			wx.config(config);
 
-			receiver.callFromNativeNoParamsWithReturn = function(params) {
-				alert('调用JavaScript login 事件，来自Native的参数: ' + JSON.stringify(params))
+<!--			receiver.callFromNativeNoParamsWithReturn = function(params) {-->
+<!--				alert('调用JavaScript login 事件，来自Native的参数: ' + JSON.stringify(params))-->
 
-				return '说点什么吧？我想打死你';
-			}
+<!--				return '说点什么吧？我想打死你';-->
+<!--			}-->
 
 			//调用Native方法
 			function callAndroidMethod() {
@@ -82,16 +82,17 @@
 				 <!--}-->
 				 <!--lr.callNative(message)-->
 
-				let params = {
+				var params = {
 					name: '中国特色社会主义道路',
 					sex: '人民日益增长的物质文化需求同落后的生产关系之间的矛盾',
 					age:100
 				}
 
-				let message = {
+				var message = {
 					eventName: 'shareFeiji',
 					params: params,
 					success: function(res) {
+					    console.log('main', JSON.stringify(res))
 						alert('来自 Native 的返回：' + JSON.stringify(res))
 					},
 					failed: function(res) {

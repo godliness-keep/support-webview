@@ -3,18 +3,18 @@ var lr = (function() {
 	const JAVASCRIPT_CALL_FINISHED = 'onJavaScriptCallFinished'
 	const CALL_NATIVE_FROM_JAVASCRIPT = 'callNativeFromJavaScript'
 
-	let RESULT_OK = 1
+	const RESULT_OK = 1
 
-	let jsVersion = 1
-	let jsCallbacks = {}
-	let jsCallbackCurrentId = -1
+	const jsVersion = 1
+	const jsCallbacks = {}
+	var jsCallbackCurrentId = -1
 
 	function callNativeInternal(mapObject, message) {
-		let hasParams = (message.params != null ||
+		var hasParams = (message.params != null ||
 			message.eventName != null ||
 			message.success != null ||
 			message.failed != null)
-		let request
+		var request
 		if (hasParams) {
 			request = packageRequest(message)
 		}
@@ -34,7 +34,7 @@ var lr = (function() {
 	}
 
 	function notifyNativeInternal(mapObject, message) {
-		let response = {
+		var response = {
 			version: jsVersion,
 			id: message.id,
 		}
@@ -62,26 +62,26 @@ var lr = (function() {
 	}
 
 	function onNativeCallInternalFinished(response) {
-		let responseJson
+		var responseJson
 		if (typeof response === 'object' && response != null) {
 			responseJson = response;
 		} else {
 			responseJson = JSON.parse(response);
 		}
-		let protocolId = responseJson.id;
-		let protocolVersion = responseJson.version;
+		var protocolId = responseJson.id;
+		var protocolVersion = responseJson.version;
 
-		let callbacks = jsCallbacks[protocolId];
-		let result = responseJson.result;
+		var callbacks = jsCallbacks[protocolId];
+		var result = responseJson.result;
 		if (result.state == RESULT_OK) {
-			let successCallback = callbacks.successCallback;
+			var successCallback = callbacks.successCallback;
 			if (successCallback.length > 0) {
 				successCallback(result)
 			} else {
 				successCallback();
 			}
 		} else {
-			let failedCallback = callbacks.failedCallback;
+			var failedCallback = callbacks.failedCallback;
 			if (failedCallback.length > 0) {
 				failedCallback(result);
 			} else {
@@ -108,7 +108,7 @@ var lr = (function() {
 	}
 
 	function packageRequest(message) {
-		let request = {
+		var request = {
 			version: jsVersion,
 			eventName: message.eventName,
 			params: message.params
