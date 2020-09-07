@@ -26,6 +26,7 @@ import com.longrise.android.x5web.internal.bridge.BaseFileChooser;
 import com.longrise.android.x5web.internal.bridge.BaseWebBridge;
 import com.longrise.android.x5web.internal.bridge.BaseWebChromeClient;
 import com.longrise.android.x5web.internal.bridge.BaseWebViewClient;
+import com.tencent.smtt.sdk.ValueCallback;
 
 /**
  * Created by godliness on 2020/9/1.
