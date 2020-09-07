@@ -17,38 +17,53 @@ import android.webkit.JsResult;
 public class WebLog {
 
     private static volatile Logger sLogger;
+    private static volatile WebAlerter sAlerter;
 
-    public static abstract class BaseLogger implements Logger {
+    /**
+     * Log 打印
+     */
+    public interface Logger {
 
-        @Override
-        public void log(String tag, String log) {
-            Log.i(tag, log);
-        }
+        void log(String tag, String log);
 
-        @Override
-        public void debug(String tag, String log) {
-            Log.d(tag, log);
-        }
+        void debug(String tag, String log);
 
-        @Override
-        public void warn(String tag, String log) {
-            Log.w(tag, log);
-        }
+        void warn(String tag, String log);
 
-        @Override
-        public void error(String tag, String log) {
-            Log.e(tag, log);
-        }
+        void error(String tag, String log);
 
-        @Override
-        public void print(Throwable e) {
-            e.printStackTrace();
+        void print(Throwable e);
+    }
+
+    /**
+     * WebView alert
+     */
+    public interface WebAlerter {
+
+        boolean onConsoleMessage(ConsoleMessage message);
+
+        boolean onJsAlert(Context target, String s, String s1, JsResult jsResult);
+
+        boolean onJsPrompt(Context target, String url, String message, String defaultValue, JsPromptResult result);
+
+        boolean onJsConfirm(Context target, String s, String s1, JsResult jsResult);
+    }
+
+    /**
+     * 代理 Log 打印
+     */
+    public static void setLogger(Logger logger) {
+        if (sLogger != logger) {
+            sLogger = logger;
         }
     }
 
-    public static void setLogger(BaseLogger logger) {
-        if (sLogger != logger) {
-            sLogger = logger;
+    /**
+     * 代理 WebView alert {@link com.longrise.android.web.internal.bridge.BaseWebChromeClient}
+     */
+    public static void setWebAlerter(WebAlerter alert) {
+        if (sAlerter != alert) {
+            sAlerter = alert;
         }
     }
 
@@ -83,29 +98,29 @@ public class WebLog {
     }
 
     public static boolean onConsoleMessage(@NonNull ConsoleMessage message) {
-        if (sLogger != null) {
-            return sLogger.onConsoleMessage(message);
+        if (sAlerter != null) {
+            return sAlerter.onConsoleMessage(message);
         }
         return false;
     }
 
     public static boolean onJsAlert(Context target, String s, String s1, JsResult jsResult) {
-        if (sLogger != null) {
-            return sLogger.onJsAlert(target, s, s1, jsResult);
+        if (sAlerter != null) {
+            return sAlerter.onJsAlert(target, s, s1, jsResult);
         }
         return false;
     }
 
     public static boolean onJsPrompt(Context target, String url, String message, String defaultValue, JsPromptResult result) {
-        if (sLogger != null) {
-            return sLogger.onJsPrompt(target, url, message, defaultValue, result);
+        if (sAlerter != null) {
+            return sAlerter.onJsPrompt(target, url, message, defaultValue, result);
         }
         return false;
     }
 
     public static boolean onJsConfirm(Context target, String s, String s1, JsResult jsResult) {
-        if (sLogger != null) {
-            return sLogger.onJsConfirm(target, s, s1, jsResult);
+        if (sAlerter != null) {
+            return sAlerter.onJsConfirm(target, s, s1, jsResult);
         }
         return false;
     }
@@ -116,89 +131,100 @@ public class WebLog {
 
     static {
         if (isDebug()) {
-            setLogger(new BaseLogger() {
+            // Debug 模式设置
+            setLogger(new Logger() {
                 @Override
-                public boolean onConsoleMessage(ConsoleMessage console) {
-                    final String levelName = console.messageLevel().name();
-                    final StringBuilder message = new StringBuilder();
-                    message.append(console.message())
-                            .append(" line: ")
-                            .append(console.lineNumber())
-                            .append(" source: ")
-                            .append(console.sourceId());
-
-                    switch (levelName) {
-                        case "ERROR":
-                            WebLog.error("console", message.toString());
-                            return true;
-
-                        case "WARNING":
-                            WebLog.warn("console", message.toString());
-                            return true;
-
-                        case "LOG":
-                            WebLog.log("console", message.toString());
-                            return true;
-
-                        case "DEBUG":
-                        case "TIP":
-                            WebLog.debug("console", message.toString());
-                            return true;
-
-                        default:
-                            return false;
-                    }
+                public void log(String tag, String log) {
+                    Log.i(tag, log);
                 }
 
                 @Override
-                public boolean onJsAlert(Context cxt, String url, String message, final JsResult jsResult) {
-                    createAlertBuilder(cxt, url, message)
-                            .setPositiveButton(R.string.lib_x5_string_positive, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    if (jsResult != null) {
-                                        jsResult.confirm();
-                                    }
-                                }
-                            }).create().show();
-                    return true;
+                public void debug(String tag, String log) {
+                    Log.d(tag, log);
                 }
 
                 @Override
-                public boolean onJsPrompt(Context target, String url, String message, String defaultValue, JsPromptResult result) {
-                    return false;
+                public void warn(String tag, String log) {
+                    Log.w(tag, log);
                 }
 
                 @Override
-                public boolean onJsConfirm(Context target, String s, String s1, JsResult jsResult) {
-                    return false;
+                public void error(String tag, String log) {
+                    Log.e(tag, log);
                 }
 
-                private AlertDialog.Builder createAlertBuilder(Context cxt, String title, String message) {
-                    return new AlertDialog.Builder(cxt).setTitle(title).setMessage(message);
+                @Override
+                public void print(Throwable e) {
+                    e.printStackTrace();
                 }
             });
         }
-    }
 
-    interface Logger {
+        // 设置 WebView alert
+        setWebAlerter(new WebAlerter() {
+            @Override
+            public boolean onConsoleMessage(ConsoleMessage console) {
+                if (isDebug()) {
+                    return true;
+                }
+                final String levelName = console.messageLevel().name();
+                final StringBuilder message = new StringBuilder();
+                message.append(console.message())
+                        .append(" line: ")
+                        .append(console.lineNumber())
+                        .append(" source: ")
+                        .append(console.sourceId());
 
-        void log(String tag, String log);
+                switch (levelName) {
+                    case "ERROR":
+                        WebLog.error("console", message.toString());
+                        return true;
 
-        void debug(String tag, String log);
+                    case "WARNING":
+                        WebLog.warn("console", message.toString());
+                        return true;
 
-        void warn(String tag, String log);
+                    case "LOG":
+                        WebLog.log("console", message.toString());
+                        return true;
 
-        void error(String tag, String log);
+                    case "DEBUG":
+                    case "TIP":
+                        WebLog.debug("console", message.toString());
+                        return true;
 
-        void print(Throwable e);
+                    default:
+                        return false;
+                }
+            }
 
-        boolean onConsoleMessage(ConsoleMessage message);
+            @Override
+            public boolean onJsAlert(Context cxt, String url, String message, final JsResult jsResult) {
+                createAlertBuilder(cxt, url, message)
+                        .setPositiveButton(R.string.lib_x5_string_positive, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                if (jsResult != null) {
+                                    jsResult.confirm();
+                                }
+                            }
+                        }).create().show();
+                return true;
+            }
 
-        boolean onJsAlert(Context target, String s, String s1, JsResult jsResult);
+            @Override
+            public boolean onJsPrompt(Context target, String url, String message, String defaultValue, JsPromptResult result) {
+                return false;
+            }
 
-        boolean onJsPrompt(Context target, String url, String message, String defaultValue, JsPromptResult result);
+            @Override
+            public boolean onJsConfirm(Context target, String s, String s1, JsResult jsResult) {
+                return false;
+            }
 
-        boolean onJsConfirm(Context target, String s, String s1, JsResult jsResult);
+            private AlertDialog.Builder createAlertBuilder(Context cxt, String title, String message) {
+                return new AlertDialog.Builder(cxt).setTitle(title).setMessage(message);
+            }
+        });
     }
 }

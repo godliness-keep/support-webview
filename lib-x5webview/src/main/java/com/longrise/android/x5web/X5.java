@@ -1,5 +1,6 @@
 package com.longrise.android.x5web;
 
+import android.app.Application;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.support.annotation.NonNull;
@@ -19,9 +20,34 @@ import com.tencent.smtt.sdk.QbSdk;
 public final class X5 {
 
     private static volatile Logger sLogger;
+    private static volatile WebAlerter sAlerter;
+
+    public interface Logger {
+
+        void log(String tag, String log);
+
+        void debug(String tag, String log);
+
+        void warn(String tag, String log);
+
+        void error(String tag, String log);
+
+        void print(Throwable e);
+    }
+
+    public interface WebAlerter {
+
+        boolean onConsoleMessage(ConsoleMessage message);
+
+        boolean onJsAlert(Context cxt, String url, String message, JsResult jsResult);
+
+        boolean onJsPrompt(Context cxt, String url, String message, String defaultValue, JsPromptResult result);
+
+        boolean onJsConfirm(Context cxt, String url, String message, JsResult jsResult);
+    }
 
     /**
-     * 初始化 X5 内核
+     * 初始化 X5 内核在您的 {@link Application#onCreate()}
      */
     public static void init(Context cxt) {
         QbSdk.PreInitCallback cb = new QbSdk.PreInitCallback() {
@@ -41,9 +67,21 @@ public final class X5 {
         QbSdk.initX5Environment(cxt.getApplicationContext(), cb);
     }
 
-    public static void setLogger(BaseLogger logger) {
+    /**
+     * 代理 Log 打印
+     */
+    public static void setLogger(Logger logger) {
         if (sLogger != logger) {
             sLogger = logger;
+        }
+    }
+
+    /**
+     * 代理 WebView alert {@link com.longrise.android.x5web.internal.bridge.BaseWebChromeClient}
+     */
+    public static void setAlerter(WebAlerter alerter) {
+        if (sAlerter != alerter) {
+            sAlerter = alerter;
         }
     }
 
@@ -78,29 +116,29 @@ public final class X5 {
     }
 
     public static boolean onConsoleMessage(@NonNull ConsoleMessage message) {
-        if (sLogger != null) {
-            return sLogger.onConsoleMessage(message);
+        if (sAlerter != null) {
+            return sAlerter.onConsoleMessage(message);
         }
         return false;
     }
 
     public static boolean onJsAlert(Context cxt, String url, String message, JsResult jsResult) {
-        if (sLogger != null) {
-            return sLogger.onJsAlert(cxt, url, message, jsResult);
+        if (sAlerter != null) {
+            return sAlerter.onJsAlert(cxt, url, message, jsResult);
         }
         return false;
     }
 
     public static boolean onJsPrompt(Context cxt, String url, String message, String defaultValue, JsPromptResult result) {
-        if (sLogger != null) {
-            return sLogger.onJsPrompt(cxt, url, message, defaultValue, result);
+        if (sAlerter != null) {
+            return sAlerter.onJsPrompt(cxt, url, message, defaultValue, result);
         }
         return false;
     }
 
     public static boolean onJsConfirm(Context cxt, String url, String message, JsResult jsResult) {
-        if (sLogger != null) {
-            return sLogger.onJsConfirm(cxt, url, message, jsResult);
+        if (sAlerter != null) {
+            return sAlerter.onJsConfirm(cxt, url, message, jsResult);
         }
         return false;
     }
@@ -109,119 +147,100 @@ public final class X5 {
         return BuildConfig.DEBUG;
     }
 
-    public static abstract class BaseLogger implements Logger {
-
-        @Override
-        public void log(String tag, String log) {
-            Log.i(tag, log);
-        }
-
-        @Override
-        public void debug(String tag, String log) {
-            Log.d(tag, log);
-        }
-
-        @Override
-        public void warn(String tag, String log) {
-            Log.w(tag, log);
-        }
-
-        @Override
-        public void error(String tag, String log) {
-            Log.e(tag, log);
-        }
-
-        @Override
-        public void print(Throwable e) {
-            e.printStackTrace();
-        }
-    }
-
     static {
         if (isDebug()) {
-            setLogger(new BaseLogger() {
+            setLogger(new Logger() {
                 @Override
-                public boolean onConsoleMessage(ConsoleMessage console) {
-                    final String levelName = console.messageLevel().name();
-                    final StringBuilder message = new StringBuilder();
-                    message.append(console.message())
-                            .append(" source: ")
-                            .append(console.sourceId())
-                            .append(" line: ")
-                            .append(console.lineNumber());
-
-                    switch (levelName) {
-                        case "ERROR":
-                            X5.error("console", message.toString());
-                            return true;
-
-                        case "WARNING":
-                            X5.warn("console", message.toString());
-                            return true;
-
-                        case "LOG":
-                            X5.log("console", message.toString());
-                            return true;
-
-                        case "DEBUG":
-                        case "TIP":
-                            X5.debug("console", message.toString());
-                            return true;
-
-                        default:
-                            return false;
-                    }
+                public void log(String tag, String log) {
+                    Log.i(tag, log);
                 }
 
                 @Override
-                public boolean onJsAlert(Context cxt, String url, String message, final JsResult jsResult) {
-                    createAlertBuilder(cxt, url, message)
-                            .setPositiveButton(R.string.lib_x5_string_positive, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    if (jsResult != null) {
-                                        jsResult.confirm();
-                                    }
-                                }
-                            }).create().show();
-                    return true;
+                public void debug(String tag, String log) {
+                    Log.d(tag, log);
                 }
 
                 @Override
-                public boolean onJsPrompt(Context cxt, String url, String message, String defaultValue, JsPromptResult result) {
-                    return false;
+                public void warn(String tag, String log) {
+                    Log.w(tag, log);
                 }
 
                 @Override
-                public boolean onJsConfirm(Context cxt, String url, String message, final JsResult jsResult) {
-                    return false;
+                public void error(String tag, String log) {
+                    Log.e(tag, log);
                 }
 
-                private AlertDialog.Builder createAlertBuilder(Context cxt, String title, String message) {
-                    return new AlertDialog.Builder(cxt).setTitle(title).setMessage(message);
+                @Override
+                public void print(Throwable e) {
+                    e.printStackTrace();
                 }
             });
         }
-    }
 
-    interface Logger {
+        setAlerter(new WebAlerter() {
+            @Override
+            public boolean onConsoleMessage(ConsoleMessage console) {
+                if (isDebug()) {
+                    return true;
+                }
+                final String levelName = console.messageLevel().name();
+                final StringBuilder message = new StringBuilder();
+                message.append(console.message())
+                        .append(" source: ")
+                        .append(console.sourceId())
+                        .append(" line: ")
+                        .append(console.lineNumber());
 
-        void log(String tag, String log);
+                switch (levelName) {
+                    case "ERROR":
+                        X5.error("console", message.toString());
+                        return true;
 
-        void debug(String tag, String log);
+                    case "WARNING":
+                        X5.warn("console", message.toString());
+                        return true;
 
-        void warn(String tag, String log);
+                    case "LOG":
+                        X5.log("console", message.toString());
+                        return true;
 
-        void error(String tag, String log);
+                    case "DEBUG":
+                    case "TIP":
+                        X5.debug("console", message.toString());
+                        return true;
 
-        void print(Throwable e);
+                    default:
+                        return false;
+                }
+            }
 
-        boolean onConsoleMessage(ConsoleMessage message);
+            @Override
+            public boolean onJsAlert(Context cxt, String url, String message, final JsResult jsResult) {
+                createAlertBuilder(cxt, url, message)
+                        .setPositiveButton(R.string.lib_x5_string_positive, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                if (jsResult != null) {
+                                    jsResult.confirm();
+                                }
+                            }
+                        }).create().show();
+                return true;
+            }
 
-        boolean onJsAlert(Context cxt, String url, String message, JsResult jsResult);
+            @Override
+            public boolean onJsPrompt(Context cxt, String url, String message, String defaultValue, JsPromptResult result) {
+                return false;
+            }
 
-        boolean onJsPrompt(Context cxt, String url, String message, String defaultValue, JsPromptResult result);
+            @Override
+            public boolean onJsConfirm(Context cxt, String url, String message, JsResult jsResult) {
+                return false;
+            }
 
-        boolean onJsConfirm(Context cxt, String url, String message, JsResult jsResult);
+            private AlertDialog.Builder createAlertBuilder(Context cxt, String title, String message) {
+                return new AlertDialog.Builder(cxt).setTitle(title).setMessage(message);
+            }
+        });
     }
 }

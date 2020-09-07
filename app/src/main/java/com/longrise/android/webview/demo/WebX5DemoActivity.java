@@ -26,13 +26,12 @@ import com.longrise.android.x5web.internal.bridge.BaseFileChooser;
 import com.longrise.android.x5web.internal.bridge.BaseWebBridge;
 import com.longrise.android.x5web.internal.bridge.BaseWebChromeClient;
 import com.longrise.android.x5web.internal.bridge.BaseWebViewClient;
-import com.tencent.smtt.sdk.ValueCallback;
 
 /**
  * Created by godliness on 2020/9/1.
  *
  * @author godliness
- * 腾讯 X5WebView 示例
+ * 腾讯 X5-内核 WebView 使用示例
  */
 public class WebX5DemoActivity extends BaseWebActivity<WebX5DemoActivity> implements View.OnClickListener {
 
@@ -165,8 +164,6 @@ public class WebX5DemoActivity extends BaseWebActivity<WebX5DemoActivity> implem
         X5.error(TAG, "收到...");
         /**
          * 拦截通过{@link #getHandler()} 发送的消息
-         * 或者{@link #post(Runnable)}
-         * 或者{@link #postDelayed(Runnable, int)}
          *
          * 返回 false 表示不拦截
          *

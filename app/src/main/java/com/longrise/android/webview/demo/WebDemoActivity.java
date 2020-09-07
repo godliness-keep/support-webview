@@ -22,6 +22,7 @@ import com.longrise.android.webview.demo.mode.Params;
  * Created by godliness on 2020/9/2.
  *
  * @author godliness
+ * Android 原生 WebView 使用示例
  */
 public final class WebDemoActivity extends BaseWebActivity<WebDemoActivity> implements View.OnClickListener {
 
