@@ -132,9 +132,9 @@ public abstract class BaseWebViewClient<T extends BaseWebActivity<T>> extends We
      */
     @Override
     public final boolean shouldOverrideUrlLoading(WebView webView, String url) {
-        // 关于返回值的作用正确解读应该是
-        // 如果返回 true，表明由应用自行（开发者）处理（拦截），WebView 不处理
-        // 如果返回 false，则说明由 WebView 处理该 URL，即使用 WebView loadUrl
+        // 1、若没有设置 WebViewClient 则由系统（Activity Manager）处理该 URL，通常是使用浏览器打开或弹出浏览器选择对话框
+        // 2、若设置 WebViewClient 且该方法返回 true，则由应用的代码处理该 URL，WebView 不处理（即开发人员自行处理）
+        // 3、若设置 WebViewClient 且该方法返回 false，则由 WebView 处理该 URL，即 WebView.loadUrl()
         return canInterceptUrlLoading(webView, url);
     }
 

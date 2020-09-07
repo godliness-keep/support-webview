@@ -143,33 +143,29 @@ public final class X5 {
                 @Override
                 public boolean onConsoleMessage(ConsoleMessage console) {
                     final String levelName = console.messageLevel().name();
-                    final String[] tags = console.message().split("\u0020");
-                    final String tag = tags.length > 1 ? tags[0] : "";
                     final StringBuilder message = new StringBuilder();
-                    for (int i = 1; i < tags.length; i++) {
-                        message.append(tags[i]);
-                    }
-                    message.append(" lineNumber: ")
-                            .append(console.lineNumber())
-                            .append(" sourceId: ")
-                            .append(console.sourceId());
+                    message.append(console.message())
+                            .append(" source: ")
+                            .append(console.sourceId())
+                            .append(" line: ")
+                            .append(console.lineNumber());
 
                     switch (levelName) {
                         case "ERROR":
-                            X5.error(tag, message.toString());
+                            X5.error("console", message.toString());
                             return true;
 
                         case "WARNING":
-                            X5.warn(tag, message.toString());
+                            X5.warn("console", message.toString());
                             return true;
 
                         case "LOG":
-                            X5.log(tag, message.toString());
+                            X5.log("console", message.toString());
                             return true;
 
                         case "DEBUG":
                         case "TIP":
-                            X5.debug(tag, message.toString());
+                            X5.debug("console", message.toString());
                             return true;
 
                         default:

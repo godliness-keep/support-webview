@@ -3,7 +3,6 @@
 <head>
     <!--<link rel="stylesheet" href="main.css">-->
     <title>main</title>
-    <!--<script src="jquery-3.1.0.js"></script>-->
     <script type="text/javascript" src="js-sdk/core/wxBridge.js"></script>
     <script type="text/javascript" src="js-sdk/utils/platform.js"></script>
     <script type="text/javascript" src="js-sdk/core/lrBridgeCore.js"></script>
@@ -92,6 +91,7 @@
 					eventName: 'shareFeiji',
 					params: params,
 					success: function(res) {
+					        console.error(JSON.stringify(res));
 <!--						alert('来自 Native 的返回：' + JSON.stringify(res))-->
 					},
 					failed: function(res) {

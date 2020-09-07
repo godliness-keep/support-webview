@@ -120,33 +120,29 @@ public class WebLog {
                 @Override
                 public boolean onConsoleMessage(ConsoleMessage console) {
                     final String levelName = console.messageLevel().name();
-                    final String[] tags = console.message().split("\u0020");
-                    final String tag = tags.length > 1 ? tags[0] : "";
                     final StringBuilder message = new StringBuilder();
-                    for (int i = 1; i < tags.length; i++) {
-                        message.append(tags[i]);
-                    }
-                    message.append(" lineNumber: ")
+                    message.append(console.message())
+                            .append(" line: ")
                             .append(console.lineNumber())
-                            .append(" sourceId: ")
+                            .append(" source: ")
                             .append(console.sourceId());
 
                     switch (levelName) {
                         case "ERROR":
-                            WebLog.error(tag, message.toString());
+                            WebLog.error("console", message.toString());
                             return true;
 
                         case "WARNING":
-                            WebLog.warn(tag, message.toString());
+                            WebLog.warn("console", message.toString());
                             return true;
 
                         case "LOG":
-                            WebLog.log(tag, message.toString());
+                            WebLog.log("console", message.toString());
                             return true;
 
                         case "DEBUG":
                         case "TIP":
-                            WebLog.debug(tag, message.toString());
+                            WebLog.debug("console", message.toString());
                             return true;
 
                         default:
