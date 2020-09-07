@@ -49,7 +49,7 @@ public class X5WebView extends WebView {
     private BaseDownloader<?> mDownloader;
     private BaseWebBridge<?> mBridge;
 
-    private ClientBridgeAgent mClientBridge;
+    private OnBridgeListener mClientBridge;
 
     public X5WebView(Context context) {
         this(context, null);

@@ -17,8 +17,8 @@ import android.webkit.WebView;
 
 import com.longrise.android.web.BaseWebActivity;
 import com.longrise.android.web.WebLog;
-import com.longrise.android.web.internal.ClientBridgeAgent;
 import com.longrise.android.web.internal.Internal;
+import com.longrise.android.web.internal.OnBridgeListener;
 import com.longrise.android.web.internal.SchemeConsts;
 
 import java.lang.ref.WeakReference;
@@ -35,7 +35,7 @@ public abstract class BaseWebChromeClient<T extends BaseWebActivity<T>> extends 
 
     private Handler mHandler;
     private WeakReference<BaseWebActivity<T>> mTarget;
-    private ClientBridgeAgent mClientBridge;
+    private OnBridgeListener mClientBridge;
 
     private boolean mFirstLoad = true;
 
@@ -229,7 +229,7 @@ public abstract class BaseWebChromeClient<T extends BaseWebActivity<T>> extends 
         WebLog.onConsoleMessage(console);
     }
 
-    public final void invokeClientBridge(ClientBridgeAgent agent) {
+    public final void invokeClientBridge(OnBridgeListener agent) {
         this.mClientBridge = agent;
     }
 

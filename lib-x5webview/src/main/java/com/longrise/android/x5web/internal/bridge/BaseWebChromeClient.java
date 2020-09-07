@@ -11,8 +11,8 @@ import android.text.TextUtils;
 
 import com.longrise.android.x5web.BaseWebActivity;
 import com.longrise.android.x5web.X5;
-import com.longrise.android.x5web.internal.ClientBridgeAgent;
 import com.longrise.android.x5web.internal.Internal;
+import com.longrise.android.x5web.internal.OnBridgeListener;
 import com.longrise.android.x5web.internal.SchemeConsts;
 import com.tencent.smtt.export.external.interfaces.ConsoleMessage;
 import com.tencent.smtt.export.external.interfaces.JsPromptResult;
@@ -35,7 +35,7 @@ public abstract class BaseWebChromeClient<T extends BaseWebActivity<T>> extends 
 
     private Handler mHandler;
     private WeakReference<BaseWebActivity<T>> mTarget;
-    private ClientBridgeAgent mClientBridge;
+    private OnBridgeListener mClientBridge;
 
     private boolean mFirstLoad = true;
 
@@ -215,7 +215,7 @@ public abstract class BaseWebChromeClient<T extends BaseWebActivity<T>> extends 
         return X5.onConsoleMessage(console);
     }
 
-    public final void invokeClientBridge(ClientBridgeAgent agent) {
+    public final void invokeClientBridge(OnBridgeListener agent) {
         this.mClientBridge = agent;
     }
 

@@ -9,8 +9,8 @@ import android.support.annotation.RequiresApi;
 import android.text.TextUtils;
 
 import com.longrise.android.x5web.BaseWebActivity;
-import com.longrise.android.x5web.internal.ClientBridgeAgent;
 import com.longrise.android.x5web.internal.Internal;
+import com.longrise.android.x5web.internal.OnBridgeListener;
 import com.longrise.android.x5web.internal.SchemeConsts;
 import com.tencent.smtt.export.external.interfaces.SslError;
 import com.tencent.smtt.export.external.interfaces.SslErrorHandler;
@@ -39,7 +39,7 @@ public abstract class BaseWebViewClient<T extends BaseWebActivity<T>> extends We
 
     private Handler mHandler;
     private WeakReference<BaseWebActivity<T>> mTarget;
-    private ClientBridgeAgent mClientBridge;
+    private OnBridgeListener mClientBridge;
 
     private boolean mBlockImageLoad;
     private boolean mFirstFinished = true;
@@ -242,7 +242,7 @@ public abstract class BaseWebViewClient<T extends BaseWebActivity<T>> extends We
 //        }
     }
 
-    public final void invokeClientBridge(ClientBridgeAgent agent) {
+    public final void invokeClientBridge(OnBridgeListener agent) {
         this.mClientBridge = agent;
     }
 
@@ -309,14 +309,14 @@ public abstract class BaseWebViewClient<T extends BaseWebActivity<T>> extends We
         }
     }
 
-    private boolean canInterceptUrlLoading(WebView view, String url){
-        if(isFinished()){
+    private boolean canInterceptUrlLoading(WebView view, String url) {
+        if (isFinished()) {
             return true;
         }
         return isInterceptUrlLoading(view, url);
     }
 
-    private boolean isInterceptUrlLoading(WebView view, String url){
+    private boolean isInterceptUrlLoading(WebView view, String url) {
         final boolean intercept = beforeUrlLoading(url);
         if (intercept || TextUtils.isEmpty(url) || !isEffectiveScheme(url)) {
             // Unable to process Url address

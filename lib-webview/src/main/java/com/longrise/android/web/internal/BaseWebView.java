@@ -49,7 +49,7 @@ public final class BaseWebView extends WebView {
     private BaseDownloader<?> mDownloader;
     private BaseWebBridge<?> mBridge;
 
-    private ClientBridgeAgent mClientBridge;
+    private OnBridgeListener mClientBridge;
 
     public BaseWebView(Context context) {
         this(context, null);

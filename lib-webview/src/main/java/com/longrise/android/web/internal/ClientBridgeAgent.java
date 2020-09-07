@@ -8,7 +8,7 @@ import com.longrise.android.web.internal.webcallback.WebLoadListener;
  *
  * @author godliness
  */
-public final class ClientBridgeAgent {
+public final class ClientBridgeAgent implements OnBridgeListener{
 
     private static final String TAG = "ClientBridgeAgent";
 
@@ -21,6 +21,7 @@ public final class ClientBridgeAgent {
     private byte mLoadActor;
     private byte mCurrentLoadStatus = -1;
 
+    @Override
     public boolean beforeUrlLoading(String url) {
         if (mLoadCallback != null) {
             return mLoadCallback.shouldOverrideUrlLoading(url);
@@ -28,6 +29,7 @@ public final class ClientBridgeAgent {
         return false;
     }
 
+    @Override
     public void onProgressChanged(int newProgress) {
         WebLog.error(TAG, "newProgress: " + newProgress);
 
@@ -42,17 +44,20 @@ public final class ClientBridgeAgent {
         }
     }
 
+    @Override
     public void onReceivedTitle(String title) {
         if (mLoadCallback != null) {
             mLoadCallback.onReceivedTitle(title);
         }
     }
 
+    @Override
     public void onPageStarted() {
         this.mLoadActor = 0;
         this.mLoadFailed = false;
     }
 
+    @Override
     public void onPageFinished() {
         if (mLoadFailed) {
             if (mLoadActor >= 2) {
@@ -65,21 +70,24 @@ public final class ClientBridgeAgent {
         }
     }
 
+    @Override
     public void onReceivedError() {
         this.mLoadFailed = true;
     }
 
+    @Override
     public void registerCallback(WebLoadListener webCallback) {
         this.mLoadCallback = webCallback;
     }
 
-    static ClientBridgeAgent getInstance() {
-        return new ClientBridgeAgent();
-    }
-
-    void destroy() {
+    @Override
+    public void destroy() {
         mLoadCallback = null;
         mCurrentLoadStatus = -1;
+    }
+
+    static OnBridgeListener getInstance() {
+        return new ClientBridgeAgent();
     }
 
     private void notifyLoadFailed() {

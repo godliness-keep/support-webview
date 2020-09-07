@@ -19,8 +19,8 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import com.longrise.android.web.BaseWebActivity;
-import com.longrise.android.web.internal.ClientBridgeAgent;
 import com.longrise.android.web.internal.Internal;
+import com.longrise.android.web.internal.OnBridgeListener;
 import com.longrise.android.web.internal.SchemeConsts;
 
 import java.lang.ref.WeakReference;
@@ -39,7 +39,7 @@ public abstract class BaseWebViewClient<T extends BaseWebActivity<T>> extends We
 
     private Handler mHandler;
     private WeakReference<BaseWebActivity<T>> mTarget;
-    private ClientBridgeAgent mClientBridge;
+    private OnBridgeListener mClientBridge;
 
     private boolean mBlockImageLoad;
     private boolean mFirstFinished = true;
@@ -242,7 +242,7 @@ public abstract class BaseWebViewClient<T extends BaseWebActivity<T>> extends We
 //        }
     }
 
-    public final void invokeClientBridge(ClientBridgeAgent agent) {
+    public final void invokeClientBridge(OnBridgeListener agent) {
         this.mClientBridge = agent;
     }
 
