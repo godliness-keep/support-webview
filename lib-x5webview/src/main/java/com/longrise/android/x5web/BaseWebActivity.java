@@ -28,7 +28,6 @@ import com.tencent.smtt.sdk.WebView;
  *
  * @author godliness
  */
-@SuppressWarnings("unused")
 public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppCompatActivity implements
         WebLoadListener, Handler.Callback {
 

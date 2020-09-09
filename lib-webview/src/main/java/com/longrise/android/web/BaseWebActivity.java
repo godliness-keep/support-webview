@@ -10,7 +10,6 @@ import android.view.KeyEvent;
 import android.webkit.DownloadListener;
 import android.webkit.WebView;
 
-import com.longrise.android.jssdk.core.bridge.BaseBridge;
 import com.longrise.android.web.internal.BaseWebView;
 import com.longrise.android.web.internal.Internal;
 import com.longrise.android.web.internal.SchemeConsts;
@@ -27,7 +26,6 @@ import com.longrise.android.web.internal.webcallback.WebLoadListener;
  *
  * @author godliness
  */
-@SuppressWarnings("unused")
 public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppCompatActivity implements
         WebLoadListener, Handler.Callback {
 
@@ -79,7 +77,7 @@ public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppC
     }
 
     /**
-     * 扩展 Bridge {@link BaseBridge}
+     * 扩展 Bridge {@link BaseWebBridge}
      */
     protected BaseWebBridge<T> getBridge() {
         return null;
@@ -206,6 +204,7 @@ public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppC
         return onChooserHandleMessage(msg);
     }
 
+    @Override
     protected final void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         beforeSetContentView();
