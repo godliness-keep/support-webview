@@ -53,7 +53,7 @@ public final class WebDemoActivity extends BaseWebActivity<WebDemoActivity> impl
         mProgress = findViewById(R.id.progress);
         mWebView = findViewById(R.id.webview);
 
-        loadUrl("file:///android_asset/main.html");
+        loadUrl("http://zhyq.szns.gov.cn/OA/LEAP/FFPB/prelogIn.html?sign=1");
 
         /*这里简单示例在加载出错时处理方式*/
         mWebContent = findViewById(R.id.web_content);
