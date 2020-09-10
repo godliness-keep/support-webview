@@ -53,8 +53,6 @@ public final class WebDemoActivity extends BaseWebActivity<WebDemoActivity> impl
         mProgress = findViewById(R.id.progress);
         mWebView = findViewById(R.id.webview);
 
-//        loadUrl("https://www.baidu.com");
-
         loadUrl("file:///android_asset/main.html");
 
         /*这里简单示例在加载出错时处理方式*/
@@ -63,6 +61,8 @@ public final class WebDemoActivity extends BaseWebActivity<WebDemoActivity> impl
 
         /* 注册事件 */
         mParamsReceiver.alive().lifecycle(this);
+
+        mTest.alive().lifecycle(this);
     }
 
 
@@ -169,6 +169,14 @@ public final class WebDemoActivity extends BaseWebActivity<WebDemoActivity> impl
 
             // 如果需要返回，可以选择使用
             callback(beans);
+        }
+    };
+
+    private final IParamsReceiver<Object> mTest = new IParamsReceiver<Object>() {
+        @EventName("navigator_tomenue")
+        @Override
+        public void onEvent(Object o) {
+            Log.e(TAG, "接收到：" + o.toString());
         }
     };
 }
