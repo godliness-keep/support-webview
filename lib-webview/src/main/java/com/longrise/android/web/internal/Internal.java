@@ -27,7 +27,7 @@ public final class Internal {
     }
 
     @NonNull
-    public static <T extends BaseWebActivity<T>> BaseWebViewClient<T> createIfWebviewClient(BaseWebViewClient<T> webViewClient) {
+    public static <T extends BaseWebActivity<T>> BaseWebViewClient<T> createIfWebViewClient(BaseWebViewClient<T> webViewClient) {
         if (webViewClient == null) {
             return new DefaultWebClient<>();
         }

@@ -1,7 +1,6 @@
 package com.longrise.android.web.internal.bridge;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
 import android.webkit.WebView;

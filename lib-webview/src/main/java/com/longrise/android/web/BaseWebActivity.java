@@ -288,7 +288,7 @@ public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppC
     }
 
     private void createWebViewClient(WebView view) {
-        final BaseWebViewClient<T> webViewClient = Internal.createIfWebviewClient(getWebViewClient());
+        final BaseWebViewClient<T> webViewClient = Internal.createIfWebViewClient(getWebViewClient());
         webViewClient.attachTarget(this, view);
     }
 
