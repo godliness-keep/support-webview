@@ -72,18 +72,6 @@ public final class BaseWebView extends WebView {
     }
 
     /**
-     * 快速获取一个 BaseWebView，并设置 WebSetting
-     */
-    @Nullable
-    public static BaseWebView createOrGetWebViewAndInitSetting(Context context) {
-        final BaseWebView webView = WebViewFactory.findWebView(context);
-        if (webView != null) {
-            SettingInit.initSetting(webView);
-        }
-        return webView;
-    }
-
-    /**
      * 设置监听 WebView 滑动
      */
     public final void setScrollChangedListener(IScrollChangeListener changedListener) {

@@ -20,7 +20,7 @@ public class WebLog {
     private static volatile WebAlerter sAlerter;
 
     /**
-     * Log 打印
+     * Log 打印，可以通过 {@link #setLogger(Logger)} 代理
      */
     public interface Logger {
 
@@ -36,7 +36,7 @@ public class WebLog {
     }
 
     /**
-     * WebView alert
+     * WebView alert，可以通过{@link #setWebAlerter(WebAlerter)} 代理
      */
     public interface WebAlerter {
 

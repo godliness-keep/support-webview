@@ -19,7 +19,7 @@ import com.longrise.android.webview.demo.mode.Params;
  *
  * @author godliness
  * <p>
- * 测试 BaseWebFragment
+ * BaseWebFragment 使用示例
  */
 public final class WebDemoFragment extends AppCompatActivity {
 
