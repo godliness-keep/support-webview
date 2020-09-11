@@ -3,7 +3,7 @@
     package="com.longrise.android.webview.demo">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:name=".app.DemoApp"
@@ -15,7 +15,7 @@
         android:theme="@style/Theme.AppCompat.NoActionBar">
 
         <activity
-            android:name=".app.MainActivity"
+            android:name=".MainActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -25,11 +25,15 @@
         </activity>
 
         <activity
-            android:name=".WebDemoActivity"
+            android:name=".webdemo.WebDemoActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name=".WebX5DemoActivity"
+            android:name=".webdemo.WebDemoFragment"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".x5demo.WebX5DemoActivity"
             android:screenOrientation="portrait" />
     </application>
 

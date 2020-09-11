@@ -1,3 +1,4 @@
+include ':x5-internal'
 include ':lib-x5webview'
 include ':app',
         ':lib-webview'

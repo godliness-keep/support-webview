@@ -45,12 +45,12 @@ final class WebViewFactory {
     }
 
     static boolean recycle(BaseWebView webView) {
-        synchronized (WEB_VIEWS) {
-            if (WEB_VIEWS.size() < MAX_CACHE_SIZE) {
-                WEB_VIEWS.add(webView);
-                return true;
-            }
-        }
+//        synchronized (WEB_VIEWS) {
+//            if (WEB_VIEWS.size() < MAX_CACHE_SIZE) {
+//                WEB_VIEWS.add(webView);
+//                return true;
+//            }
+//        }
         return false;
     }
 

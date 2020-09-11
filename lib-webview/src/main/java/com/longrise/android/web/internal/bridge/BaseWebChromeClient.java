@@ -1,5 +1,6 @@
 package com.longrise.android.web.internal.bridge;
 
+import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
@@ -7,6 +8,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
+import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.webkit.ConsoleMessage;
 import android.webkit.JsPromptResult;
@@ -15,10 +17,10 @@ import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 
-import com.longrise.android.web.BaseWebActivity;
 import com.longrise.android.web.WebLog;
-import com.longrise.android.web.internal.Internal;
-import com.longrise.android.web.internal.OnBridgeListener;
+import com.longrise.android.web.internal.FileChooser;
+import com.longrise.android.web.internal.IBridgeAgent;
+import com.longrise.android.web.internal.IBridgeListener;
 import com.longrise.android.web.internal.SchemeConsts;
 
 import java.lang.ref.WeakReference;
@@ -29,58 +31,36 @@ import java.lang.ref.WeakReference;
  *
  * @author godliness
  */
-public abstract class BaseWebChromeClient<T extends BaseWebActivity<T>> extends WebChromeClient {
-
-    private static final String TAG = "BaseWebChromeClient";
+public abstract class BaseWebChromeClient<T extends IBridgeAgent<T>> extends WebChromeClient {
 
     private Handler mHandler;
-    private WeakReference<BaseWebActivity<T>> mTarget;
-    private OnBridgeListener mClientBridge;
+    private WeakReference<T> mTarget;
+    private IBridgeListener mClientBridge;
 
     private boolean mFirstLoad = true;
 
-    /**
-     * 获取当前 Activity 实例
-     */
-    @SuppressWarnings("unchecked")
     @Nullable
     protected final T getTarget() {
-        return (T) mTarget.get();
+        return mTarget.get();
     }
 
-    /**
-     * 判断当前宿主 Activity 是否已经 Finished
-     */
     protected final boolean isFinished() {
-        return Internal.activityIsFinished(mTarget.get());
+        final T target = getTarget();
+        return target == null || target.isFinishing();
     }
 
-    /**
-     * 获取 Handler 实例
-     * 注：每个 Web 页面实例都有且共用一个 Handler 实例
-     * 即在 Activity、WebChromeClient、WebViewClient、FileChooser 之间发送的消息可以相互接收到
-     */
     protected final Handler getHandler() {
         return mHandler;
     }
 
-    /**
-     * 拦截通过 Handler 发送的消息
-     */
     public boolean onHandleMessage(Message msg) {
         return false;
     }
 
-    /**
-     * 通过 Handler 发送任务
-     */
     protected final void post(Runnable task) {
         postDelayed(task, 0);
     }
 
-    /**
-     * 通过 Handler 发送 Delay 任务
-     */
     protected final void postDelayed(Runnable task, int delay) {
         if (!isFinished()) {
             mHandler.postDelayed(task, delay);
@@ -142,7 +122,7 @@ public abstract class BaseWebChromeClient<T extends BaseWebActivity<T>> extends 
             public void run() {
                 final T target = getTarget();
                 if (target != null) {
-                    final BaseFileChooser<T> fileChooser = target.createOrGetFileChooser();
+                    final FileChooser<?> fileChooser = target.createOrGetFileChooser();
                     if (fileChooser != null) {
                         fileChooser.openFileChooser(uploadMsg, acceptType, capture);
                     }
@@ -165,7 +145,7 @@ public abstract class BaseWebChromeClient<T extends BaseWebActivity<T>> extends 
             public void run() {
                 final T target = getTarget();
                 if (target != null) {
-                    final BaseFileChooser<T> fileChooser = target.createOrGetFileChooser();
+                    final FileChooser<?> fileChooser = target.createOrGetFileChooser();
                     if (fileChooser != null) {
                         fileChooser.onShowFileChooser(filePathCallback, fileChooserParams);
                     }
@@ -175,15 +155,12 @@ public abstract class BaseWebChromeClient<T extends BaseWebActivity<T>> extends 
         return true;
     }
 
-    /**
-     * 警示框 {@link WebLog#onJsAlert(Context, String, String, JsResult)}
-     */
     @Override
     public final boolean onJsAlert(WebView webView, String s, String s1, final JsResult jsResult) {
         if (isFinished()) {
             return true;
         }
-        return WebLog.onJsAlert(getTarget(), s, s1, jsResult);
+        return WebLog.onJsAlert(getContext(), s, s1, jsResult);
     }
 
     /**
@@ -194,7 +171,7 @@ public abstract class BaseWebChromeClient<T extends BaseWebActivity<T>> extends 
         if (isFinished()) {
             return true;
         }
-        return WebLog.onJsPrompt(getTarget(), url, message, defaultValue, result);
+        return WebLog.onJsPrompt(getContext(), url, message, defaultValue, result);
     }
 
     /**
@@ -205,7 +182,7 @@ public abstract class BaseWebChromeClient<T extends BaseWebActivity<T>> extends 
         if (isFinished()) {
             return true;
         }
-        return WebLog.onJsConfirm(getTarget(), s, s1, jsResult);
+        return WebLog.onJsConfirm(getContext(), s, s1, jsResult);
     }
 
     /**
@@ -229,13 +206,28 @@ public abstract class BaseWebChromeClient<T extends BaseWebActivity<T>> extends 
         WebLog.onConsoleMessage(console);
     }
 
-    public final void invokeClientBridge(OnBridgeListener agent) {
+    public final void invokeClientBridge(IBridgeListener agent) {
         this.mClientBridge = agent;
     }
 
-    public final void attachTarget(BaseWebActivity<T> target, WebView view) {
+    public final void attachTarget(T target, WebView view) {
         view.setWebChromeClient(this);
         this.mHandler = target.getHandler();
         this.mTarget = new WeakReference<>(target);
+    }
+
+    @Nullable
+    private Context getContext() {
+        final T t = getTarget();
+        if (t instanceof Activity) {
+            return (Context) t;
+        } else if (t instanceof Fragment) {
+            final Context cxt = ((Fragment) t).getContext();
+            if (cxt == null) {
+                return ((Fragment) t).getActivity();
+            }
+            return cxt;
+        }
+        return null;
     }
 }

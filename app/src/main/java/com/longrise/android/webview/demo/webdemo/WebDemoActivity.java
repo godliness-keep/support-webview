@@ -1,4 +1,4 @@
-package com.longrise.android.webview.demo;
+package com.longrise.android.webview.demo.webdemo;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -15,6 +15,7 @@ import com.longrise.android.jssdk.receiver.IParamsReceiver;
 import com.longrise.android.jssdk.receiver.base.EventName;
 import com.longrise.android.web.BaseWebActivity;
 import com.longrise.android.web.internal.BaseWebView;
+import com.longrise.android.webview.demo.R;
 import com.longrise.android.webview.demo.mode.Bean;
 import com.longrise.android.webview.demo.mode.Params;
 
@@ -53,7 +54,7 @@ public final class WebDemoActivity extends BaseWebActivity<WebDemoActivity> impl
         mProgress = findViewById(R.id.progress);
         mWebView = findViewById(R.id.webview);
 
-        loadUrl("http://zhyq.szns.gov.cn/OA/LEAP/FFPB/prelogIn.html?sign=1");
+        loadUrl("file:///android_asset/main.html");
 
         /*这里简单示例在加载出错时处理方式*/
         mWebContent = findViewById(R.id.web_content);
@@ -61,8 +62,6 @@ public final class WebDemoActivity extends BaseWebActivity<WebDemoActivity> impl
 
         /* 注册事件 */
         mParamsReceiver.alive().lifecycle(this);
-
-        mTest.alive().lifecycle(this);
     }
 
 
@@ -172,11 +171,4 @@ public final class WebDemoActivity extends BaseWebActivity<WebDemoActivity> impl
         }
     };
 
-    private final IParamsReceiver<Object> mTest = new IParamsReceiver<Object>() {
-        @EventName("navigator_tomenue")
-        @Override
-        public void onEvent(Object o) {
-            Log.e(TAG, "接收到：" + o.toString());
-        }
-    };
 }

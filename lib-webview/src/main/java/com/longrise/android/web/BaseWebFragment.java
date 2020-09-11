@@ -4,9 +4,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.IdRes;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
-import android.view.KeyEvent;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.DownloadListener;
 import android.webkit.WebView;
 
@@ -15,18 +19,17 @@ import com.longrise.android.web.internal.FileChooser;
 import com.longrise.android.web.internal.IBridgeAgent;
 import com.longrise.android.web.internal.IWebLoadListener;
 import com.longrise.android.web.internal.Internal;
-import com.longrise.android.web.internal.SchemeConsts;
 import com.longrise.android.web.internal.bridge.BaseDownloader;
 import com.longrise.android.web.internal.bridge.BaseWebBridge;
 import com.longrise.android.web.internal.bridge.BaseWebChromeClient;
 import com.longrise.android.web.internal.bridge.BaseWebViewClient;
 
 /**
- * Created by godliness on 2019-07-09.
+ * Created by godliness on 2020/9/11.
  *
  * @author godliness
  */
-public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppCompatActivity implements
+public abstract class BaseWebFragment<T extends BaseWebFragment<T>> extends Fragment implements
         IWebLoadListener, Handler.Callback, IBridgeAgent<T> {
 
     private final Handler mHandler = new Handler(this);
@@ -36,7 +39,7 @@ public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppC
     /**
      * Returns the current layout resource id
      *
-     * @param state {@link android.app.Activity#onCreate(Bundle)}
+     * @param state {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}
      * @return The current layout id
      */
     protected abstract int getLayoutResourceId(@Nullable Bundle state);
@@ -68,13 +71,6 @@ public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppC
     }
 
     /**
-     * 需要在 {@link #setContentView(int)} 之前的逻辑
-     */
-    protected void beforeSetContentView() {
-
-    }
-
-    /**
      * 拦截通过 Handler 发送的任务
      */
     protected boolean onHandleMessage(Message msg) {
@@ -101,7 +97,6 @@ public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppC
     public BaseWebChromeClient<T> getWebChromeClient() {
         return null;
     }
-
 
     /**
      * 扩展 WebView 下载 {@link WebView#setDownloadListener(DownloadListener)}
@@ -133,17 +128,7 @@ public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppC
     }
 
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            if (webViewCanGoBack()) {
-                return true;
-            }
-        }
-        return super.onKeyDown(keyCode, event);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (mFileChooser != null) {
             mFileChooser.onActivityResult(requestCode, resultCode, data);
@@ -151,7 +136,7 @@ public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppC
     }
 
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
         if (mWebView != null) {
             mWebView.onResume();
@@ -159,7 +144,7 @@ public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppC
     }
 
     @Override
-    protected void onPause() {
+    public void onPause() {
         super.onPause();
         if (mWebView != null) {
             mWebView.onPause();
@@ -167,15 +152,7 @@ public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppC
     }
 
     @Override
-    public void finish() {
-        if (mWebView != null) {
-            mWebView.loadUrl(SchemeConsts.BLANK);
-        }
-        super.finish();
-    }
-
-    @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         if (mWebView != null) {
             mWebView.recycle();
             mWebView = null;
@@ -207,6 +184,10 @@ public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppC
         mHandler.postDelayed(task, delayMillis);
     }
 
+    protected final <V extends View> V findViewById(@IdRes int id) {
+        return getView().findViewById(id);
+    }
+
     /**
      * Notify the WebView to reload
      */
@@ -226,6 +207,11 @@ public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppC
     }
 
     @Override
+    public final boolean isFinishing() {
+        return isDetached();
+    }
+
+    @Override
     public final boolean handleMessage(Message msg) {
         if (isFinishing()) {
             return true;
@@ -236,16 +222,15 @@ public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppC
         return onBridgeHandleMessage(msg);
     }
 
+    @Nullable
     @Override
-    protected final void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        beforeSetContentView();
-        setContentView(getLayoutResourceId(savedInstanceState));
+    public final View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(getLayoutResourceId(savedInstanceState), container, false);
     }
 
     @Override
-    public final void onContentChanged() {
-        super.onContentChanged();
+    public final void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
         initView();
         createWebFrame();
         regEvent(true);

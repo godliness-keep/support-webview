@@ -23,7 +23,6 @@ import com.longrise.android.web.internal.bridge.BaseDownloader;
 import com.longrise.android.web.internal.bridge.BaseWebBridge;
 import com.longrise.android.web.internal.bridge.BaseWebChromeClient;
 import com.longrise.android.web.internal.bridge.BaseWebViewClient;
-import com.longrise.android.web.internal.webcallback.WebLoadListener;
 
 import java.lang.reflect.Method;
 
@@ -49,7 +48,7 @@ public final class BaseWebView extends WebView {
     private BaseDownloader<?> mDownloader;
     private BaseWebBridge<?> mBridge;
 
-    private OnBridgeListener mClientBridge;
+    private IBridgeListener mClientBridge;
 
     public BaseWebView(Context context) {
         this(context, null);
@@ -60,7 +59,8 @@ public final class BaseWebView extends WebView {
         removeJavascriptInterfaces();
         disableAccessibility(context);
 
-        this.mClientBridge = ClientBridgeAgent.getInstance();
+        this.mClientBridge = BridgeDelegate.getInstance();
+        SettingInit.initSetting(this);
     }
 
     /**
@@ -118,7 +118,7 @@ public final class BaseWebView extends WebView {
         return false;
     }
 
-    public void registerCallback(WebLoadListener webCallback) {
+    public void registerCallback(IWebLoadListener webCallback) {
         mClientBridge.registerCallback(webCallback);
     }
 
@@ -162,12 +162,12 @@ public final class BaseWebView extends WebView {
      * 复用版的暂未完善
      */
     public final void recycle() {
-//        final boolean recycled = WebViewFactory.recycle(this);
-//        if (recycled) {
-//            release();
-//        } else {
-        destroy();
-//        }
+        final boolean recycled = WebViewFactory.recycle(this);
+        if (recycled) {
+            release();
+        } else {
+            destroy();
+        }
 
         if (mDownloader != null) {
             mDownloader.onDestroy();

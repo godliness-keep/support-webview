@@ -49,18 +49,12 @@ public class WebLog {
         boolean onJsConfirm(Context target, String s, String s1, JsResult jsResult);
     }
 
-    /**
-     * 代理 Log 打印
-     */
     public static void setLogger(Logger logger) {
         if (sLogger != logger) {
             sLogger = logger;
         }
     }
 
-    /**
-     * 代理 WebView alert {@link com.longrise.android.web.internal.bridge.BaseWebChromeClient}
-     */
     public static void setWebAlerter(WebAlerter alert) {
         if (sAlerter != alert) {
             sAlerter = alert;
@@ -201,7 +195,7 @@ public class WebLog {
             @Override
             public boolean onJsAlert(Context cxt, String url, String message, final JsResult jsResult) {
                 createAlertBuilder(cxt, url, message)
-                        .setPositiveButton(R.string.lib_x5_string_positive, new DialogInterface.OnClickListener() {
+                        .setPositiveButton(R.string.web_string_positive, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 if (jsResult != null) {

@@ -1,11 +1,11 @@
-package com.longrise.android.web.internal.webcallback;
+package com.longrise.android.web.internal;
 
 /**
  * Created by godliness on 2019-07-09.
  *
  * @author godliness
  */
-public interface WebLoadListener {
+public interface IWebLoadListener {
 
     /**
      * Current web page title

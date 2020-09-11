@@ -6,7 +6,7 @@ import android.os.Message;
 import android.webkit.WebView;
 
 import com.longrise.android.jssdk.core.bridge.BaseBridge;
-import com.longrise.android.web.BaseWebActivity;
+import com.longrise.android.web.internal.IBridgeAgent;
 
 import java.lang.ref.WeakReference;
 
@@ -16,16 +16,15 @@ import java.lang.ref.WeakReference;
  * @author godliness
  * WebView Bridge 桥梁
  */
-public abstract class BaseWebBridge<T extends BaseWebActivity<T>> extends BaseBridge<T> {
+public abstract class BaseWebBridge<T extends IBridgeAgent<T>> extends BaseBridge<T> {
 
     private Handler mHandler;
     private WeakReference<WebView> mView;
 
-    /**
-     * 对应{@link T#onDestroy()}
-     */
     @Override
-    protected abstract void onDestroy();
+    protected void onDestroy() {
+
+    }
 
     public boolean onHandleMessage(Message msg) {
         return false;
@@ -50,10 +49,9 @@ public abstract class BaseWebBridge<T extends BaseWebActivity<T>> extends BaseBr
         return mView.get();
     }
 
-    @SuppressWarnings("unchecked")
     @SuppressLint("AddJavascriptInterface")
-    public final void bindTarget(BaseWebActivity<T> target, WebView view) {
-        super.bindTarget((T) target);
+    public final void attachTarget(T target, WebView view) {
+        super.bindTarget(target);
         // 适用于 API Level 17及以后，之前有安全问题，暂未做修复
         view.addJavascriptInterface(this, bridgeName());
         this.mHandler = target.getHandler();

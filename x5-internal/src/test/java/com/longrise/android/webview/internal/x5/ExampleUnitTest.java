@@ -1,4 +1,4 @@
-package com.longrise.android.webview.demo;
+package com.longrise.android.webview.internal.x5;
 
 import org.junit.Test;
 

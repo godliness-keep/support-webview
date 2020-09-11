@@ -2,7 +2,6 @@ package com.longrise.android.webview.demo.x5demo;
 
 import android.os.Message;
 
-import com.longrise.android.webview.demo.WebX5DemoActivity;
 import com.longrise.android.x5web.X5;
 import com.longrise.android.x5web.internal.bridge.BaseWebChromeClient;
 

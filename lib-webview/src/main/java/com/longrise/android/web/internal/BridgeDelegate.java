@@ -1,21 +1,16 @@
 package com.longrise.android.web.internal;
 
-import com.longrise.android.web.WebLog;
-import com.longrise.android.web.internal.webcallback.WebLoadListener;
-
 /**
  * Created by godliness on 2020/9/4.
  *
  * @author godliness
  */
-public final class ClientBridgeAgent implements OnBridgeListener{
-
-    private static final String TAG = "ClientBridgeAgent";
+public final class BridgeDelegate implements IBridgeListener {
 
     private static final byte LOAD_FAILED = 0;
     private static final byte LOAD_COMPLETED = 1;
 
-    private WebLoadListener mLoadCallback;
+    private IWebLoadListener mLoadCallback;
 
     private boolean mLoadFailed;
     private byte mLoadActor;
@@ -31,8 +26,6 @@ public final class ClientBridgeAgent implements OnBridgeListener{
 
     @Override
     public void onProgressChanged(int newProgress) {
-        WebLog.error(TAG, "newProgress: " + newProgress);
-
         if (mLoadCallback != null) {
             mLoadCallback.onProgressChanged(newProgress);
         }
@@ -76,7 +69,7 @@ public final class ClientBridgeAgent implements OnBridgeListener{
     }
 
     @Override
-    public void registerCallback(WebLoadListener webCallback) {
+    public void registerCallback(IWebLoadListener webCallback) {
         this.mLoadCallback = webCallback;
     }
 
@@ -86,8 +79,8 @@ public final class ClientBridgeAgent implements OnBridgeListener{
         mCurrentLoadStatus = -1;
     }
 
-    static OnBridgeListener getInstance() {
-        return new ClientBridgeAgent();
+    static IBridgeListener getInstance() {
+        return new BridgeDelegate();
     }
 
     private void notifyLoadFailed() {
@@ -124,7 +117,7 @@ public final class ClientBridgeAgent implements OnBridgeListener{
         }
     }
 
-    private ClientBridgeAgent() {
+    private BridgeDelegate() {
 
     }
 }

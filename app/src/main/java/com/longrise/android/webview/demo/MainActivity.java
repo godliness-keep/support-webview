@@ -1,4 +1,4 @@
-package com.longrise.android.webview.demo.app;
+package com.longrise.android.webview.demo;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -6,9 +6,9 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
-import com.longrise.android.webview.demo.R;
-import com.longrise.android.webview.demo.WebDemoActivity;
-import com.longrise.android.webview.demo.WebX5DemoActivity;
+import com.longrise.android.webview.demo.webdemo.WebDemoFragment;
+import com.longrise.android.webview.demo.webdemo.WebDemoActivity;
+import com.longrise.android.webview.demo.x5demo.WebX5DemoActivity;
 
 /**
  * Created by godliness on 2020/9/1.
@@ -22,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        /*原生 WebView Activity*/
         findViewById(R.id.webview_native).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -29,6 +30,16 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        /*原生 WebView Fragment*/
+        findViewById(R.id.webview_native_fragment).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final Intent intent = new Intent(MainActivity.this, WebDemoFragment.class);
+                startActivity(intent);
+            }
+        });
+
 
         findViewById(R.id.webview_x5).setOnClickListener(new View.OnClickListener() {
             @Override

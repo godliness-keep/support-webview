@@ -1,13 +1,11 @@
 package com.longrise.android.web.internal;
 
-import com.longrise.android.web.internal.webcallback.WebLoadListener;
-
 /**
  * Created by godliness on 2020/9/7.
  *
  * @author godliness
  */
-public interface OnBridgeListener {
+public interface IBridgeListener {
 
     boolean beforeUrlLoading(String url);
 
@@ -21,7 +19,7 @@ public interface OnBridgeListener {
 
     void onReceivedError();
 
-    void registerCallback(WebLoadListener webCallback);
+    void registerCallback(IWebLoadListener webCallback);
 
     void destroy();
 }

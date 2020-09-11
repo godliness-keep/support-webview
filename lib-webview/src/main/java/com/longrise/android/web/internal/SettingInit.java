@@ -6,17 +6,17 @@ import android.support.v4.content.ContextCompat;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
+import com.longrise.android.web.WebLog;
 
-import com.longrise.android.web.BuildConfig;
 
 /**
  * Created by godliness on 2019-07-10.
  *
  * @author godliness
  */
-public final class SettingInit {
+final class SettingInit {
 
-    public static void initSetting(@NonNull WebView view) {
+    static void initSetting(@NonNull WebView view) {
 
         final WebSettings webSettings = view.getSettings();
 
@@ -33,7 +33,7 @@ public final class SettingInit {
         webSettings.setJavaScriptEnabled(true);
 
         //-------设置自适应屏幕-------
-        //将图片调整到适合Webview的大小
+        //将图片调整到适合WebView的大小
         webSettings.setUseWideViewPort(true);
         //缩放至屏幕的大小
         webSettings.setLoadWithOverviewMode(true);
@@ -83,7 +83,7 @@ public final class SettingInit {
         view.setBackgroundResource(android.R.color.white);
 
         //---------调试4.4以后，开启浏览器调试模式  chrome://inspect ------------
-        if (BuildConfig.DEBUG && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+        if (WebLog.isDebug() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             WebView.setWebContentsDebuggingEnabled(true);
         }
     }

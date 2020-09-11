@@ -11,6 +11,13 @@
         android:layout_height="wrap_content"
         android:text="原生 WebView" />
 
+
+    <Button
+        android:id="@+id/webview_native_fragment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="原生 WebView Fragment" />
+
     <Button
         android:id="@+id/webview_x5"
         android:layout_width="wrap_content"

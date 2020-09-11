@@ -18,9 +18,8 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.longrise.android.web.BaseWebActivity;
-import com.longrise.android.web.internal.Internal;
-import com.longrise.android.web.internal.OnBridgeListener;
+import com.longrise.android.web.internal.IBridgeAgent;
+import com.longrise.android.web.internal.IBridgeListener;
 import com.longrise.android.web.internal.SchemeConsts;
 
 import java.lang.ref.WeakReference;
@@ -32,14 +31,11 @@ import java.lang.ref.WeakReference;
  * 如果不设置 WebViewClient 则由系统（Activity Manager）处理该 URL
  * 通常是使用浏览器打开或弹出选择对话框
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
-public abstract class BaseWebViewClient<T extends BaseWebActivity<T>> extends WebViewClient {
-
-    private static final String TAG = "BaseWebViewClient";
+public abstract class BaseWebViewClient<T extends IBridgeAgent<?>> extends WebViewClient {
 
     private Handler mHandler;
-    private WeakReference<BaseWebActivity<T>> mTarget;
-    private OnBridgeListener mClientBridge;
+    private WeakReference<T> mTarget;
+    private IBridgeListener mClientBridge;
 
     private boolean mBlockImageLoad;
     private boolean mFirstFinished = true;
@@ -70,10 +66,6 @@ public abstract class BaseWebViewClient<T extends BaseWebActivity<T>> extends We
         return false;
     }
 
-    /**
-     * 获取当前所依附的 Activity {?} extends {@link BaseWebActivity}
-     */
-    @SuppressWarnings("unchecked")
     @Nullable
     protected final T getTarget() {
         return (T) mTarget.get();
@@ -83,37 +75,22 @@ public abstract class BaseWebViewClient<T extends BaseWebActivity<T>> extends We
      * 判断当前所依附的 Activity 是否已经 Finished
      */
     protected final boolean isFinished() {
-        return Internal.activityIsFinished(getTarget());
+        final T target = getTarget();
+        return target == null || target.isFinishing();
     }
 
-    /**
-     * 获取 Handler 实例
-     * <p>
-     * 每个 Web 页面实例都有且共用一个 Handler 实例
-     * 即在 Activity、WebChromeClient、WebViewClient、FileChooser、Bridge 之间
-     * 发送的消息可以相互接收到{@link #onHandleMessage(Message)}
-     */
     protected final Handler getHandler() {
         return mHandler;
     }
 
-    /**
-     * 拦截通过 Handler 发送的消息 {@link #getHandler()}
-     */
     public boolean onHandleMessage(Message msg) {
         return false;
     }
 
-    /**
-     * 通过 Handler 发送任务
-     */
     protected final void post(Runnable action) {
         postDelayed(action, 0);
     }
 
-    /**
-     * 通过 Handler 发送一个 Delay 任务
-     */
     protected final void postDelayed(Runnable action, int delay) {
         if (!isFinished()) {
             mHandler.postDelayed(action, delay);
@@ -242,11 +219,11 @@ public abstract class BaseWebViewClient<T extends BaseWebActivity<T>> extends We
 //        }
     }
 
-    public final void invokeClientBridge(OnBridgeListener agent) {
+    public final void invokeClientBridge(IBridgeListener agent) {
         this.mClientBridge = agent;
     }
 
-    public final void attachTarget(BaseWebActivity<T> target, WebView view) {
+    public final void attachTarget(T target, WebView view) {
         view.setWebViewClient(this);
         this.mHandler = target.getHandler();
         this.mTarget = new WeakReference<>(target);
@@ -290,14 +267,14 @@ public abstract class BaseWebViewClient<T extends BaseWebActivity<T>> extends We
                 || url.startsWith(SchemeConsts.FILE);
     }
 
-    private boolean interceptAddressType(String url) {
-        return url.endsWith(".apk")
-                || url.endsWith(".css")
-                || url.endsWith(".png")
-                || url.endsWith(".jpg")
-                || url.endsWith(".gif")
-                || url.endsWith(".js");
-    }
+//    private boolean interceptAddressType(String url) {
+//        return url.endsWith(".apk")
+//                || url.endsWith(".css")
+//                || url.endsWith(".png")
+//                || url.endsWith(".jpg")
+//                || url.endsWith(".gif")
+//                || url.endsWith(".js");
+//    }
 
     private void clearForwardHistory(WebView view) {
         final WebBackForwardList forwardList = view.copyBackForwardList();
@@ -309,14 +286,14 @@ public abstract class BaseWebViewClient<T extends BaseWebActivity<T>> extends We
         }
     }
 
-    private boolean canInterceptUrlLoading(WebView view, String url){
-        if(isFinished()){
+    private boolean canInterceptUrlLoading(WebView view, String url) {
+        if (isFinished()) {
             return true;
         }
         return isInterceptUrlLoading(view, url);
     }
 
-    private boolean isInterceptUrlLoading(WebView view, String url){
+    private boolean isInterceptUrlLoading(WebView view, String url) {
         final boolean intercept = beforeUrlLoading(url);
         if (intercept || TextUtils.isEmpty(url) || !isEffectiveScheme(url)) {
             // Unable to process Url address

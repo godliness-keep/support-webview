@@ -1,8 +1,7 @@
-package com.longrise.android.webview.demo;
+package com.longrise.android.webview.demo.x5demo;
 
 import android.os.Bundle;
 import android.os.Message;
-import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
@@ -11,13 +10,9 @@ import android.widget.TextView;
 
 import com.longrise.android.jssdk_x5.receiver.IParamsReceiver;
 import com.longrise.android.jssdk_x5.receiver.base.EventName;
+import com.longrise.android.webview.demo.R;
 import com.longrise.android.webview.demo.mode.Bean;
 import com.longrise.android.webview.demo.mode.Params;
-import com.longrise.android.webview.demo.x5demo.DemoBridge;
-import com.longrise.android.webview.demo.x5demo.DemoDownloader;
-import com.longrise.android.webview.demo.x5demo.DemoFileChooser;
-import com.longrise.android.webview.demo.x5demo.DemoWebChromeClient;
-import com.longrise.android.webview.demo.x5demo.DemoWebViewClient;
 import com.longrise.android.x5web.BaseWebActivity;
 import com.longrise.android.x5web.X5;
 import com.longrise.android.x5web.internal.X5WebView;
