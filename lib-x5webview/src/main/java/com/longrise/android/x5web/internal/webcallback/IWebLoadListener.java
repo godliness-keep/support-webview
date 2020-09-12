@@ -5,7 +5,7 @@ package com.longrise.android.x5web.internal.webcallback;
  *
  * @author godliness
  */
-public interface WebLoadListener {
+public interface IWebLoadListener {
 
     /**
      * Current web page title

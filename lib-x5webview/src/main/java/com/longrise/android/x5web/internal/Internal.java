@@ -1,89 +1,73 @@
 package com.longrise.android.x5web.internal;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.os.Build;
-import android.support.annotation.NonNull;
-
-import com.longrise.android.x5web.BaseWebActivity;
-import com.longrise.android.x5web.internal.bridge.BaseFileChooser;
+import com.longrise.android.x5web.internal.bridge.BaseDownloader;
 import com.longrise.android.x5web.internal.bridge.BaseWebBridge;
 import com.longrise.android.x5web.internal.bridge.BaseWebChromeClient;
 import com.longrise.android.x5web.internal.bridge.BaseWebViewClient;
+import com.longrise.android.x5web.internal.webcallback.IWebLoadListener;
 
 /**
  * Created by godliness on 2020/8/22.
  *
  * @author godliness
- * Default config
  */
-public final class Internal {
+public final class Internal<T extends IBridgeAgent<T>> {
 
-    @NonNull
-    public static <T extends BaseWebActivity<T>> BaseWebChromeClient<T> createIfWebChromeClick(BaseWebChromeClient<T> chromeClient) {
-        if (chromeClient == null) {
-            return new DefaultChromeClient<>();
-        }
-        return chromeClient;
-    }
+    private final T mTarget;
+    private X5WebView mView;
 
-    @NonNull
-    public static <T extends BaseWebActivity<T>> BaseWebViewClient<T> createIfWebviewClient(BaseWebViewClient<T> webViewClient) {
-        if (webViewClient == null) {
-            return new DefaultWebClient<>();
-        }
-        return webViewClient;
-    }
+    public Internal(T agent, X5WebView view) {
+        this.mTarget = agent;
+        this.mView = view;
 
-    @NonNull
-    public static <T extends BaseWebActivity<T>> BaseFileChooser<T> createIfFileChooser(BaseFileChooser<T> fileChooser) {
-        if (fileChooser == null) {
-            return new DefaultFileChooser<>();
-        }
-        return fileChooser;
-    }
-
-    @NonNull
-    public static <T extends BaseWebActivity<T>> BaseWebBridge<T> createIfBridge(BaseWebBridge<T> bridge) {
-        if (bridge == null) {
-            return new DefaultBridge<>();
-        }
-        return bridge;
-    }
-
-    public static boolean activityIsFinished(Activity target) {
-        if (target == null) {
-            return true;
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            return target.isFinishing() || target.isDestroyed();
-        }
-        return target.isFinishing();
-    }
-
-    private static final class DefaultChromeClient<T extends BaseWebActivity<T>> extends BaseWebChromeClient<T> {
-    }
-
-    private static final class DefaultWebClient<T extends BaseWebActivity<T>> extends BaseWebViewClient<T> {
-    }
-
-    private static final class DefaultFileChooser<T extends BaseWebActivity<T>> extends BaseFileChooser<T> {
-
-        @Override
-        protected boolean dispatchActivityOnResult(int requestCode, int resultCode, Intent data) {
-            return false;
+        if (agent instanceof IWebLoadListener) {
+            view.registerCallback((IWebLoadListener) agent);
         }
     }
 
-    private static final class DefaultBridge<T extends BaseWebActivity<T>> extends BaseWebBridge<T> {
+    public void install() {
+        final BaseWebBridge<T> bridge = mTarget.getBridge();
+        if (bridge != null) {
+            bridge.attachTarget(mTarget, mView);
+        } else {
+            installBridge();
+        }
 
-        @Override
-        protected void onDestroy() {
+        final BaseWebViewClient<T> webViewClient = mTarget.getWebViewClient();
+        if (webViewClient != null) {
+            webViewClient.attachTarget(mTarget, mView);
+        } else {
+            installWebViewClient();
+        }
 
+        final BaseWebChromeClient<T> webChromeClient = mTarget.getWebChromeClient();
+        if (webChromeClient != null) {
+            webChromeClient.attachTarget(mTarget, mView);
+        } else {
+            installWebChromeClient();
+        }
+
+        final BaseDownloader<T> downloader = mTarget.getDownloadHelper();
+        if (downloader != null) {
+            downloader.attachTarget(mTarget, mView);
         }
     }
 
-    private Internal() {
-        throw new InstantiationError("Internal Cannot be initialized");
+    private void installBridge() {
+        final BaseWebBridge<T> bridge = new BaseWebBridge<T>() {
+        };
+        bridge.attachTarget(mTarget, mView);
+    }
+
+    private void installWebViewClient() {
+        final BaseWebViewClient<T> webViewClient = new BaseWebViewClient<T>() {
+        };
+        webViewClient.attachTarget(mTarget, mView);
+    }
+
+    private void installWebChromeClient() {
+        final BaseWebChromeClient<T> webChromeClient = new BaseWebChromeClient<T>() {
+        };
+        webChromeClient.attachTarget(mTarget, mView);
     }
 }

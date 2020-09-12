@@ -1,5 +1,6 @@
 package com.longrise.android.x5web.internal.bridge;
 
+import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
@@ -7,11 +8,12 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
+import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 
-import com.longrise.android.x5web.BaseWebActivity;
 import com.longrise.android.x5web.X5;
-import com.longrise.android.x5web.internal.Internal;
+import com.longrise.android.x5web.internal.FileChooser;
+import com.longrise.android.x5web.internal.IBridgeAgent;
 import com.longrise.android.x5web.internal.OnBridgeListener;
 import com.longrise.android.x5web.internal.SchemeConsts;
 import com.tencent.smtt.export.external.interfaces.ConsoleMessage;
@@ -29,12 +31,12 @@ import java.lang.ref.WeakReference;
  *
  * @author godliness
  */
-public abstract class BaseWebChromeClient<T extends BaseWebActivity<T>> extends WebChromeClient {
+public abstract class BaseWebChromeClient<T extends IBridgeAgent<T>> extends WebChromeClient {
 
     private static final String TAG = "BaseWebChromeClient";
 
     private Handler mHandler;
-    private WeakReference<BaseWebActivity<T>> mTarget;
+    private WeakReference<T> mTarget;
     private OnBridgeListener mClientBridge;
 
     private boolean mFirstLoad = true;
@@ -42,17 +44,17 @@ public abstract class BaseWebChromeClient<T extends BaseWebActivity<T>> extends 
     /**
      * 获取当前 Activity 实例
      */
-    @SuppressWarnings("unchecked")
     @Nullable
     protected final T getTarget() {
-        return (T) mTarget.get();
+        return mTarget.get();
     }
 
     /**
      * 判断当前宿主 Activity 是否已经 Finished
      */
     protected final boolean isFinished() {
-        return Internal.activityIsFinished(mTarget.get());
+        final T target = getTarget();
+        return target == null || target.isFinishing();
     }
 
     /**
@@ -140,7 +142,7 @@ public abstract class BaseWebChromeClient<T extends BaseWebActivity<T>> extends 
             public void run() {
                 final T target = getTarget();
                 if (target != null) {
-                    final BaseFileChooser<T> fileChooser = target.createOrGetFileChooser();
+                    final FileChooser<?> fileChooser = target.createOrGetFileChooser();
                     if (fileChooser != null) {
                         fileChooser.openFileChooser(uploadMsg, acceptType, capture);
                     }
@@ -163,7 +165,7 @@ public abstract class BaseWebChromeClient<T extends BaseWebActivity<T>> extends 
             public void run() {
                 final T target = getTarget();
                 if (target != null) {
-                    final BaseFileChooser<T> fileChooser = target.createOrGetFileChooser();
+                    final FileChooser<T> fileChooser = target.createOrGetFileChooser();
                     if (fileChooser != null) {
                         fileChooser.onShowFileChooser(filePathCallback, fileChooserParams);
                     }
@@ -181,7 +183,7 @@ public abstract class BaseWebChromeClient<T extends BaseWebActivity<T>> extends 
         if (isFinished()) {
             return true;
         }
-        return X5.onJsAlert(getTarget(), s, s1, jsResult);
+        return X5.onJsAlert(getContext(), s, s1, jsResult);
     }
 
     /**
@@ -192,7 +194,7 @@ public abstract class BaseWebChromeClient<T extends BaseWebActivity<T>> extends 
         if (isFinished()) {
             return true;
         }
-        return X5.onJsPrompt(getTarget(), url, message, defaultValue, result);
+        return X5.onJsPrompt(getContext(), url, message, defaultValue, result);
     }
 
     /**
@@ -203,7 +205,7 @@ public abstract class BaseWebChromeClient<T extends BaseWebActivity<T>> extends 
         if (isFinished()) {
             return true;
         }
-        return X5.onJsConfirm(getTarget(), s, s1, jsResult);
+        return X5.onJsConfirm(getContext(), s, s1, jsResult);
     }
 
     /**
@@ -219,9 +221,24 @@ public abstract class BaseWebChromeClient<T extends BaseWebActivity<T>> extends 
         this.mClientBridge = agent;
     }
 
-    public final void attachTarget(BaseWebActivity<T> target, WebView view) {
+    public final void attachTarget(T target, WebView view) {
         view.setWebChromeClient(this);
         this.mHandler = target.getHandler();
         this.mTarget = new WeakReference<>(target);
+    }
+
+    @Nullable
+    private Context getContext() {
+        final T t = getTarget();
+        if (t instanceof Activity) {
+            return (Context) t;
+        } else if (t instanceof Fragment) {
+            final Context cxt = ((Fragment) t).getContext();
+            if (cxt == null) {
+                return ((Fragment) t).getActivity();
+            }
+            return cxt;
+        }
+        return null;
     }
 }

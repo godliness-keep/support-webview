@@ -9,7 +9,7 @@ import android.support.annotation.RequiresApi;
 import android.text.TextUtils;
 
 import com.longrise.android.x5web.BaseWebActivity;
-import com.longrise.android.x5web.internal.Internal;
+import com.longrise.android.x5web.internal.IBridgeAgent;
 import com.longrise.android.x5web.internal.OnBridgeListener;
 import com.longrise.android.x5web.internal.SchemeConsts;
 import com.tencent.smtt.export.external.interfaces.SslError;
@@ -32,13 +32,12 @@ import java.lang.ref.WeakReference;
  * 如果不设置 WebViewClient 则由系统（Activity Manager）处理该 URL
  * 通常是使用浏览器打开或弹出选择对话框
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
-public abstract class BaseWebViewClient<T extends BaseWebActivity<T>> extends WebViewClient {
+public abstract class BaseWebViewClient<T extends IBridgeAgent<T>> extends WebViewClient {
 
     private static final String TAG = "BaseWebViewClient";
 
     private Handler mHandler;
-    private WeakReference<BaseWebActivity<T>> mTarget;
+    private WeakReference<T> mTarget;
     private OnBridgeListener mClientBridge;
 
     private boolean mBlockImageLoad;
@@ -83,7 +82,8 @@ public abstract class BaseWebViewClient<T extends BaseWebActivity<T>> extends We
      * 判断当前所依附的 Activity 是否已经 Finished
      */
     protected final boolean isFinished() {
-        return Internal.activityIsFinished(getTarget());
+        final T target = getTarget();
+        return target == null || target.isFinishing();
     }
 
     /**
@@ -246,7 +246,7 @@ public abstract class BaseWebViewClient<T extends BaseWebActivity<T>> extends We
         this.mClientBridge = agent;
     }
 
-    public final void attachTarget(BaseWebActivity<T> target, WebView view) {
+    public final void attachTarget(T target, WebView view) {
         view.setWebViewClient(this);
         this.mHandler = target.getHandler();
         this.mTarget = new WeakReference<>(target);

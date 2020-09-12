@@ -5,8 +5,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 
-import com.longrise.android.x5web.BaseWebActivity;
-import com.longrise.android.x5web.internal.Internal;
+import com.longrise.android.x5web.internal.IBridgeAgent;
 import com.tencent.smtt.sdk.DownloadListener;
 import com.tencent.smtt.sdk.WebView;
 
@@ -18,10 +17,10 @@ import java.lang.ref.WeakReference;
  * @author godliness
  * 负责触发需要下载的相关
  */
-public abstract class BaseDownloader<T extends BaseWebActivity<T>> implements DownloadListener {
+public abstract class BaseDownloader<T extends IBridgeAgent<?>> implements DownloadListener {
 
     private Handler mHandler;
-    private WeakReference<BaseWebActivity<T>> mTarget;
+    private WeakReference<T> mTarget;
 
     /**
      * Notify the host application that a file should be downloaded
@@ -30,12 +29,12 @@ public abstract class BaseDownloader<T extends BaseWebActivity<T>> implements Do
      * @param userAgent          the user agent to be used for the download.
      * @param contentDisposition Content-disposition http header, if
      *                           present.
-     * @param mimetype           The mimetype of the content reported by the server
+     * @param mimeType           The mimetype of the content reported by the server
      * @param contentLength      The file size reported by the server
      */
     @Override
     public abstract void onDownloadStart(String url, String userAgent,
-                                         String contentDisposition, String mimetype, long contentLength);
+                                         String contentDisposition, String mimeType, long contentLength);
 
     /**
      * 对应{@link Activity#onDestroy()}
@@ -45,17 +44,17 @@ public abstract class BaseDownloader<T extends BaseWebActivity<T>> implements Do
     /**
      * 获取当前 Activity {@link T}
      */
-    @SuppressWarnings("unchecked")
     @Nullable
     protected final T getTarget() {
-        return (T) mTarget.get();
+        return mTarget.get();
     }
 
     /**
      * 当前 Activity 是否已经 finish {@link T#isFinishing()}
      */
     protected final boolean isFinished() {
-        return Internal.activityIsFinished(getTarget());
+        final T target = getTarget();
+        return target == null || target.isFinishing();
     }
 
     /**
@@ -90,7 +89,7 @@ public abstract class BaseDownloader<T extends BaseWebActivity<T>> implements Do
         return false;
     }
 
-    public final void attachTarget(BaseWebActivity<T> target, WebView view) {
+    public final void attachTarget(T target, WebView view) {
         view.setDownloadListener(this);
         this.mHandler = target.getHandler();
         this.mTarget = new WeakReference<>(target);

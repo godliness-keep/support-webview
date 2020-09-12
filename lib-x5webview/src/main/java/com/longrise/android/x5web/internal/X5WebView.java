@@ -19,7 +19,7 @@ import com.longrise.android.x5web.internal.bridge.BaseDownloader;
 import com.longrise.android.x5web.internal.bridge.BaseWebBridge;
 import com.longrise.android.x5web.internal.bridge.BaseWebChromeClient;
 import com.longrise.android.x5web.internal.bridge.BaseWebViewClient;
-import com.longrise.android.x5web.internal.webcallback.WebLoadListener;
+import com.longrise.android.x5web.internal.webcallback.IWebLoadListener;
 import com.tencent.smtt.sdk.DownloadListener;
 import com.tencent.smtt.sdk.WebChromeClient;
 import com.tencent.smtt.sdk.WebView;
@@ -60,7 +60,8 @@ public class X5WebView extends WebView {
         removeJavascriptInterfaces();
         disableAccessibility(context);
 
-        this.mClientBridge = ClientBridgeAgent.getInstance();
+        this.mClientBridge = BridgeDelegate.getInstance();
+        SettingInit.initSetting(this);
     }
 
     /**
@@ -118,7 +119,7 @@ public class X5WebView extends WebView {
         return false;
     }
 
-    public void registerCallback(WebLoadListener webCallback) {
+    public void registerCallback(IWebLoadListener webCallback) {
         mClientBridge.registerCallback(webCallback);
     }
 
