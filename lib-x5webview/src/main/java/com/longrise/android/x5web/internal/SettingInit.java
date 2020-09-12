@@ -14,10 +14,10 @@ import com.tencent.smtt.sdk.WebView;
  *
  * @author godliness
  */
-public final class SettingInit {
+final class SettingInit {
 
     @SuppressLint("SetJavaScriptEnabled")
-    public static void initSetting(@NonNull WebView view) {
+    static void initSetting(@NonNull WebView view) {
 
         final WebSettings webSettings = view.getSettings();
 

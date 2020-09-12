@@ -17,7 +17,7 @@ import com.longrise.android.x5web.BaseWebActivity;
 import com.longrise.android.x5web.X5;
 import com.longrise.android.x5web.internal.X5WebView;
 import com.longrise.android.x5web.internal.bridge.BaseDownloader;
-import com.longrise.android.x5web.internal.bridge.BaseFileChooser;
+import com.longrise.android.x5web.internal.FileChooser;
 import com.longrise.android.x5web.internal.bridge.BaseWebBridge;
 import com.longrise.android.x5web.internal.bridge.BaseWebChromeClient;
 import com.longrise.android.x5web.internal.bridge.BaseWebViewClient;
@@ -179,7 +179,7 @@ public class WebX5DemoActivity extends BaseWebActivity<WebX5DemoActivity> implem
     }
 
     @Override
-    protected BaseWebViewClient<WebX5DemoActivity> getWebViewClient() {
+    public BaseWebViewClient<WebX5DemoActivity> getWebViewClient() {
         /**
          *  示例，如何对 WebViewClient 做二次扩展
          */
@@ -187,7 +187,7 @@ public class WebX5DemoActivity extends BaseWebActivity<WebX5DemoActivity> implem
     }
 
     @Override
-    protected BaseWebChromeClient<WebX5DemoActivity> getWebChromeClient() {
+    public BaseWebChromeClient<WebX5DemoActivity> getWebChromeClient() {
         /**
          *  示例，如何对 WebChromeClient 做二次扩展
          */
@@ -195,15 +195,7 @@ public class WebX5DemoActivity extends BaseWebActivity<WebX5DemoActivity> implem
     }
 
     @Override
-    protected BaseFileChooser<WebX5DemoActivity> getFileChooser() {
-        /**
-         *  示例，如何对 FileChooser 做二次扩展
-         */
-        return new DemoFileChooser();
-    }
-
-    @Override
-    protected BaseWebBridge<WebX5DemoActivity> getBridge() {
+    public BaseWebBridge<WebX5DemoActivity> getBridge() {
         /**
          *  示例，如何对 Bridge 做二次扩展
          */
@@ -211,7 +203,7 @@ public class WebX5DemoActivity extends BaseWebActivity<WebX5DemoActivity> implem
     }
 
     @Override
-    protected BaseDownloader<WebX5DemoActivity> getDownloadHelper() {
+    public BaseDownloader<WebX5DemoActivity> getDownloadHelper() {
         /**
          *  示例，如何对 Downloader 做二次扩展
          */

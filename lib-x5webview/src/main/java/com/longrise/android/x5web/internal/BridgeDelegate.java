@@ -2,21 +2,21 @@ package com.longrise.android.x5web.internal;
 
 
 import com.longrise.android.x5web.X5;
-import com.longrise.android.x5web.internal.webcallback.WebLoadListener;
+import com.longrise.android.x5web.internal.webcallback.IWebLoadListener;
 
 /**
  * Created by godliness on 2020/9/4.
  *
  * @author godliness
  */
-public final class ClientBridgeAgent implements OnBridgeListener{
+public final class BridgeDelegate implements OnBridgeListener{
 
     private static final String TAG = "ClientBridgeAgent";
 
     private static final byte LOAD_FAILED = 0;
     private static final byte LOAD_COMPLETED = 1;
 
-    private WebLoadListener mLoadCallback;
+    private IWebLoadListener mLoadCallback;
 
     private boolean mLoadFailed;
     private byte mLoadActor;
@@ -77,7 +77,7 @@ public final class ClientBridgeAgent implements OnBridgeListener{
     }
 
     @Override
-    public void registerCallback(WebLoadListener webCallback) {
+    public void registerCallback(IWebLoadListener webCallback) {
         this.mLoadCallback = webCallback;
     }
 
@@ -88,7 +88,7 @@ public final class ClientBridgeAgent implements OnBridgeListener{
     }
 
     static OnBridgeListener getInstance() {
-        return new ClientBridgeAgent();
+        return new BridgeDelegate();
     }
 
     private void notifyLoadFailed() {
@@ -125,7 +125,7 @@ public final class ClientBridgeAgent implements OnBridgeListener{
         }
     }
 
-    private ClientBridgeAgent() {
+    private BridgeDelegate() {
 
     }
 }

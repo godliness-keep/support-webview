@@ -4,15 +4,18 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.IdRes;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
-import android.view.KeyEvent;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import com.longrise.android.jssdk_x5.core.bridge.BaseBridge;
 import com.longrise.android.x5web.internal.FileChooser;
 import com.longrise.android.x5web.internal.IBridgeAgent;
 import com.longrise.android.x5web.internal.Internal;
-import com.longrise.android.x5web.internal.SchemeConsts;
 import com.longrise.android.x5web.internal.X5WebView;
 import com.longrise.android.x5web.internal.bridge.BaseDownloader;
 import com.longrise.android.x5web.internal.bridge.BaseWebBridge;
@@ -22,13 +25,12 @@ import com.longrise.android.x5web.internal.webcallback.IWebLoadListener;
 import com.tencent.smtt.sdk.DownloadListener;
 import com.tencent.smtt.sdk.WebView;
 
-
 /**
- * Created by godliness on 2019-07-09.
+ * Created by godliness on 2020/9/12.
  *
  * @author godliness
  */
-public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppCompatActivity implements
+public abstract class BaseWebFragment<T extends BaseWebFragment<T>> extends Fragment implements
         IWebLoadListener, Handler.Callback, IBridgeAgent<T> {
 
     private static final String TAG = "BaseWebActivity";
@@ -40,7 +42,7 @@ public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppC
     /**
      * Returns the current layout resource id
      *
-     * @param state {@link android.app.Activity#onCreate(Bundle)}
+     * @param state {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}
      * @return The current layout id
      */
     protected abstract int getLayoutResourceId(@Nullable Bundle state);
@@ -69,13 +71,6 @@ public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppC
      */
     protected void loadUrl(String url) {
         post(loadTask(url));
-    }
-
-    /**
-     * 需要在 {@link #setContentView(int)} 之前的逻辑
-     */
-    protected void beforeSetContentView() {
-
     }
 
     /**
@@ -111,6 +106,13 @@ public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppC
     }
 
     /**
+     * 拦截通过 Handler 发送的任务
+     */
+    protected boolean onHandleMessage(Message msg) {
+        return false;
+    }
+
+    /**
      * 用于拦截 URL 加载 {@link BaseWebViewClient#shouldOverrideUrlLoading(WebView, String)}
      *
      * @return true 表示拦截本次加载
@@ -132,14 +134,8 @@ public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppC
         return false;
     }
 
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            if (webViewCanGoBack()) {
-                return true;
-            }
-        }
-        return super.onKeyDown(keyCode, event);
+    protected final <V extends View> V findViewById(@IdRes int id) {
+        return getView().findViewById(id);
     }
 
     /**
@@ -147,13 +143,6 @@ public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppC
      */
     public final Handler getHandler() {
         return mHandler;
-    }
-
-    /**
-     * 拦截通过 Handler 发送的任务
-     */
-    protected boolean onHandleMessage(Message msg) {
-        return false;
     }
 
     /**
@@ -202,23 +191,22 @@ public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppC
         return onBridgeHandleMessage(msg);
     }
 
+    @Nullable
     @Override
-    protected final void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        beforeSetContentView();
-        setContentView(getLayoutResourceId(savedInstanceState));
+    public final View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(getLayoutResourceId(savedInstanceState), container, false);
     }
 
     @Override
-    public final void onContentChanged() {
-        super.onContentChanged();
+    public final void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
         initView();
         createWebFrame();
         regEvent(true);
     }
 
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
         if (mWebView != null) {
             mWebView.onResume();
@@ -226,15 +214,7 @@ public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppC
     }
 
     @Override
-    public void finish() {
-        if (mWebView != null) {
-            mWebView.loadUrl(SchemeConsts.BLANK);
-        }
-        super.finish();
-    }
-
-    @Override
-    protected void onPause() {
+    public void onPause() {
         super.onPause();
         if (mWebView != null) {
             mWebView.onPause();
@@ -242,7 +222,7 @@ public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppC
     }
 
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         if (mWebView != null) {
             mWebView.recycle();
             mWebView = null;
@@ -254,7 +234,7 @@ public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppC
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (mFileChooser != null) {
             mFileChooser.onActivityResult(requestCode, resultCode, data);

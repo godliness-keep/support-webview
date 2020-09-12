@@ -1,7 +1,7 @@
 package com.longrise.android.x5web.internal;
 
 
-import com.longrise.android.x5web.internal.webcallback.WebLoadListener;
+import com.longrise.android.x5web.internal.webcallback.IWebLoadListener;
 
 /**
  * Created by godliness on 2020/9/7.
@@ -22,7 +22,7 @@ public interface OnBridgeListener {
 
     void onReceivedError();
 
-    void registerCallback(WebLoadListener webCallback);
+    void registerCallback(IWebLoadListener webCallback);
 
     void destroy();
 }
