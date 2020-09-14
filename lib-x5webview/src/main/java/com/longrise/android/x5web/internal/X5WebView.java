@@ -31,6 +31,7 @@ import java.lang.reflect.Method;
  * Created by godliness on 2019-07-09.
  *
  * @author godliness
+ * https://github.com/Tencent/VasSonic/blob/master/sonic-android/sample/src/main/java/com/tencent/sonic/demo/BrowserActivity.java
  */
 public class X5WebView extends WebView {
 

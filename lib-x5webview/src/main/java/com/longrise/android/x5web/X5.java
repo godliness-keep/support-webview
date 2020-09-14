@@ -184,29 +184,28 @@ public final class X5 {
                     return true;
                 }
                 final String levelName = console.messageLevel().name();
-                final StringBuilder message = new StringBuilder();
-                message.append(console.message())
-                        .append(" source: ")
-                        .append(console.sourceId())
-                        .append(" line: ")
-                        .append(console.lineNumber());
+                final String message = console.message() +
+                        " source: " +
+                        console.sourceId() +
+                        " line: " +
+                        console.lineNumber();
 
                 switch (levelName) {
                     case "ERROR":
-                        X5.error("console", message.toString());
+                        X5.error("console", message);
                         return true;
 
                     case "WARNING":
-                        X5.warn("console", message.toString());
+                        X5.warn("console", message);
                         return true;
 
                     case "LOG":
-                        X5.log("console", message.toString());
+                        X5.log("console", message);
                         return true;
 
                     case "DEBUG":
                     case "TIP":
-                        X5.debug("console", message.toString());
+                        X5.debug("console", message);
                         return true;
 
                     default:

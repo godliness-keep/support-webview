@@ -162,29 +162,28 @@ public class WebLog {
                     return true;
                 }
                 final String levelName = console.messageLevel().name();
-                final StringBuilder message = new StringBuilder();
-                message.append(console.message())
-                        .append(" line: ")
-                        .append(console.lineNumber())
-                        .append(" source: ")
-                        .append(console.sourceId());
+                final String message = console.message() +
+                        " line: " +
+                        console.lineNumber() +
+                        " source: " +
+                        console.sourceId();
 
                 switch (levelName) {
                     case "ERROR":
-                        WebLog.error("console", message.toString());
+                        WebLog.error("console", message);
                         return true;
 
                     case "WARNING":
-                        WebLog.warn("console", message.toString());
+                        WebLog.warn("console", message);
                         return true;
 
                     case "LOG":
-                        WebLog.log("console", message.toString());
+                        WebLog.log("console", message);
                         return true;
 
                     case "DEBUG":
                     case "TIP":
-                        WebLog.debug("console", message.toString());
+                        WebLog.debug("console", message);
                         return true;
 
                     default:
