@@ -23,7 +23,6 @@ public abstract class BaseWebBridge<T extends IBridgeAgent<T>> extends BaseBridg
 
     @Override
     protected void onDestroy() {
-
     }
 
     public boolean onHandleMessage(Message msg) {
