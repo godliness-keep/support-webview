@@ -180,7 +180,7 @@ public final class X5 {
         setAlerter(new WebAlerter() {
             @Override
             public boolean onConsoleMessage(ConsoleMessage console) {
-                if (isDebug()) {
+                if (!isDebug()) {
                     return true;
                 }
                 final String levelName = console.messageLevel().name();

@@ -56,7 +56,7 @@
 			    lr.takePicture({
                     crop: false,
                     success: function(res){
-                        console.log('url: ' + res.localId);
+                        alert('localId: ' + res.localId);
                     },
                     failed: function(){
                         console.log('failed');
@@ -69,7 +69,7 @@
 			    lr.startGallery({
 			        crop:true,
 			        success: function(res){
-						console.log('crop url: ' + res.localId);
+			            alert('localId: ' + res.localId);
 					},
 					failed:function(){
 						console.log('failed');
