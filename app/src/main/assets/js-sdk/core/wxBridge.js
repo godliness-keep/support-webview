@@ -328,7 +328,7 @@ var wx = (function() {
 	 * @param {string} message.tip - 扫描框提示语，默认：请讲二维码放入扫描框内.
 	 * @param {boolean} message.barCode - 是否为条形码，默认 false.
 	 * @param {number} message.animTime - 扫描光标的动画时常，默认 1000ms.
-	 * @param {width} message.width - 扫描框宽度，默认屏幕宽度的3/4.
+	 * @param {number} message.width - 扫描框宽度，默认屏幕宽度的3/4.
 	 * @param {function} message.success - 扫描成功的回调.
 	 * @param {function} message.failed - 扫描失败后的回调.
 	 * @param {function} message.complete - 无论扫描结果都会回调. */

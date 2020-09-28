@@ -277,9 +277,6 @@ public abstract class BaseApiBridge<T> extends BaseBridge<T> {
                             @Override
                             protected void onResult(boolean isGranted) {
                                 if (!isGranted) {
-                                    if (!isShowRationale()) {
-                                        onShowPermissionRationale(PermissionConst.PERMISSION_CAMERA, ResUtil.getPermissionString(R.string.string_permission_camera));
-                                    }
                                     return;
                                 }
                                 Album.takeOf(new Album.ITakeListener() {
@@ -297,6 +294,13 @@ public abstract class BaseApiBridge<T> extends BaseBridge<T> {
                                         }
                                     }
                                 }).start(getActivity());
+                            }
+
+                            @Override
+                            protected void onManuallyRationale() {
+                                final String title = ResUtil.getPermissionTitle(R.string.string_permission_camera);
+                                final String desc = ResUtil.getPermissionSettingDesc(R.string.string_permission_camera);
+                                showManuallyOnDialog(title, desc);
                             }
                         }).request(Manifest.permission.CAMERA);
             }
@@ -352,13 +356,16 @@ public abstract class BaseApiBridge<T> extends BaseBridge<T> {
                         .onPermissionResult(new IPermissionHelper() {
                             @Override
                             protected void onResult(boolean isGranted) {
-                                if (!isGranted) {
-                                    if (!isShowRationale()) {
-                                        onShowPermissionRationale(PermissionConst.PERMISSION_STORAGE, ResUtil.getPermissionString(R.string.string_permission_storage));
-                                    }
-                                    return;
+                                if (isGranted) {
+                                    Album.previewOf(previewImage.getCurrent(), previewImage.getUrls()).start(getActivity());
                                 }
-                                Album.previewOf(previewImage.getCurrent(), previewImage.getUrls()).start(getActivity());
+                            }
+
+                            @Override
+                            protected void onManuallyRationale() {
+                                final String title = ResUtil.getPermissionTitle(R.string.string_permission_storage);
+                                final String desc = ResUtil.getPermissionSettingDesc(R.string.string_permission_location);
+                                showManuallyOnDialog(title, desc);
                             }
                         }).request(Manifest.permission.READ_EXTERNAL_STORAGE);
             }
@@ -403,9 +410,6 @@ public abstract class BaseApiBridge<T> extends BaseBridge<T> {
                             @Override
                             protected void onResult(boolean isGranted) {
                                 if (!isGranted) {
-                                    if (!isShowRationale()) {
-                                        onShowPermissionRationale(PermissionConst.PERMISSION_LOCATION, ResUtil.getPermissionString(R.string.string_permission_location));
-                                    }
                                     return;
                                 }
                                 final LocationManager manager = new LocationManager(getActivity(), params);
@@ -428,6 +432,13 @@ public abstract class BaseApiBridge<T> extends BaseBridge<T> {
                                     }
                                 }).start();
                             }
+
+                            @Override
+                            protected void onManuallyRationale() {
+                                final String title = ResUtil.getPermissionTitle(R.string.string_permission_location);
+                                final String desc = ResUtil.getPermissionSettingDesc(R.string.string_permission_location);
+                                showManuallyOnDialog(title, desc);
+                            }
                         }).request(Manifest.permission.ACCESS_FINE_LOCATION);
             }
         };
@@ -447,9 +458,6 @@ public abstract class BaseApiBridge<T> extends BaseBridge<T> {
                             @Override
                             protected void onResult(boolean isGranted) {
                                 if (!isGranted) {
-                                    if (!isShowRationale()) {
-                                        onShowPermissionRationale(PermissionConst.PERMISSION_CAMERA, ResUtil.getPermissionString(R.string.string_permission_camera));
-                                    }
                                     return;
                                 }
                                 QrScan.of(new IScanResultCallback() {
@@ -461,6 +469,13 @@ public abstract class BaseApiBridge<T> extends BaseBridge<T> {
                                         .withBarCode(qrCode.barCode)
                                         .withWidth(qrCode.width)
                                         .start(getActivity());
+                            }
+
+                            @Override
+                            protected void onManuallyRationale() {
+                                final String title = ResUtil.getPermissionTitle(R.string.string_permission_camera);
+                                final String desc = ResUtil.getPermissionSettingDesc(R.string.string_permission_camera);
+                                showManuallyOnDialog(title, desc);
                             }
                         }).request(Manifest.permission.CAMERA);
             }
