@@ -1,5 +1,15 @@
-include ':lib-x5webview'
 include ':app',
-        ':lib-webview'
+        ':lib-webview',
+        ':lib-x5webview'
+
+include ':jsapi'
+
+include ':business-component:lib-location'
+include ':business-component:lib-scan'
+include ':business-component:lib-share'
+include ':business-component:lib-album'
+
+include ':basic-component:lib-activity-result'
+include ':basic-component:lib-request-permission'
 
 rootProject.name = "BaseWebview"

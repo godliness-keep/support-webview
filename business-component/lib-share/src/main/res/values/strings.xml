@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="moduleshare_string_wechat">微信好友</string>
+    <string name="moduleshare_string_wechat_moment">朋友圈</string>
+    <string name="moduleshare_string_qq">QQ好友</string>
+    <string name="moduleshare_string_qzone">QQ空间</string>
+</resources>

@@ -1,0 +1,37 @@
+apply plugin: 'com.android.library'
+apply plugin: 'com.mob.sdk'
+
+def cfg = rootProject.ext.android
+def dep = rootProject.ext.dependencies
+
+android {
+    compileSdkVersion cfg.compileSdkVersion
+
+    defaultConfig {
+        minSdkVersion cfg.minSdkVersion
+        targetSdkVersion cfg.targetSdkVersion
+        versionCode cfg.versionCode
+        versionName cfg.versionName
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+//    compileOnly fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
+    implementation dep['appcompat-v7']
+    compileOnly dep['gson']
+
+    implementation project(':business-component:lib-scan')
+    implementation project(':business-component:lib-share')
+    implementation project(':business-component:lib-location')
+    implementation project(':business-component:lib-album')
+
+    implementation fileTree('libs/lib-request-permission.aar')
+    api fileTree('libs/jssdk_v1.0.1.aar')
+}

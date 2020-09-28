@@ -1,18 +1,29 @@
 var wx = (function() {
 
-	function addMethod(methodName) {
-		wx[methodName] = eval(methodName)
+	function addMethod(core, methodName) {
+		core[methodName] = eval(methodName)
 	}
+
 	/**
-	 * 分享微博
+	 * 关闭窗口
+	 * */
+	function closeWindow() {
+		lr.callNative({
+			methodName: 'closeWindow'
+		});
+	}
+
+	/**
+	 * 分享弹窗
 	 * @param {string} message.title - 分享标题.
 	 * @param {string} message.desc - 分享描述.
 	 * @param {string} message.link - 分享地址.
 	 * @param {string} message.imgUrl - 分享图标.
-	 * @param {function} message.success 成功回调.
-	 * @param {function} message.cancel 取消回调.
+	 * @param {function} message.success - 成功回调.
+	 * @param {function} message.cancel - 取消回调.
+	 * @param {function} message.complete - 无论分享结果都会回调.
 	 */
-	function onMenuShareWeibo(message) {
+	function showShareUI(message) {
 		var params = {
 			title: message.title,
 			desc: message.desc,
@@ -20,612 +31,331 @@ var wx = (function() {
 			imgUrl: message.imgUrl
 		}
 
-		var request = {
-			methodName: 'onMenuShareWeibo',
+		lr.callNative({
+			methodName: 'showShareUI',
 			params: params,
 			success: message.success,
-			failed: message.cancel
-		}
-
-		lr.callNative(request);
+			failed: message.cancel,
+			complete: message.complete
+		});
 	}
 
 	/**
-	 * 分享QQzone
+	 * 分享到微信
 	 * @param {string} message.title - 分享标题.
 	 * @param {string} message.desc - 分享描述.
 	 * @param {string} message.link - 分享地址.
 	 * @param {string} message.imgUrl - 分享图标.
-	 * @param {function} message.success 成功回调.
-	 * @param {function} message.cancel 取消回调.
+	 * @param {string} message.type - 分享类型.
+	 * @param {string} message.dataUrl - 如果 type 是 music 或 vido 则需要提供数据链接.
+	 * @param {function} message.success - 成功回调.
+	 * @param {function} message.cancel - 取消回调.
+	 * @param {function} message.complete - 无论分享结果都会回调.
 	 */
-	function onMenuShareQZone(message) {
+	function shareToWechat(message) {
+		var params = {
+			title: message.title,
+			desc: message.desc,
+			link: message.link,
+			imgUrl: message.imgUrl,
+			type: message.type,
+			dataUrl: message.dataUrl
+		}
+		lr.callNative({
+			methodName: 'shareToWechat',
+			params: params,
+			success: message.success,
+			failed: message.cancel,
+			complete: message.complete
+		});
+	}
+
+	/**
+	 * 分享到微信朋友圈
+	 * @param {string} message.title - 分享标题.
+	 * @param {string} message.link - 分享地址.
+	 * @param {string} message.imgUrl - 分享图标.
+	 * @param {function} message.success - 成功回调.
+	 * @param {function} message.cancel - 取消回调.
+	 * @param {function} message.complete - 无论分享结果都会回调.
+	 */
+	function shareToWechatMoment(message) {
+		var params = {
+			title: message.title,
+			link: message.link,
+			imgUrl: message.imgUrl
+		}
+		lr.callNative({
+			methodName: 'shareToWechatMoment',
+			params: params,
+			success: message.success,
+			failed: message.cancel,
+			complete: message.complete
+		});
+	}
+
+	/**
+	 * 分享到QQ
+	 * @param {string} message.title - 分享标题.
+	 * @param {string} message.desc - 分享描述.
+	 * @param {string} message.link - 分享地址.
+	 * @param {string} message.imgUrl - 分享图标.
+	 * @param {function} message.success - 成功回调.
+	 * @param {function} message.cancel - 取消回调.
+	 * @param {function} message.complete - 无论分享结果都会回调.
+	 */
+	function shareToQQ(message) {
 		var params = {
 			title: message.title,
 			desc: message.desc,
 			link: message.link,
 			imgUrl: message.imgUrl
 		}
-		var request = {
-			methodName: 'onMenuShareQZone',
+		lr.callNative({
+			methodName: 'shareToQQ',
 			params: params,
 			success: message.success,
-			failed: message.cancel
-		}
-
-		lr.callNative(request);
+			failed: message.cancel,
+			complete: message.complete
+		});
 	}
 
-	//---------------------------------------------------------------------------
-	//file
+	/**
+	 * 分享到QQ空间
+	 * @param {string} message.title - 分享标题.
+	 * @param {string} message.desc - 分享描述.
+	 * @param {string} message.link - 分享地址.
+	 * @param {string} message.imgUrl - 分享图标.
+	 * @param {function} message.success - 成功回调.
+	 * @param {function} message.cancel - 取消回调.
+	 * @param {function} message.complete - 无论分享结果都会回调.
+	 */
+	function shareToQZone(message) {
+		var params = {
+			title: message.title,
+			desc: message.desc,
+			link: message.link,
+			imgUrl: message.imgUrl
+		}
+		lr.callNative({
+			methodName: 'shareToQZone',
+			params: params,
+			success: message.success,
+			failed: message.cancel,
+			complete: message.complete
+		});
+	}
+
+	//-------------------------------多媒体--------------------------------------------
 
 	/**
-	 * 选择图片
-	 * @param {string} message.count - 选择图片数量 默认9.
-	 * @param {array} message.sizeType - 可以指定是原图还是压缩图，默认二者都有 ['original', 'compressed'].
-	 * @param {array} message.sourceType - 可以指定来源是相册还是相机，默认二者都有 ['album', 'camera'].
+	 * 拍照
+	 * @param {boolean} message.crop - 是否需要裁减，默认 false.
+	 * @param {number} message.width - 裁减宽度，默认 468px.
+	 * @param {number} message.height - 裁减高度，默认高度 624px.
+	 * @param {number} message.x - 宽高比例，默认（x）3:4.
+	 * @param {number} message.y - 宽高比例，默认 3：4（y）.
+	 * @param {string} message.tips - 裁剪框说明.
+	 * @param {function} message.success - 成功的回调
+	 * @param {function} message.failed - 失败的回调.
+	 * @param {function} message.complete - 无论成功失败都会回调.
 	 */
-	function chooseImage(message) {
+	function takePicture(message) {
 		var params = {
-			count: message.count,
-			sizeType: message.sizeType,
-			sourceType: message.sourceType,
+			crop: message.crop,
+			width: message.width,
+			height: message.height,
+			x: message.x,
+			y: message.y,
+			tips: message.tips
 		}
-		var request = {
-			methodName: 'chooseImage',
+
+		lr.callNative({
+			methodName: 'takePicture',
 			params: params,
 			success: function(res) {
-				var result = {
-					localIds: res.result
-				}
-				message.success(result)
-			}
-		}
-		lr.callNative(request);
+				message.success({
+					localId: res.result
+				});
+			},
+			failed: message.failed,
+			complete: message.complete
+		});
 	}
 
 	/**
-	 * 预览图片接口
-	 * @param {string} message.current - 选择图片数量 默认9.
-	 * @param {Array} message.urls - 可以指定是原图还是压缩图，默认二者都有 ['original', 'compressed'].
+	 * 相册
+	 * @param {boolean} message.crop - 是否需要裁减，默认 false.
+	 * @param {number} message.width - 裁减宽度，默认 468px.
+	 * @param {number} message.height - 裁减高度，默认高度 624px.
+	 * @param {number} message.x - 宽高比例，默认（x）3:4.
+	 * @param {number} message.y - 宽高比例，默认 3：4（y）.
+	 * @param {string} message.tips - 裁剪框说明.
+	 * @param {function} message.success - 成功的回调
+	 * @param {function} message.failed - 失败的回调.
+	 * @param {function} message.complete - 无论成功失败都会回调.
+	 */
+	function startGallery(message) {
+		var params = {
+			crop: message.crop,
+			width: message.width,
+			height: message.height,
+			x: message.x,
+			y: message.y,
+			tips: message.tips
+		}
+
+		lr.callNative({
+			methodName: 'startGallery',
+			params: params,
+			success: function(res) {
+				message.success({
+					localId: res.result
+				});
+			},
+			failed: message.failed,
+			complete: message.complete
+		});
+	}
+
+	/**
+	 * 图片裁减
+	 * @param {string} message.src - 图片地址（本地）必须是 Uri 类型.
+	 * @param {number} message.width - 裁减宽度，默认 468px.
+	 * @param {number} message.height - 裁减高度，默认高度 624px.
+	 * @param {string} message.tips - 裁剪框说明.
+	 * @param {function} message.success - 成功的回调
+	 * @param {function} message.failed - 失败的回调.
+	 * @param {function} message.complete - 无论成功失败都会回调.
+	 */
+	function startGallery(message) {
+		var params = {
+			crop: message.crop,
+			width: message.width,
+			height: message.height,
+			tips: message.tips
+		}
+
+		lr.callNative({
+			methodName: 'startGallery',
+			params: params,
+			success: function(res) {
+				message.success({
+					localId: res.result
+				});
+			},
+			failed: message.failed,
+			complete: message.complete
+		});
+	}
+
+	/**
+	 * 图片预览
+	 * @param {string} message.current - 图片地址（本地或远程）.
+	 * @param {urls} message.urls - 需要预览图片的地址列表.
+	 * @param {function} message.success - 成功的回调
+	 * @param {function} message.failed - 失败的回调.
+	 * @param {function} message.complete - 无论成功失败都会回调.
 	 */
 	function previewImage(message) {
 		var params = {
 			current: message.current,
 			urls: message.urls
 		}
-		var request = {
+
+		lr.callNative({
 			methodName: 'previewImage',
-			params: params
-		}
-		lr.callNative(request);
-	}
-
-	/**
-	 * 上传图片接口
-	 * @param {string} message.localId - 需要上传的图片的本地ID，由chooseImage接口获得.
-	 * @param {Array} message.isShowProgressTips - 默认为1，显示进度提示.
-	 */
-	function uploadImage(message) {
-		var params = {
-			localId: message.localId,
-			isShowProgressTips: message.isShowProgressTips,
-		}
-
-		var request = {
-			methodName: 'uploadImage',
 			params: params,
-			success: function(res) {
-				var result = {
-					serverId: res.result
-				}
-				message.success(result);
-			}
-		}
-		lr.callNative(request);
+			success: message.success,
+			failed: message.failed,
+			complete: message.complete
+		});
 	}
 
-	/**
-	 * 下载图片接口
-	 * @param {string} message.serverId - 需要下载的图片的服务器端ID，由uploadImage接口获得.
-	 * @param {Array} message.isShowProgressTips - 默认为1，显示进度提示.
-	 */
-	function downloadImage(message) {
-		var params = {
-			serverId: message.serverId,
-			isShowProgressTips: message.isShowProgressTips,
-		}
-		var request = {
-			methodName: 'downloadImage',
-			params: params,
-			success: function(res) {
-				var result = {
-					localId: res.result
-				}
-				message.success(result);
-			}
-		}
-		lr.callNative(request);
-	};
-
-	/**
-	 * 获取本地图片接口
-	 * @param {string} message.localId - 图片的localID.
-	 */
-	function getLocalImgData(message) {
-		var params = {
-			localId: message.localId
-		}
-		var request = {
-			methodName: 'getLocalImgData',
-			params: params,
-			success: function(res) {
-				var result = {
-					localData: res.result
-				}
-				message.success(result);
-			}
-		}
-		lr.callNative(request);
-	};
-
-	//---------------------------------------------------------------------------
-	//录音
-	function startRecord(message) {
-		var request = {
-			methodName: 'startRecord'
-		}
-
-		lr.callNative(request);
-	}
-
-	// 暂停录音
-	function stopRecord(message) {
-		var request = {
-			methodName: 'stopRecord',
-			success: function(res) {
-				var result = {
-					localId: res.result
-				}
-				message.success(result);
-			}
-		}
-
-		lr.callNative(request);
-	}
-
-	// 自动停止录音
-	// 录音时间超过一分钟没有停止的时候会执行 complete 回调
-	function onVoiceRecordEnd(message) {
-		var request = {
-			methodName: 'onVoiceRecordEnd',
-			success: function(res) {
-				var result = {
-					localId: res.result
-				}
-				message.complete(result);
-			}
-		}
-		lr.callNative(request);
-	}
-
-	// 需要播放的音频的本地ID，由stopRecord接口获得
-	function playVoice(message) {
-
-		var params = {
-			localId: message.localId
-		}
-		var request = {
-			methodName: 'playVoice',
-			params: params
-		}
-		lr.callNative(request);
-	}
-
-	// 需要暂停的音频的本地ID，由stopRecord接口获得
-	function pauseVoice(message) {
-
-		var params = {
-			localId: message.localId
-		}
-		var request = {
-			methodName: 'pauseVoice',
-			params: params
-		}
-		lr.callNative(request);
-	}
-
-	// 停止播放接口
-	// 需要停止的音频的本地ID，由stopRecord接口获得
-	function stopVoice(message) {
-
-		var params = {
-			localId: message.localId
-		}
-		var request = {
-			methodName: 'stopVoice',
-			params: params
-		}
-		lr.callNative(request);
-	}
-
-	// 监听语音播放完毕接口
-	function onVoicePlayEnd(message) {
-		var request = {
-			methodName: 'onVoicePlayEnd',
-			success: function(res) {
-				var result = {
-					localId: res.result
-				}
-				message.success(result);
-			}
-		}
-		lr.callNative(request);
-	}
-
-	// 上传语音接口
-	function uploadVoice(message) {
-
-		var params = {
-			localId: message.localId,
-			isShowProgressTips: message.isShowProgressTips
-		}
-		var request = {
-			methodName: 'uploadVoice',
-			params: params,
-			success: function(res) {
-				var result = {
-					serverId: res.result
-				}
-				message.success(result);
-			}
-		}
-		lr.callNative(request);
-	}
-
-	// 下载语音接口
-	function downloadVoice(message) {
-
-		var params = {
-			serverId: message.serverId,
-			isShowProgressTips: message.isShowProgressTips
-		}
-		var request = {
-			methodName: 'downloadVoice',
-			params: params,
-			success: function(res) {
-				var result = {
-					localId: res.result
-				}
-				message.success(result);
-			}
-		}
-		lr.callNative(request);
-	}
-
-	//识别音频并返回识别结果接口
-	function translateVoice(message) {
-		var params = {
-			localId: message.localId,
-			isShowProgressTips: message.isShowProgressTips
-		}
-		var request = {
-			methodName: 'translateVoice',
-			params: params,
-			success: function(res) {
-				var result = {
-					translateResult: res.result
-				}
-				message.success(result);
-			}
-		}
-		lr.callNative(request);
-	}
-
-	//-----------------------------------------------------------------------------------------------------------
-
-	//设备信息
+	//---------------------------------------网络状态--------------------------------------------------------------------
 
 	//获取网络状态
 	function getNetworkType(message) {
 		var request = {
 			methodName: 'getNetworkType',
 			success: function(res) {
-				var result = {
+				message.success({
 					networkType: res.result
-				}
-				message.success(result);
-			}
+				});
+			},
+			failed: message.failed,
+			complete: message.complete
 		}
 		lr.callNative(request);
 	}
 
-
-	//-----------------------------------------------------------------------------------------------------------
-
-	//地理位置
-	/**
-	 * 使用微信内置地图查看位置接口
-	 * @param {string} message.latitude - 纬度，浮点数，范围为90 ~ -90.
-	 * @param {string} message.longitude - 经度，浮点数，范围为180 ~ -180.
-	 * @param {string} message.name - 位置名.
-	 * @param {string} message.address - 地址详情说明.
-	 * @param {function} message.scale 地图缩放级别,整形值,范围从1~28。默认为最大.
-	 * @param {function} message.infoUrl 在查看位置界面底部显示的超链接,可点击跳转.
-	 */
-	function openLocation(message) {
-		var params = {
-			latitude: message.latitude,
-			longitude: message.longitude,
-			name: message.name,
-			address: message.address,
-			scale: message.scale,
-			infoUrl: message.infoUrl
-		}
-		var request = {
-			methodName: 'openLocation',
-			params: params
-		}
-		lr.callNative(request);
-	}
-
+	//----------------------------------地图-------------------------------------------------------------------------
 
 	/**
 	 * 获取地理位置接口
-	 * @param {string} message.type - 默认为wgs84的gps坐标，如果要返回直接给openLocation用的火星坐标，可传入'gcj02'.
+	 * @param {string} message.type - 默认为gcj102的gps坐标.
+	 * @param {boolean} message.altitude - 是否需要高度信息.
+	 * @param {boolean} message.isHighAccuracy - 是否开启高精度定位.
+	 * @param {number} message.highAccuracyExpireTime - 高精度定位超时时间(ms)，指定时间内返回最高精度，该值在 1000ms 以上高精度定位才有效
+	 * @param {boolean} message.isAddress - 是否需要地址描述信息.
+	 * @param {function} message.success - 接口调用成功的回调函数.
+	 * @param {function} message.failed - 接口调用失败的回调函数.
+	 * @param {function} message.complete - 接口调用结束回调函数.
 	 */
 	function getLocation(message) {
-
 		var params = {
-			type: message.type
+			type: message.type,
+			altitude: message.altitude,
+			isHighAccuracy: message.isHighAccuracy,
+			highAccuracyExpireTime: message.highAccuracyExpireTime,
+			isAddress: message.isAddress,
 		}
-		var request = {
+		lr.callNative({
 			methodName: 'getLocation',
 			params: params,
 			success: function(res) {
 				message.success(res.result);
-			}
-		}
-		lr.callNative(request);
+			},
+			failed: message.failed,
+			complete: message.complete
+		});
 	}
 
-	//-------------------------------------------------------------------------------------------------------
-	//微信摇一摇
+	//----------------------------------------扫码---------------------------------------------------------------
 
-	//开启查找周边ibeacon设备接口
-	function startSearchBeacons(message) {
-
-		var params = {
-			ticket: message.ticket
-		}
-		var request = {
-			methodName: 'startSearchBeacons',
-			params: params,
-			success: function(res) {
-				message.complete(res.result);
-			}
-		}
-		lr.callNative(request);
-	}
-	//关闭查找周边ibeacon设备接口
-	function stopSearchBeacons(message) {
-
-		var request = {
-			methodName: 'stopSearchBeacons',
-			success: function(res) {
-				message.complete(res.result);
-			}
-		}
-		lr.callNative(request);
-	}
-
-	//监听周边ibeacon设备接口
-	function onSearchBeacons(message) {
-
-		var request = {
-			methodName: 'onSearchBeacons',
-			success: function(res) {
-				message.complete(res.result);
-			}
-		}
-		lr.callNative(request);
-	}
-	//-----------------------------------------------------------------------------------------------------------
-
-	//界面操作
-	//关闭当前网页窗口接口
-	function closeWindow(message) {
-		var request = {
-			methodName: 'closeWindow'
-		}
-		lr.callNative(request);
-	}
-
-	//批量隐藏功能按钮接口
-	function hideMenuItems(message) {
-
-		var params = {
-			menuList: message.menuList
-		}
-		var request = {
-			methodName: 'hideMenuItems',
-			params: params
-		}
-		lr.callNative(request);
-	}
-
-	//批量显示功能按钮接口
-	function showMenuItems(message) {
-
-		var params = {
-			menuList: message.menuList
-		}
-		var request = {
-			methodName: 'showMenuItems',
-			params: params
-		}
-		lr.callNative(request);
-	}
-
-	//隐藏所有非基础按钮接口
-	function hideAllNonBaseMenuItem(message) {
-		var request = {
-			methodName: 'hideAllNonBaseMenuItem'
-		}
-		lr.callNative(request);
-	}
-
-	//显示所有功能按钮接口
-	function showAllNonBaseMenuItem(message) {
-		var request = {
-			methodName: 'showAllNonBaseMenuItem'
-		}
-		lr.callNative(request);
-	}
-
-	//----------------------------------------------------------------------------------------------
-
-	//扫一扫
-	//调起微信扫一扫接口
+	/**
+	 * 扫码
+	 * @param {string} message.tip - 扫描框提示语，默认：请讲二维码放入扫描框内.
+	 * @param {boolean} message.barCode - 是否为条形码，默认 false.
+	 * @param {number} message.animTime - 扫描光标的动画时常，默认 1000ms.
+	 * @param {width} message.width - 扫描框宽度，默认屏幕宽度的3/4.
+	 * @param {function} message.success - 扫描成功的回调.
+	 * @param {function} message.failed - 扫描失败后的回调.
+	 * @param {function} message.complete - 无论扫描结果都会回调. */
 	function scanQRCode(message) {
-
 		var params = {
-			needResult: message.needResult,
-			scanType: message.scanType
+			tip: message.tip,
+			barCode: message.barCode,
+			animTime: message.animTime,
+			width: message.width
 		}
 		var request = {
 			methodName: 'scanQRCode',
 			params: params,
 			success: function(res) {
-				var result = {
-					resultStr: res.result
-				}
-				message.success(result);
-			}
-		}
-		lr.callNative(request);
-	}
-
-	//---------------------------------------------------------------------------------------------------
-
-	//跳转微信商品页接口
-	function openProductSpecificView(message) {
-		var params = {
-			productId: message.productId,
-			viewType: message.viewType
-		}
-		var request = {
-			methodName: 'openProductSpecificView',
-			params: params
-		}
-		lr.callNative(request);
-	}
-
-	//拉取适用卡券列表并获取用户选择信息
-	function chooseCard(message) {
-		var params = {
-			shopId: message.shopId,
-			cardType: message.cardType,
-			cardId: message.cardId,
-			timestamp: message.timestamp,
-			nonceStr: message.nonceStr,
-			signType: message.signType,
-			cardSign: message.cardSign
-		}
-		var request = {
-			methodName: 'chooseCard',
-			params: params,
-			success: function(res) {
-				var result = {
-					cardList: res.result
-				}
-				message.success(result);
-			}
-		}
-		lr.callNative(request);
-	}
-
-	/** 批量添加卡券接口
-	 *
-	 */
-	function addCard(message) {
-		var params = {
-			cardList: message.cardList
-		}
-		var request = {
-			methodName: 'addCard',
-			params: params,
-			success: function(res) {
-				var result = {
-					cardList: res.result
-				}
-				message.success(result);
-			}
-		}
-		lr.callNative(request);
-	}
-
-
-	/** 查看微信卡包中的卡券接口
-	 *
-	 */
-	function openCard(message) {
-		var params = {
-			cardList: message.cardList
-		}
-		var request = {
-			methodName: 'openCard',
-			params: params
-		}
-		lr.callNative(request);
-	}
-
-
-	//-------------------------------------------------------------------------------------------
-
-	/**
-	 * 微信支付
-	 * @param {string} message.timestamp - 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符.
-	 * @param {string} message.nonceStr - 支付签名随机串，不长于 32 位.
-	 * @param {string} message.package - 统一支付接口返回的prepay_id参数值，提交格式如：prepay_id=\*\*\*）.
-	 * @param {string} message.signType - 签名方式，默认为'SHA1'，使用新版支付需传入'MD5'.
-	 * @param {function} message.signType 支付签名.
-	 */
-	function chooseWXPay(message) {
-		var params = {
-			timestamp: message.timestamp,
-			nonceStr: message.nonceStr,
-			package: message.package,
-			signType: message.signType,
-			paySign: message.paySign
-		}
-		var request = {
-			methodName: 'chooseWXPay',
-			params: params,
-			success: function(res) {
-				message.success(res.result);
-			}
-		}
-		lr.callNative(request);
-	}
-
-	//----------------------------------------------------------------------------------------------
-	/** 共享收货地址接口
-	 *
-	 */
-	function openAddress(message) {
-		var request = {
-			methodName: 'openAddress',
-			success: function(res) {
-				message.success(res.result);
-			}
+				message.success({
+					qrValue: res.result
+				});
+			},
+			failed: message.failed,
+			complete: message.complete
 		}
 		lr.callNative(request);
 	}
 
 	return {
 
-		config: function(message) {
+		config: function(host, message) {
 			if (message.debug !== 'undefined') {
 				var params = {
 					debug: message.debug
@@ -639,28 +369,8 @@ var wx = (function() {
 
 			var list = message.methodList;
 			for (var i = 0; i < list.length; i++) {
-				addMethod(list[i]);
+				addMethod(host, list[i]);
 			}
-			wx.ready()
-		},
-
-		/**
-		 * 通过ready接口处理成功验证
-		 * @param {objct} message - 不用处理.
-		 */
-		ready: function(message) {
-
-			if (typeof message == 'function') {
-				message()
-			}
-		},
-
-		/**
-		 * 通过error接口处理失败验证
-		 * @param {objct} message - 不用处理.
-		 */
-		error: function(message) {
-
 		}
 	}
 })()

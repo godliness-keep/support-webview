@@ -3,10 +3,10 @@ var lr = (function() {
 	const JAVASCRIPT_CALL_FINISHED = 'onJavaScriptCallFinished'
 	const CALL_NATIVE_FROM_JAVASCRIPT = 'callNativeFromJavaScript'
 
-	const RESULT_OK = 1
+	var RESULT_OK = 1
 
-	const jsVersion = 1
-	const jsCallbacks = {}
+	var jsVersion = 1
+	var jsCallbacks = {}
 	var jsCallbackCurrentId = -1
 
 	function callNativeInternal(mapObject, message) {
@@ -202,6 +202,10 @@ var lr = (function() {
 			addMethod(lr, 'notifyNative', function(mapObject, message) {
 				notifyNativeInternal(mapObject, message)
 			})
+		},
+
+		config: function(message){
+		    wx.config(lr, message);
 		},
 
 		dispatchCallNativeCallback: function(response) {

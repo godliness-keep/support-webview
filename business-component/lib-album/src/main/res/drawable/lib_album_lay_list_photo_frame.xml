@@ -1,0 +1,27 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:right="0dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/lib_album_color_f2" />
+        </shape>
+    </item>
+
+    <item>
+        <shape android:shape="rectangle">
+            <padding
+                android:left="2dp"
+                android:top="2dp" />
+        </shape>
+    </item>
+
+    <item>
+        <shape android:shape="rectangle">
+            <padding
+                android:left="3dp"
+                android:top="3dp" />
+            <solid android:color="@android:color/white" />
+        </shape>
+    </item>
+
+
+</layer-list>

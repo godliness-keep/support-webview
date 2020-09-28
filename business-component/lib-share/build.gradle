@@ -1,0 +1,68 @@
+apply plugin: 'com.android.library'
+apply plugin: 'com.mob.sdk'
+
+def shareSdk = rootProject.ext.shareSdk
+def cfg = rootProject.ext.android
+def dep = rootProject.ext.dependencies
+
+android {
+    compileSdkVersion cfg.compileSdkVersion
+
+    defaultConfig {
+        minSdkVersion cfg.minSdkVersion
+        targetSdkVersion cfg.targetSdkVersion
+        versionCode cfg.versionCode
+        versionName cfg.versionName
+
+        resConfigs 'en'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+    compileOnly dep["appcompat-v7"]
+    implementation dep["constraint-layout"]
+}
+
+MobSDK {
+    appKey shareSdk.mobSdk.appKey
+    appSecret shareSdk.mobSdk.appSecret
+
+    ShareSDK {
+        loopShare true
+
+        devInfo {
+            Wechat {
+                appId shareSdk.wechat.appId
+                appSecret shareSdk.wechat.appSecret
+                userName "gh_afb25ac019c9"
+                path "pages/index/index.html?id=1"
+                withShareTicket true
+                miniprogramType 2
+            }
+            WechatMoments {
+                appId shareSdk.wechat.appId
+                appSecret shareSdk.wechat.appSecret
+            }
+            WechatFavorite {
+                appId shareSdk.wechat.appId
+                appSecret shareSdk.wechat.appSecret
+            }
+            QQ {
+                appId shareSdk.qq.appId
+                appKey shareSdk.qq.appKey
+            }
+            QZone {
+                appId shareSdk.qq.appId
+                appKey shareSdk.qq.appKey
+            }
+        }
+    }
+}

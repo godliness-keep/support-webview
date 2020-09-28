@@ -77,15 +77,15 @@ var receiverManager = (function() {
 	}
 })()
 
-//const receiver = new Proxy(receiverManager, {
-//
-//	set: function(target, key, value) {
-//		if (typeof value === 'function') {
-//			target.addEvent(key);
-//			target.addLifecycle(key, value);
-//		} else {
-//			throw 'The property \'' + key + '\' must function type'
-//		}
-//	}
-//});
+var receiver = new Proxy(receiverManager, {
+
+	set: function(target, key, value) {
+		if (typeof value === 'function') {
+			target.addEvent(key);
+			target.addLifecycle(key, value);
+		} else {
+			throw 'The property \'' + key + '\' must function type'
+		}
+	}
+});
 

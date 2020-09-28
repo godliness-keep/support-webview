@@ -1,0 +1,16 @@
+<resources>
+    <string name="lib_album_string_all_images">所有图片</string>
+    <string name="lib_album_string_max_select">最多选择%s张图片</string>
+    <string name="lib_album_string_num">%s张</string>
+    <string name="lib_album_string_title">图片</string>
+    <string name="lib_album_string_confirm">确认(%s/%s)</string>
+    <string name="lib_album_string_load_failed">未获取到任何图片</string>
+
+    <string name="lib_album_string_news_article">今日头条</string>
+    <string name="lib_album_string_news_article_key">news_article</string>
+    <string name="lib_album_string_screenshot_key">Screenshot</string>
+    <string name="lib_album_string_screenshot">截屏</string>
+
+    <string name="album_string_choose_box">请框选所需区域</string>
+    <string name="album_string_click_retry">点击重试</string>
+</resources>

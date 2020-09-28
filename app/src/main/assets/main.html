@@ -1,134 +1,191 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <!--<link rel="stylesheet" href="main.css">-->
-    <title>main</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="main.css">
+    <title>callEvent</title>
     <script type="text/javascript" src="js-sdk/core/wxBridge.js"></script>
     <script type="text/javascript" src="js-sdk/utils/platform.js"></script>
+    <script type="text/javascript" src="js-sdk/core/chunkParse.js"></script>
     <script type="text/javascript" src="js-sdk/core/lrBridgeCore.js"></script>
     <script type="text/javascript" src="js-sdk/core/receiver.js"></script>
-    <script type="text/javascript" src="js-sdk/core/chunkParse.js"></script>
+    <style type="text/css">
+			button {
+				width: 100%;
+				height: 2.5rem;
+				margin-top: 0.5rem;
+			}
+    </style>
 </head>
 <body>
 
-<button type="button" onclick="callAndroidMethod()" class="buttonT">
-    callAndroidFromH5有callback
+<button type="button" onclick="scanQRCode()">
+    扫码
 </button>
-<a href="second.html">点击跳转到下一个页面</a>
+
+<button type="button" onclick="getLocation()">
+    定位
+</button>
+
+<button type="button" onclick="getNetworkType()">
+    获取网络类型
+</button>
+
+<button type="button" onclick="showShareUI()">
+    显示分享 UI
+</button>
+
+<button type="button" onclick="shareToQQ()">
+    分享到 QQ
+</button>
+
+<button type="button" onclick="shareToQZone()">
+    分享到 QQ 空间
+</button>
+<button type="button" onclick="shareToWechat()">
+    分享到 微信
+</button>
+<button type="button" onclick="shareToWechatMoment()">
+    分享到微信朋友圈
+</button>
+
 
 <script>
-            // 初始话JS-SDK框架
-			lr.ready()
+			
 
-            // 初始化JS-SDK(wx)框架
-			var config = {
-			    debug: false,
-			 	methodList: [
-			 		'chooseImage',
-			 		'getNetworkType'
-			 	]
-			}
-			wx.config(config);
+			/**
+			 * 使用之前要先初始化 lr 框架*/
+			lr.ready();
 
-<!--			receiver.callFromNativeNoParamsWithReturn = function(params) {-->
-<!--				alert('调用JavaScript login 事件，来自Native的参数: ' + JSON.stringify(params))-->
+            lr.config({
+                methodList:[
+                    'scanQRCode',
+                    'getLocation',
+                    'getNetworkType',
+                    'showShareUI',
+                    'shareToQQ',
+                    'shareToQZone',
+                    'shareToWechat',
+                    'shareToWechatMoment'
+                ]
+            });
 
-<!--				return '说点什么吧？我想打死你';-->
-<!--			}-->
+			/**
+			 * JavaScript 通过 Event 调用到 Native
+			 * */
 
-			//调用Native方法
-			function callAndroidMethod() {
-
-				// alert(JSON.stringify(bean))
-				 <!--var chooseImage = {-->
-				 	<!--count: 5,-->
-				 	<!--sizeType: ['original', 'compressed'],-->
-				 	<!--sourceType: ['album', 'camera'],-->
-				 	<!--success: function(res) {-->
-				 		<!--alert(JSON.stringify(res.localIds));-->
-				 	<!--}-->
-				 <!--}-->
-
-				 <!--let message = {-->
-				    <!--success:function(res){-->
-				        <!--alert(JSON.stringify(res))-->
-				    <!--}-->
-				 <!--}-->
-
-				 <!--wx.getNetworkType(message);-->
-
-
-				<!--let params = [-->
-				    <!--{-->
-				 	    <!--link: '中国特色社会主义道路',-->
-				 	    <!--age: '人民日益增长的物质文化需求同落后的生产关系之间的矛盾'-->
-				    <!--},-->
-				    <!--{-->
-				        <!--link:'非物质文化异常',-->
-				        <!--age:'北京面人糖文化传承人'-->
-				    <!--}-->
-
-				<!--]-->
-				 <!--let message = {-->
-				 	<!--methodName: 'fromJavaScriptWithParamsWithReturn',-->
-				 	<!--params: params,-->
-				 	<!--success: function(res) {-->
-				 		<!--alert('来自 Native 的返回：' + JSON.stringify(res))-->
-				 	<!--},-->
-				 	<!--failed: function(res) {-->
-				 		<!--alert('来自 Native 的返回：' + JSON.stringify(res))-->
-				 	<!--}-->
-				 <!--}-->
-				 <!--lr.callNative(message)-->
-
-				var params = {
-					name: '中国特色社会主义道路',
-					sex: '人民日益增长的物质文化需求同落后的生产关系之间的矛盾',
-					age:100
-				}
-
-				var message = {
-					eventName: 'shareFeiji',
-					params: params,
-					success: function(res) {
-						alert('来自 Native 的返回：' + JSON.stringify(res))
-					},
-					failed: function(res) {
-						alert('来自 Native 的返回：' + JSON.stringify(res))
+			/**
+			 * 调用 Native 事件（无参数无返回值，可以 callback）*/
+			function scanQRCode() {
+			    lr.scanQRCode({
+			        tip: '我要扫码了，都躲开',
+			        success: function(res) {
+						alert('扫码返回： ' + res.qrValue);
 					}
-				}
-				lr.callEvent(message)
-
+			    });
 			}
 
-			function callFromNativeNoParamsNoReturn() {
-				alert('callFromNativeNoParamsNoReturn');
+			/**
+			 * 调用 Native 事件，无参数有返回值*/
+			function getLocation() {
+			    lr.getLocation({
+			        type: 'bd0911',
+					isHighAccuracy: true,
+					isAddress: true,
+					success: function(res) {
+						alert('定位结果：' + JSON.stringify(res));
+					},
+					failed: function(){
+					    alert('定位失败');
+					}
+			    });
 			}
 
-			function callFromNativeWithParamsNoReturn(request) {
-				var jsonRequest = JSON.parse(request);
-				alert('来自Native的参数：' + JSON.stringify(jsonRequest.params));
+			/**
+			 * 调用 Native 事件，含有参数无返回值*/
+			function getNetworkType() {
+			    lr.getNetworkType({
+			        success: function(res) {
+						alert('当前网络类型为：' + res.networkType);
+					}
+			    });
 			}
 
-			function callFromNativeNoParamsWithReturn(request) {
-				alert('callFromNativeNoParamsWithReturn');
+			/**
+			 * 调用 Native 事件，含参数含返回值*/
+			function showShareUI() {
+			    lr.showShareUI({
+			        title: '我是分享',
+					desc: '我是描述信息，用于说明分享相关情况',
+					link: 'https://www.baidu.com',
+					success: function(res) {
+						alert('用户触发了分享: ' + res.result);
+					},
+					cancel: function(){
+						alert('用户取消了分享');
+					}
+			    });
 			}
 
-			// 来自Native的调用，有返回值
-			function callFromNativeWithParamsWithReturn(request) {
-				var jsonRequest = JSON.parse(request);
+			/**
+			 * 大数据传递（默认超过 1M）
+			 * */
+			function shareToQQ() {
+			    lr.shareToQQ({
+			        title: '我是分享标题',
+					desc: '我是分享描述',
+					link: 'https://www.baidu.com',
+					success: function(res) {
+						 alert('用户执行了分享: ' + res.result);
+					},
+					cancel:function(){
+						alert('用户取消了分享')
+					}
+			    });
+			}
 
-				var params = {
-					name: 'godliness',
-					age: 18,
-					sex: 'boy'
-				}
+			/**分享到 QQ 空间*/
+			function shareToQZone(){
+			    lr.shareToQZone({
+			        title: '我是分享标题',
+					desc: '我是分享描述',
+					link: 'https://www.baidu.com',
+					success: function(res){
+			            alert('用户执行了分享: ' + res.result)
+			        },
+			        cancel: function(){
+			            alert('用户取消了分享')
+			        }
+			    });
+			}
 
-				var message = {
-					id: jsonRequest.id,
-					result: params
-				}
-				lr.notifyNative(message)
+			/**分享到微信*/
+			function shareToWechat(){
+			    lr.shareToWechat({
+			        title: '我是分享标题',
+					desc: '我是分享描述',
+					link: 'https://www.baidu.com',
+					success: function(res){
+			            alert('用户执行了分享: ' + res.result)
+			        },
+			        cancel: function(){
+			            alert('用户取消了分享')
+			        }
+			    });
+			}
+
+			/**分享到微信朋友圈*/
+			function shareToWechatMoment(){
+			    lr.shareToWechatMoment({
+			        title: '我是分享标题',
+					link: 'https://www.baidu.com',
+					success: function(res){
+			            alert('用户执行了分享: ' + res.result)
+			        },
+			        cancel: function(){
+			            alert('用户取消了分享')
+			        }
+			    });
 			}
 
 </script>

@@ -1,0 +1,39 @@
+apply plugin: 'com.android.library'
+
+def ak = rootProject.ext.baiduLocation
+def cfg = rootProject.ext.android
+def dep = rootProject.ext.dependencies
+
+android {
+    compileSdkVersion cfg.compileSdkVersion
+
+    defaultConfig {
+        minSdkVersion cfg.minSdkVersion
+        targetSdkVersion cfg.targetSdkVersion
+        versionCode cfg.versionCode
+        versionName cfg.versionName
+    }
+
+    buildTypes {
+        debug{
+            manifestPlaceholders = [baidu_AK: ak.AK]
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            manifestPlaceholders = [baidu_AK: ak.AK]
+        }
+    }
+
+    sourceSets{
+        main{
+            jniLibs.srcDir 'libs'
+            jni.srcDirs = []    //disable automatic ndk-build
+        }
+    }
+}
+
+dependencies {
+    compileOnly dep["appcompat-v7"]
+    api files('libs/BaiduLBS_Android.jar')
+}

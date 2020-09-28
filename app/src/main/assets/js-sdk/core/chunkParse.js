@@ -1,6 +1,6 @@
 var chunkParse = (function() {
 
-	const stream = {}
+	var stream = {}
 
 	function parseInternal(chunk) {
 		var chunkParse = getChunkParse(chunk);
@@ -15,9 +15,9 @@ var chunkParse = (function() {
 			stream[chunkParse.sid].index++;
 			if (chunkParse.count == stream[chunkParse.sid].index) {
 				// 比较摘要，相等则分发，否则删除（数据损坏）
-//				if (hashCode(stream[chunkParse.sid].data) == chunkParse.sid) {
-					lr.dispatchCallNativeCallback(stream[chunkParse.sid].data)
-//				}
+				// if (hashCode(stream[chunkParse.sid].data) == chunkParse.sid) {
+				lr.dispatchCallNativeCallback(stream[chunkParse.sid].data)
+				// }
 				delete stream[chunkParse.sid]
 			}
 		}
@@ -32,14 +32,21 @@ var chunkParse = (function() {
 
 			var chunkParse = {};
 			var end = ssi + 3;
-			while (end < length) {
+			outer: while (end < length) {
 				var char = chunk.charAt(end);
-				if (char == '/' ||
-					char == '\\' ||
-					char == '?' ||
-					char == '#') {
-					break
+				switch (char) {
+					case '/':
+					case '\\':
+					case '?':
+					case '#':
+						break outer
 				}
+				// if (char == '/' ||
+				// 	char == '\\' ||
+				// 	char == '?' ||
+				// 	char == '#') {
+				// 	break outer
+				// }
 				end++;
 			}
 			var breakUp = chunk.substring(ssi + 3, end).split(':');

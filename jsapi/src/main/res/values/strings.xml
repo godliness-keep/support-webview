@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">jsapi</string>
+    <string name="gallery_failed_to_get">未能获取到相册图片</string>
+    <string name="take_failed_to_get">未能获取到拍照图片</string>
+    <string name="crop_failed">图片剪裁失败</string>
+    <string name="string_permission_tips">请前往手机设置-应用-%s-权限，开启%s权限</string>
+    <string name="string_permission_location">定位</string>
+    <string name="string_permission_camera">相机</string>
+    <string name="string_permission_storage">存储</string>
+    <string name="string_service_location">请开启定位服务后再使用该功能</string>
+</resources>

@@ -44,7 +44,7 @@ public final class WebDemoFragment extends AppCompatActivity {
         protected void initView() {
             mWebView = findViewById(R.id.webview);
 
-            loadUrl("file:///android_asset/main.html");
+            loadUrl("file:///android_asset/first.html");
 
             mParamsReceiver.alive().lifecycle(this);
         }

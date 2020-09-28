@@ -1,0 +1,71 @@
+ext {
+
+    /**
+     * lib-share 分享模块
+     * */
+    shareSdk = [
+            /**
+             * 申请流程参照这里：http://bbs.mob.com/forum.php?mod=viewthread&tid=8212&extra=page%3D1
+             */
+            mobSdk  : [
+                    appKey   : "m30ecb1f10a9c2",
+                    appSecret: "0ced67852b915bb4544d9051bc5ef91d"
+            ],
+            wechat  : [
+                    appId    : "wx4868b35061f87885",
+                    appSecret: "64020361b8ec4c99936c0e3999a9f249"
+            ],
+            qq      : [
+                    appId : "100371282",
+                    appKey: "aed9b0303e3ed1e27bae87c33761161d"
+            ]
+    ]
+
+    /**
+     * 百度定位
+     * */
+    baiduLocation = [
+            /**
+             * AK 申请流程参照这里：http://lbsyun.baidu.com/index.php?title=android-locsdk/guide/create-project/key
+             * 开发指南：http://lbsyun.baidu.com/index.php?title=android-locsdk/quick-start/start
+             * */
+            AK: 'qRyeyV0jbMY2ahACG5EMQ6MFuI0KtR6V'
+    ]
+
+    /***
+     * ===================================== 以下为 js-sdk 构建、依赖版本控制 ===============================================
+     */
+
+    /**
+     * 构建
+     * */
+    android = [
+            compileSdkVersion: 28,            //编译版本
+            minSdkVersion    : 16,            //最小sdk版本
+            targetSdkVersion : 28,            //测试最高支持版本（超过以兼容模式运行）
+            versionCode      : 1,             //版本号
+            versionName      : '1.0.0'        //1代表第几次提测，release:2.0.0  debug:2.0.0beta1
+    ]
+
+    /**
+     * 公共依赖库版本
+     * */
+    depVersion = [
+            supportLibrary   : "28.0.0",
+            constraint_layout: "2.0.1",
+            gson             : "2.8.5",
+            glide            : '4.3.1'
+    ]
+
+    /**
+     * 公共依赖库
+     * */
+    dependencies = [
+            "appcompat-v7"     : "com.android.support:appcompat-v7:${depVersion.supportLibrary}",
+            "recyclerview-v7"  : "com.android.support:recyclerview-v7:${depVersion.supportLibrary}",
+            "constraint-layout": "com.android.support.constraint:constraint-layout:${depVersion.constraint_layout}",
+            "gson"             : "com.google.code.gson:gson:${depVersion.gson}",
+            "glide"            : "com.github.bumptech.glide:glide:${depVersion.glide}"
+    ]
+
+}

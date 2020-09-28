@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- app:qrcv_qrCodeTipText="@string/scan_string_code_tip" -->
+    <!-- app:qrcv_animTime="800" -->
+    <cn.bingoogolapple.qrcode.zbar.ZBarView
+        android:id="@+id/zbar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:qrcv_cornerColor="@color/colorPrimaryDark"
+        app:qrcv_cornerLength="20dp"
+        app:qrcv_cornerSize="3dp"
+        app:qrcv_customGridScanLineDrawable="@drawable/album_scan_cursor"
+        app:qrcv_isBarcode="false"
+        app:qrcv_isOnlyDecodeScanBoxArea="true"
+        app:qrcv_isShowDefaultGridScanLineDrawable="true"
+        app:qrcv_isShowDefaultScanLineDrawable="true"
+        app:qrcv_isShowTipBackground="false"
+        app:qrcv_isShowTipTextAsSingleLine="true"
+        app:qrcv_isTipTextBelowRect="true"
+        app:qrcv_maskColor="#99000000"
+        app:qrcv_scanLineColor="@color/colorPrimaryDark"
+        app:qrcv_tipTextColor="@android:color/white"
+        app:qrcv_tipTextSize="16sp" />
+
+    <ImageView
+        android:id="@+id/iv_back"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:src="@drawable/album_ic_back"
+        android:tint="@android:color/white" />
+
+</merge>

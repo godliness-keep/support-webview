@@ -1,45 +1,59 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="utf-8">
-    <title>菜鸟教程(runoob.com)</title>
-    <script type="text/javascript" src="js-sdk/core/wxBridge.js"></script>
-    <script type="text/javascript" src="js-sdk/utils/platform.js"></script>
-    <script type="text/javascript" src="js-sdk/core/lrBridgeCore.js"></script>
-    <script type="text/javascript" src="js-sdk/core/receiver.js"></script>
-</head>
-<body>
-
-<p>我是一个粉刷匠，粉刷本领强，我要把那新房子刷的又漂亮</p>
-<p>关闭当前窗口，按下 F5 或点击以下链接触发 onbeforeunload 事件。</p>
-<script>
-
-    lr.ready()
-
-    receiver.open = function(){
-        alert('我是open，我要open')
-
-        return [
-            {
-                name:'godliness',
-                age:100,
-                sex:'boy'
-            },
-            {
-                name:'godliness2',
-                age:100,
-                sex:'boy'
-            }
-        ]
-    }
-
-
-
-
-
-
-
-</script>
-
-</body>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="stylesheet" href="main.css">
+		<title>callNative</title>
+		<script type="text/javascript" src="js-sdk/core/wxBridge.js"></script>
+		<script type="text/javascript" src="js-sdk/utils/platform.js"></script>
+		<script type="text/javascript" src="js-sdk/core/chunkParse.js"></script>
+		<script type="text/javascript" src="js-sdk/core/lrBridgeCore.js"></script>
+		<script type="text/javascript" src="js-sdk/core/receiver.js"></script>
+		<style type="text/css">
+			button {
+				width: 100%;
+				height: 2.5rem;
+				margin-top: 1rem;
+			}
+		</style>
+	</head>
+	<body>
+		<script>
+			
+			lr.ready();
+			
+			function callFromNativeNoParamsNoReturn() {
+				
+				alert('callFromNativeNoParamsNoReturn');
+			}
+	
+			function callFromNativeWithParamsNoReturn(request) {
+				
+				var jsonRequest = JSON.parse(request);
+				alert('来自Native的参数：' + JSON.stringify(jsonRequest.params));
+			}
+			
+			// 来自Native的调用，有返回值
+			function callFromNativeWithParamsWithReturn(request) {
+				var jsonRequest = JSON.parse(request);
+				
+				var params = {
+					name: 'name',
+					age: 20,
+					sex: 'boy'
+				}
+	
+				var message = {
+					id: jsonRequest.id,
+					result: {
+						state: 1,
+						desc: 'ok',
+						result: params
+					}
+				}
+				lr.notifyNative(message)
+			}
+		</script>
+	
+	</body>
 </html>

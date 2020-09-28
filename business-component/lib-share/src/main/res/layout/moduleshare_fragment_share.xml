@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/moduleshare_shape_dialog_bg"
+    android:paddingLeft="40dp"
+    android:paddingTop="24dp"
+    android:paddingRight="40dp"
+    android:paddingBottom="24dp">
+
+    <TextView
+        android:id="@+id/wechat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:drawableTop="@drawable/moduleshare_wechat"
+        android:gravity="center"
+        android:text="@string/moduleshare_string_wechat"
+        android:textColor="#4C4C4C"
+        android:textSize="12sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/wechat_moment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="40dp"
+        android:layout_marginTop="4dp"
+        android:drawableTop="@drawable/moduleshare_wechat_moment"
+        android:gravity="center"
+        android:text="@string/moduleshare_string_wechat_moment"
+        android:textColor="#4C4C4C"
+        android:textSize="12sp"
+        app:layout_constraintLeft_toRightOf="@+id/wechat"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/qq"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:drawableTop="@drawable/moduleshare_qq"
+        android:gravity="center"
+        android:text="@string/moduleshare_string_qq"
+        android:textColor="#4C4C4C"
+        android:textSize="12sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/wechat" />
+
+    <TextView
+        android:id="@+id/qzone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="40dp"
+        android:layout_marginTop="32dp"
+        android:drawableTop="@drawable/moduleshare_qq_qzone"
+        android:gravity="center"
+        android:text="@string/moduleshare_string_qzone"
+        android:textColor="#4C4C4C"
+        android:textSize="12sp"
+        app:layout_constraintLeft_toRightOf="@+id/qq"
+        app:layout_constraintTop_toBottomOf="@+id/wechat_moment" />
+
+</android.support.constraint.ConstraintLayout>

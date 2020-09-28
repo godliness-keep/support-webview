@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include layout="@layout/include_title_photo_wall" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rcv_photos"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="45dp"
+        android:scrollbars="vertical" />
+
+    <include layout="@layout/include_footer_photo_wall" />
+
+    <ProgressBar
+        android:id="@+id/loading"
+        style="@style/TextAppearance.AppCompat.Light.Widget.PopupMenu.Small"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center" />
+
+    <View
+        android:id="@+id/view_shade"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="45dp"
+        android:layout_marginBottom="48dp"
+        android:background="#AA000000"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/tv_tips"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@drawable/lib_album_shape_tips"
+        android:gravity="center"
+        android:padding="16dp"
+        android:textColor="@android:color/white"
+        android:textSize="14sp"
+        android:visibility="gone"
+        tools:text="最多选择 9 张" />
+
+</merge>
