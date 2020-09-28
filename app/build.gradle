@@ -42,6 +42,6 @@ dependencies {
 
     // 基于原生 WebView
     implementation project(':lib-webview')
-    // 基于腾讯 X5 kernal
+    // 基于腾讯 X5 kernel
     implementation project(':lib-x5webview')
 }
