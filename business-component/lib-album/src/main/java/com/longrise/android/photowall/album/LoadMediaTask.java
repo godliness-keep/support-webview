@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.util.ArrayMap;
-import android.util.Log;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -17,8 +16,6 @@ import java.lang.ref.WeakReference;
  * @author godliness
  */
 final class LoadMediaTask extends Thread {
-
-    private static final String TAG = "LoadMediaTask";
 
     private final ContentResolver mResolver;
     private final WeakReference<OnMediaLoadListener> mCallback;
@@ -60,6 +57,7 @@ final class LoadMediaTask extends Thread {
         try {
             callback(parseMediaInCursor(cursor));
         } catch (Exception e) {
+            callback(null);
             e.printStackTrace();
         } finally {
             closeCursor(cursor);

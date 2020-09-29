@@ -18,10 +18,6 @@ public final class Gallery {
 
     private final Album.IGalleryListener mGalleryCallback;
 
-    Gallery(Album.IGalleryListener callback) {
-        this.mGalleryCallback = callback;
-    }
-
     public void start(Activity host) {
         ActivityResult.from((FragmentActivity) host)
                 .onResult(new IActivityOnResultListener() {
@@ -32,6 +28,10 @@ public final class Gallery {
                         }
                     }
                 }).to(getIntent());
+    }
+
+    Gallery(Album.IGalleryListener callback) {
+        this.mGalleryCallback = callback;
     }
 
     private Intent getIntent() {

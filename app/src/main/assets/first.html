@@ -15,6 +15,8 @@
 				height: 2.5rem;
 				margin-top: 1rem;
 			}
+
+
     </style>
 </head>
 <body>
@@ -28,6 +30,10 @@
     选择相片
 </button>
 
+<button type="button" onclick="chooseImage()">
+    多选图片
+</button>
+
 <button type="button" onclick="closeWindow()">
     关闭 WebView
 </button>
@@ -37,7 +43,7 @@
 </button>
 
 <script>
-			
+
 			lr.ready();
 
 			lr.config({
@@ -45,10 +51,11 @@
 			        'takePicture',
 			        'startGallery',
 			        'closeWindow',
-			        'previewImage'
+			        'previewImage',
+			        'chooseImage'
 			    ]
 			});
-			
+
 			/**
 			 * 拍照
 			 * */
@@ -56,24 +63,37 @@
 			    lr.takePicture({
                     crop: false,
                     success: function(res){
-                        alert('localId: ' + res.localId);
+                        console.log('url: ' + res.localId);
                     },
                     failed: function(){
                         console.log('failed');
                     }
 			    });
 			}
-			
+
 			/**相册*/
 			function startGallery() {
 			    lr.startGallery({
 			        crop:true,
 			        success: function(res){
-			            alert('localId: ' + res.localId);
+						console.log('crop url: ' + res.localId);
 					},
 					failed:function(){
 						console.log('failed');
 					}
+			    });
+			}
+
+			/**多选图片*/
+			function chooseImage(){
+			    lr.chooseImage({
+			        count: 6,
+			        success: function(res){
+			            var localIds = res.localIds;
+			            for(let i=0;i<localIds.length;i++){
+                            console.log(localIds[i]);
+                        }
+			        }
 			    });
 			}
 
@@ -88,6 +108,8 @@
 				    current: 'content://media/external/images/media/402054',
 				});
 			}
+
+
 
 </script>
 

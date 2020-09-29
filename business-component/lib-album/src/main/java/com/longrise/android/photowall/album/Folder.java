@@ -1,6 +1,7 @@
 package com.longrise.android.photowall.album;
 
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.longrise.android.photowall.R;
 
@@ -19,6 +20,7 @@ final class Folder {
     private String mFirstFilePath;
     private int mCount;
     private final ArrayList<String> mFiles;
+    private int mFolderId;
 
     /**
      * 获取目录下第一个文件路径
@@ -45,14 +47,14 @@ final class Folder {
 //        if (mCount <= 0) {
 //            calcFileInFolder();
 //        }
-        if (mFiles != null) {
+        if (mCount <= 0) {
             mCount = mFiles.size();
         }
         return mCount;
     }
 
     /**
-     * 过去该目录下文件集合
+     * 获取该目录下文件集合
      */
     List<String> getFiles() {
 //        if (mFiles == null) {
@@ -65,6 +67,7 @@ final class Folder {
 //        this.mFolderDir = folderDir;
         if (folderDir != null) {
             this.mFolderName = matchAlreadyName(folderDir);
+            this.mFolderId = folderDir.hashCode();
         }
     }
 
@@ -72,8 +75,12 @@ final class Folder {
         mFiles.add(file);
     }
 
-    void setFirstFilePath(String mFirstFilePath) {
-        this.mFirstFilePath = mFirstFilePath;
+    void setFirstFilePath(String firstFilePath) {
+        this.mFirstFilePath = firstFilePath;
+    }
+
+    int getFolderId() {
+        return mFolderId;
     }
 
     void trimToSize() {

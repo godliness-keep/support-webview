@@ -19,6 +19,7 @@ import com.longrise.android.jssdk.core.bridge.BaseBridge;
 import com.longrise.android.jssdk.wx.BridgeApi;
 import com.longrise.android.jssdk.wx.PermissionConst;
 import com.longrise.android.jssdk.wx.R;
+import com.longrise.android.jssdk.wx.mode.ChooseImage;
 import com.longrise.android.jssdk.wx.mode.CropImage;
 import com.longrise.android.jssdk.wx.mode.GetLocation;
 import com.longrise.android.jssdk.wx.mode.LocationFailed;
@@ -364,7 +365,46 @@ public abstract class BaseApiBridge<T> extends BaseBridge<T> {
                             @Override
                             protected void onManuallyRationale() {
                                 final String title = ResUtil.getPermissionTitle(R.string.string_permission_storage);
-                                final String desc = ResUtil.getPermissionSettingDesc(R.string.string_permission_location);
+                                final String desc = ResUtil.getPermissionSettingDesc(R.string.string_permission_storage);
+                                showManuallyOnDialog(title, desc);
+                            }
+                        }).request(Manifest.permission.READ_EXTERNAL_STORAGE);
+            }
+        };
+        post(task);
+    }
+
+    @JavascriptInterface
+    public final void chooseImage(String message) {
+        final Request<ChooseImage> request = Request.parseRequest(message, ChooseImage.class);
+        final ChooseImage chooseImage = request.getParams();
+
+        final Runnable task = new Runnable() {
+            @Override
+            public void run() {
+                RequestPermission.of(getActivity())
+                        .onPermissionResult(new IPermissionHelper() {
+                            @Override
+                            protected void onResult(boolean b) {
+                                if (!b) {
+                                    return;
+                                }
+                                Album.chooseOf(new Album.IChooserCallback() {
+                                    @Override
+                                    public void onSelected(String[] values) {
+                                        if (values == null) {
+                                            return;
+                                        }
+                                        Response.create(request.getCallbackId()).result(values).notify(getWebView());
+                                    }
+                                }).params(chooseImage.getCount(), Album.SizeType.ALL, Album.SourceType.ALL)
+                                        .to(getActivity());
+                            }
+
+                            @Override
+                            protected void onManuallyRationale() {
+                                final String title = ResUtil.getPermissionTitle(R.string.string_permission_storage);
+                                final String desc = ResUtil.getPermissionSettingDesc(R.string.string_permission_storage);
                                 showManuallyOnDialog(title, desc);
                             }
                         }).request(Manifest.permission.READ_EXTERNAL_STORAGE);

@@ -9,7 +9,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
@@ -139,9 +138,9 @@ public final class PhotosActivity extends AppCompatActivity implements
 
     @Override
     public void onFolderClick(Folder folder) {
-        final String folderName = folder.getFolderName();
-        if (mCurrentFolderId != Utils.hashCode(folderName)) {
-            notifyData(folderName, folder.getFiles(), folder.getCount());
+        if (mCurrentFolderId != folder.getFolderId()) {
+            notifyData(folder.getFolderName(), folder.getFiles(), folder.getCount());
+            this.mCurrentFolderId = folder.getFolderId();
         }
     }
 
@@ -161,7 +160,6 @@ public final class PhotosActivity extends AppCompatActivity implements
     }
 
     private void notifyData(String folderName, List<String> files, int size) {
-        mCurrentFolderId = Utils.hashCode(folderName);
         mLoading.setVisibility(View.GONE);
         if (mAdapter != null) {
             mAdapter.setData(files);
@@ -215,8 +213,9 @@ public final class PhotosActivity extends AppCompatActivity implements
     private void bindAdapter() {
         mAdapter = new PhotosAdapter(this, mParams.count);
         mRcv.setAdapter(mAdapter);
-        mRcv.setLayoutManager(new GridLayoutManager(this, 3));
-        mRcv.addItemDecoration(new GridSpaceItemDecoration(3, 6, 6));
+        mRcv.setLayoutManager(new GridLayoutManager(this, 4));
+        final int screenWidth = getResources().getDisplayMetrics().widthPixels;
+        mRcv.addItemDecoration(new GridSpaceItemDecoration(4, 6, 6, screenWidth));
     }
 
     private void showFolderWindow() {

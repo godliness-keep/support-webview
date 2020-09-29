@@ -3,6 +3,7 @@ package com.longrise.android.photowall.album;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -65,12 +66,14 @@ final class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.FolderHolde
         Glide.with(mCxt).load(folder.getFirstFilePath()).into(folderHolder.mPreview);
         folderHolder.mName.setText(folder.getFolderName());
         folderHolder.mCount.setText(String.format("%s", folder.getCount()));
+        folderHolder.setPosition(position);
         if (!folderHolder.hasOnClickListeners()) {
             folderHolder.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    final int currentPosition = (int) v.getTag();
                     if (mFolderListener != null) {
-                        mFolderListener.onFolderClick(folder);
+                        mFolderListener.onFolderClick(mFolders.get(currentPosition));
                     }
                 }
             });
@@ -104,6 +107,10 @@ final class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.FolderHolde
 
         void setOnClickListener(View.OnClickListener onClickListener) {
             mRoot.setOnClickListener(onClickListener);
+        }
+
+        void setPosition(int position) {
+            mRoot.setTag(position);
         }
     }
 }

@@ -47,7 +47,7 @@ var wx = (function() {
 	 * @param {string} message.link - 分享地址.
 	 * @param {string} message.imgUrl - 分享图标.
 	 * @param {string} message.type - 分享类型.
-	 * @param {string} message.dataUrl - 如果 type 是 music 或 vido 则需要提供数据链接.
+	 * @param {string} message.dataUrl - 如果 type 是 music 或 video 则需要提供数据链接.
 	 * @param {function} message.success - 成功回调.
 	 * @param {function} message.cancel - 取消回调.
 	 * @param {function} message.complete - 无论分享结果都会回调.
@@ -156,7 +156,7 @@ var wx = (function() {
 	 * @param {number} message.x - 宽高比例，默认（x）3:4.
 	 * @param {number} message.y - 宽高比例，默认 3：4（y）.
 	 * @param {string} message.tips - 裁剪框说明.
-	 * @param {function} message.success - 成功的回调
+	 * @param {function} message.success - 成功的回调.
 	 * @param {function} message.failed - 失败的回调.
 	 * @param {function} message.complete - 无论成功失败都会回调.
 	 */
@@ -191,7 +191,7 @@ var wx = (function() {
 	 * @param {number} message.x - 宽高比例，默认（x）3:4.
 	 * @param {number} message.y - 宽高比例，默认 3：4（y）.
 	 * @param {string} message.tips - 裁剪框说明.
-	 * @param {function} message.success - 成功的回调
+	 * @param {function} message.success - 成功的回调.
 	 * @param {function} message.failed - 失败的回调.
 	 * @param {function} message.complete - 无论成功失败都会回调.
 	 */
@@ -224,7 +224,7 @@ var wx = (function() {
 	 * @param {number} message.width - 裁减宽度，默认 468px.
 	 * @param {number} message.height - 裁减高度，默认高度 624px.
 	 * @param {string} message.tips - 裁剪框说明.
-	 * @param {function} message.success - 成功的回调
+	 * @param {function} message.success - 成功的回调.
 	 * @param {function} message.failed - 失败的回调.
 	 * @param {function} message.complete - 无论成功失败都会回调.
 	 */
@@ -252,8 +252,8 @@ var wx = (function() {
 	/**
 	 * 图片预览
 	 * @param {string} message.current - 图片地址（本地或远程）.
-	 * @param {urls} message.urls - 需要预览图片的地址列表.
-	 * @param {function} message.success - 成功的回调
+	 * @param {array} message.urls - 需要预览图片的地址列表.
+	 * @param {function} message.success - 成功的回调.
 	 * @param {function} message.failed - 失败的回调.
 	 * @param {function} message.complete - 无论成功失败都会回调.
 	 */
@@ -272,9 +272,57 @@ var wx = (function() {
 		});
 	}
 
+	/**
+	 * 多选图片
+	 * @param {number} message.count - 图片数量，最大为 9.
+	 * @param {function} message.success - 成功的回调.
+	 * @param {function} message.failed - 失败的回调.
+	 * @param {function} message.complete - 无论成功失败都会回调.
+	 */
+	function chooseImage(message) {
+		var params = {
+			count: message.count
+		}
+
+		lr.callNative({
+			methodName: 'chooseImage',
+			params: params,
+			success: function(res){
+			    message.success({
+			        localIds: res.result
+			    });
+			},
+			failed: message.failed,
+			complete: message.complete
+		});
+	}
+
+	/**
+	 * 图片转换为 base64，适配 iOS WKWebView 不支持图片路径问题.
+	 * @param {string} message.localId - 图片的 localId.
+	 * @param {function} message.success - 成功的回调.
+	 * @param {function} message.failed - 失败的回调.
+	 * @param {function} message.complete - 无论成功失败都会回调 */
+	function getLocalImgData(message) {
+		var params = {
+			localId: message.localId
+		}
+		lr.callNative({
+			methodName: 'getLocalImgData',
+			params: params,
+			success: message.success,
+			failed: message.failed,
+			complete: message.complete
+		});
+	}
+
 	//---------------------------------------网络状态--------------------------------------------------------------------
 
-	//获取网络状态
+	/**
+	 * 获取网络状态
+	 * @param {function} message.complete - 成功获取的回调.
+	 * @param {function} message.failed - 获取失败的回调.
+	 * @param {function} message.complete - 无论成功/失败都会回调. */
 	function getNetworkType(message) {
 		var request = {
 			methodName: 'getNetworkType',

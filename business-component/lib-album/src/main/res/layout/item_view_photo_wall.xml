@@ -6,7 +6,7 @@
     <com.longrise.android.photowall.album.PhotoView
         android:id="@+id/iv_item_photo_adapter"
         android:layout_width="match_parent"
-        android:layout_height="120dp"
+        android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:adjustViewBounds="true"
         android:scaleType="centerCrop" />
