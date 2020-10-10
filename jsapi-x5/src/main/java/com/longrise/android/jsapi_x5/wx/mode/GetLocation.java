@@ -1,4 +1,4 @@
-package com.longrise.android.jssdk.wx.mode;
+package com.longrise.android.jsapi_x5.wx.mode;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

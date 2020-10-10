@@ -1,4 +1,4 @@
-package com.longrise.android.jssdk.wx.mode;
+package com.longrise.android.jsapi_x5.wx.mode;
 
 import com.baidu.location.BDLocation;
 import com.google.gson.annotations.Expose;

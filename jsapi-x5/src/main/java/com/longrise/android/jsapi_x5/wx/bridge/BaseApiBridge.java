@@ -1,4 +1,4 @@
-package com.longrise.android.jssdk.wx.bridge;
+package com.longrise.android.jsapi_x5.wx.bridge;
 
 import android.Manifest;
 import android.app.Activity;
@@ -9,26 +9,25 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.webkit.JavascriptInterface;
-import android.webkit.WebView;
 import android.widget.Toast;
 
 import com.baidu.location.BDLocation;
-import com.longrise.android.jssdk.Request;
-import com.longrise.android.jssdk.Response;
-import com.longrise.android.jssdk.core.bridge.BaseBridge;
-import com.longrise.android.jssdk.wx.BridgeApi;
-import com.longrise.android.jssdk.wx.PermissionConst;
-import com.longrise.android.jssdk.wx.R;
-import com.longrise.android.jssdk.wx.mode.ChooseImage;
-import com.longrise.android.jssdk.wx.mode.CropImage;
-import com.longrise.android.jssdk.wx.mode.GetLocation;
-import com.longrise.android.jssdk.wx.mode.LocationFailed;
-import com.longrise.android.jssdk.wx.mode.LocationResult;
-import com.longrise.android.jssdk.wx.mode.PreviewImage;
-import com.longrise.android.jssdk.wx.mode.QrCode;
-import com.longrise.android.jssdk.wx.mode.ShareTo;
-import com.longrise.android.jssdk.wx.utils.NetUtil;
-import com.longrise.android.jssdk.wx.utils.ResUtil;
+import com.longrise.android.jsapi_x5.wx.BridgeApi;
+import com.longrise.android.jsapi_x5.wx.PermissionConst;
+import com.longrise.android.jsapi_x5.wx.R;
+import com.longrise.android.jsapi_x5.wx.mode.ChooseImage;
+import com.longrise.android.jsapi_x5.wx.mode.CropImage;
+import com.longrise.android.jsapi_x5.wx.mode.GetLocation;
+import com.longrise.android.jsapi_x5.wx.mode.LocationFailed;
+import com.longrise.android.jsapi_x5.wx.mode.LocationResult;
+import com.longrise.android.jsapi_x5.wx.mode.PreviewImage;
+import com.longrise.android.jsapi_x5.wx.mode.QrCode;
+import com.longrise.android.jsapi_x5.wx.mode.ShareTo;
+import com.longrise.android.jsapi_x5.wx.utils.NetUtil;
+import com.longrise.android.jsapi_x5.wx.utils.ResUtil;
+import com.longrise.android.jssdk_x5.Request;
+import com.longrise.android.jssdk_x5.Response;
+import com.longrise.android.jssdk_x5.core.bridge.BaseBridge;
 import com.longrise.android.location.ILocationListener;
 import com.longrise.android.location.LocationManager;
 import com.longrise.android.location.mode.LocationParams;
@@ -38,6 +37,7 @@ import com.longrise.android.photowall.Album;
 import com.longrise.android.qr.scan.IScanResultCallback;
 import com.longrise.android.qr.scan.QrScan;
 import com.longrise.android.share.onekeyshare.OneKeyShare;
+import com.tencent.smtt.sdk.WebView;
 
 /**
  * Created by godliness on 2020-04-16.
@@ -60,7 +60,7 @@ public abstract class BaseApiBridge<T> extends BaseBridge<T> {
     /**
      * 权限提示，重写该方法实现自定义权限提示
      *
-     * @param what {@link com.longrise.android.jssdk.wx.PermissionConst} 权限类型
+     * @param what {@link PermissionConst} 权限类型
      * @param desc 默认权限提示
      */
     protected void onShowPermissionRationale(int what, String desc) {

@@ -1,5 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.longrise.android.webview.jsapi_x5">
+    package="com.longrise.android.jsapi_x5.wx">
 
-    /
-    </manifest>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+
+</manifest>

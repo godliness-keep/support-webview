@@ -1,3 +1,4 @@
+include ':jsapi-x5'
 include ':app',
         ':lib-webview',
         ':lib-x5webview'

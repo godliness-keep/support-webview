@@ -22,6 +22,7 @@
             <option value="$PROJECT_DIR$/business-component/lib-scan" />
             <option value="$PROJECT_DIR$/business-component/lib-share" />
             <option value="$PROJECT_DIR$/jsapi" />
+            <option value="$PROJECT_DIR$/jsapi-x5" />
             <option value="$PROJECT_DIR$/lib-webview" />
             <option value="$PROJECT_DIR$/lib-x5webview" />
           </set>

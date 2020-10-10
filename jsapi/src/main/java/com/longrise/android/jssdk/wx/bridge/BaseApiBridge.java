@@ -39,7 +39,6 @@ import com.longrise.android.qr.scan.IScanResultCallback;
 import com.longrise.android.qr.scan.QrScan;
 import com.longrise.android.share.onekeyshare.OneKeyShare;
 
-
 /**
  * Created by godliness on 2020-04-16.
  *

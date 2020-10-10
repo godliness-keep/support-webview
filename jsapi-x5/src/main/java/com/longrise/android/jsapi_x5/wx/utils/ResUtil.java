@@ -1,9 +1,10 @@
-package com.longrise.android.jssdk.wx.utils;
+package com.longrise.android.jsapi_x5.wx.utils;
 
 import android.support.annotation.StringRes;
 
-import com.longrise.android.jssdk.wx.BridgeApi;
-import com.longrise.android.jssdk.wx.R;
+import com.longrise.android.jsapi_x5.wx.BridgeApi;
+import com.longrise.android.jsapi_x5.wx.R;
+
 
 /**
  * Created by godliness on 2020/9/15.

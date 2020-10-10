@@ -1,4 +1,4 @@
-package com.longrise.android.jssdk.wx.utils;
+package com.longrise.android.jsapi_x5.wx.utils;
 
 import android.content.Context;
 import android.net.ConnectivityManager;

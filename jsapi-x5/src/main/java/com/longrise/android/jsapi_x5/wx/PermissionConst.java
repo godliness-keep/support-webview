@@ -1,4 +1,4 @@
-package com.longrise.android.jssdk.wx;
+package com.longrise.android.jsapi_x5.wx;
 
 /**
  * Created by godliness on 2020/9/27.

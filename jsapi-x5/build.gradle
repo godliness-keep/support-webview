@@ -1,31 +1,37 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.mob.sdk'
 
-    android {
-    compileSdkVersion 29
+def cfg = rootProject.ext.android
+def dep = rootProject.ext.dependencies
+
+android {
+    compileSdkVersion cfg.compileSdkVersion
 
     defaultConfig {
-      minSdkVersion 16
-      targetSdkVersion 29
-      versionCode 1
-      versionName "1.0"
-
-      testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-      consumerProguardFiles "consumer-rules.pro"
+        minSdkVersion cfg.minSdkVersion
+        targetSdkVersion cfg.targetSdkVersion
+        versionCode cfg.versionCode
+        versionName cfg.versionName
     }
 
     buildTypes {
-       release {
-           minifyEnabled false
-           proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-       }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
     }
-    }
+}
 
-  dependencies {
-    implementation fileTree (dir: "libs", include: ["*.jar"])
-      implementation 'com.android.support:appcompat-v7:28.0.0'
-      testImplementation 'junit:junit:4.12'
-      androidTestImplementation 'com.android.support.test:runner:1.0.2'
-      androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+dependencies {
+    //    compileOnly fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
+    implementation dep['appcompat-v7']
+    compileOnly dep['gson']
 
-  }
+    implementation project(':business-component:lib-scan')
+    implementation project(':business-component:lib-share')
+    implementation project(':business-component:lib-location')
+    implementation project(':business-component:lib-album')
+
+    implementation fileTree('libs/lib-request-permission.aar')
+    api fileTree('libs/jssdk-x5_v1.0.1.aar')
+}
