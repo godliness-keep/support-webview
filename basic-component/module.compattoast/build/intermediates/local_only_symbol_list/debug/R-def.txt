@@ -1,0 +1,13 @@
+R_DEF: Internal format may change without notice
+local
+drawable shape_toast_background
+drawable toast_icon_fail
+drawable toast_icon_success
+id iv_toast
+id toast_icon_view
+id toast_loading
+id tv_toast
+layout toast_layout_default_view
+layout toast_layout_icon_view
+layout toast_layout_loading
+string string_toast_loading
