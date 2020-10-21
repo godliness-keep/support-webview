@@ -287,10 +287,10 @@ var wx = (function() {
 		lr.callNative({
 			methodName: 'chooseImage',
 			params: params,
-			success: function(res){
-			    message.success({
-			        localIds: res.result
-			    });
+			success: function(res) {
+				message.success({
+					localIds: res.result
+				});
 			},
 			failed: message.failed,
 			complete: message.complete
@@ -400,6 +400,219 @@ var wx = (function() {
 		}
 		lr.callNative(request);
 	}
+
+	//----------------------------------------UI 交互---------------------------------------------------------------
+
+    	/**
+    	 * 显示消息提示框
+    	 * @param {string} message.title - 提示的内容
+    	 * @param {string} message.icon - 图标
+    	 * @param {number} message.duration - 提示的延迟时间
+    	 * @param {boolean} message.mask - 是否显示透明蒙层，防止触摸穿透
+    	 * @param {function} message.success - 接口调用成功的回调函数
+    	 * @param {function} message.failed - 接口调用失败的回调函数
+    	 * @param {function} message.complete - 接口调用结束的回调函数（调用成功、失败都会执行） */
+    	function showToast(message) {
+    		var params = {
+    			title: message.title,
+    			icon: message.icon,
+    			duration: message.duration,
+    			mask: message.mask
+    		}
+    		var request = {
+    			methodName: 'showToast',
+    			params: params,
+    			success: message.success,
+    			failed: message.failed,
+    			complete: message.complete
+    		}
+    		lr.callNative(request);
+    	}
+
+    	/**
+    	 * 显示 loading 提示框，需要主动调用 lr.hideLoading 才能关闭提示框
+    	 * @param {string} message.title - 提示的内容
+    	 * @param {boolean} message.mask - 是否显示透明蒙层，防止触摸穿透
+    	 * @param {function} message.success - 接口调用成功的回调函数
+    	 * @param {function} message.failed - 接口调用失败的回调函数
+    	 * @param {function} message.complete - 接口调用结束的回调函数（调用成功、失败都会执行）*/
+    	function showLoading(message) {
+    		var params = {
+    			title: message.title,
+    			mask: message.mask
+    		}
+    		var request = {
+    			methodName: 'showLoading',
+    			params: params,
+    			success: message.success,
+    			failed: message.failed,
+    			complete: message.complete
+    		}
+    		lr.callNative(request);
+    	}
+
+    	/**
+    	 * 隐藏 loading 提示框
+    	 * @param {function} message.success - 接口调用成功的回调函数
+    	 * @param {function} message.failed - 接口调用失败的回调函数
+    	 * @param {function} message.complete - 接口调用结束的回调函数（调用成功、失败都会执行） */
+    	function hideLoading(message) {
+    		var request = {
+    			methodName: 'hideLoading',
+    			params: ''
+    		}
+    		if(message && typeof message === 'object'){
+    		    request.success = message.success,
+                request.failed = message.failed,
+                request.complete = message.complete
+    		}
+    		lr.callNative(request);
+    	}
+
+    	//----------------------------------------剪贴板---------------------------------------------------------------
+
+    	/**
+    	 * 设置系统剪贴板的内容，调用成功后，会弹出 toast 提示 “内容已复制”，持续 1.5s
+    	 * @param {string} message.data - 剪贴板的内容
+    	 * @param {function} message.success - 接口调用成功的回调函数
+    	 * @param {function} message.failed - 接口调用失败的回调函数
+    	 * @param {function} message.complete - 接口调用结束的回调函数（调用成功、失败都会执行） */
+    	function setClipboardData(message) {
+    		var params = {
+    			data: message.data
+    		}
+    		lr.callNative({
+    			methodName: 'setClipboardData',
+    			params: params,
+    			success: message.success,
+    			failed: message.failed,
+    			complete: message.complete
+    		});
+    	}
+
+    	/**
+    	 * 获取系统剪贴板内容
+    	 * @param {function} message.success - 接口调用成功的回调函数
+    	 * @param {function} message.failed - 接口调用失败的回调函数
+    	 * @param {function} message.complete - 接口调用结束的回调函数（调用成功、失败都会执行） */
+    	function getClipboardData(message) {
+    		lr.callNative({
+    			methodName: 'getClipboardData',
+    			success: function(res) {
+    				message.success({
+    					data: res.result
+    				});
+    			},
+    			failed: message.failed,
+    			complete: message.complete
+    		});
+    	}
+
+    	//----------------------------------------存储---------------------------------------------------------------
+
+    	/**
+    	 * 将数据存储在本地缓存中指定的 key 中，会覆盖掉原来该 key 对应的内容。除非用户主动删除或因存储空间原因被系统
+    	 * 清理，否则数据一直都可用
+    	 * @param {string} message.key - 本地缓存中指定的 key
+    	 * @param {any} message.data - 需要存储的内容。只支持原生类型、Date、及能够通过 JSON.stringify 序列化的对象
+    	 * @param {function} message.success - 接口调用成功的回调函数
+    	 * @param {function} message.failed - 接口调用失败的回调函数
+    	 * @param {function} message.complete - 接口调用结束的回调函数（调用成功、失败都会执行） */
+    	function setStorage(message) {
+    		var serializations = null;
+    		if (typeof message.data === 'string') {
+    			serializations = message.data;
+    		} else {
+    			serializations = JSON.stringify(message.data);
+    		}
+    		if (serializations.length > 524288) {
+    			throw 'The maximum data length allowed for a single key is 1MB'
+    		}
+
+    		var params = {
+    			key: message.key,
+    			data: {
+    				data: message.data
+    			}
+    		}
+    		lr.callNative({
+    			methodName: 'setStorage',
+    			params: params,
+    			success: message.success,
+    			failed: message.failed,
+    			complete: message.complete
+    		});
+    	}
+
+    	/**
+    	 * 从本地缓存中异步获取指定 key 的内容
+    	 * @param {string} message.key - 本地缓存中指定的 key
+    	 * @param {function} message.success - 接口调用成功的回调函数
+    	 * @param {function} message.failed - 接口调用失败的回调函数
+    	 * @param {function} message.complete - 接口调用结束的回调函数（调用成功、失败都会执行） */
+    	function getStorage(message) {
+    		lr.callNative({
+    			methodName: 'getStorage',
+    			params: {
+    				key: message.key
+    			},
+    			success: function(res) {
+    				message.success(res.result);
+    			},
+    			failed: message.failed,
+    			complete: message.complete
+    		});
+    	}
+
+    	/**
+    	 * 从本地缓存中移除指定 key
+    	 * @param {string} message.key - 本地缓存中指定的 key
+    	 * @param {function} message.success - 接口调用成功的回调函数
+    	 * @param {function} message.failed - 接口调用失败的回调函数
+    	 * @param {function} message.complete - 接口调用结束的回调函数（调用成功、失败都会执行） */
+    	function removeStorage(message) {
+    		lr.callNative({
+    			methodName: 'removeStorage',
+    			params: {
+    				key: message.key
+    			},
+    			success: message.success,
+    			failed: message.failed,
+    			complete: message.complete
+    		});
+    	}
+
+    	/**
+    	 * 异步获取当前 storage 的相关信息
+    	 * @param {function} message.success - 接口调用成功的回调
+    	 * @param {function} message.failed - 接口调用失败的回调
+    	 * @param {function} message.complete - 接口调用技术的回调函数（调用成功、失败都会执行） */
+    	function getStorageInfo(message) {
+    		lr.callNative({
+    			methodName: 'getStorageInfo',
+    			params: '',
+    			success: function(res){
+    			    message.success(res.result);
+    			},
+    			failed: message.failed,
+    			complete: message.complete
+    		});
+    	}
+
+    	/**
+    	 * 清理本地数据缓存
+    	 * @param {function} message.success - 接口调用成功的回调
+    	 * @param {function} message.failed - 接口调用失败的回调
+    	 * @param {function} message.complete - 接口调用结束的回调函数（调用成功、失败都会执行） */
+    	function clearStorage(message) {
+    		lr.callNative({
+    			methodName: 'clearStorage',
+    			params: '',
+    			success: message.success,
+    			failed: message.failed,
+    			complete: message.complete
+    		});
+    	}
 
 	return {
 

@@ -15,6 +15,7 @@
 				height: 2.5rem;
 				margin-top: 0.5rem;
 			}
+
     </style>
 </head>
 <body>
@@ -49,9 +50,42 @@
     分享到微信朋友圈
 </button>
 
+<button type="button" onclick="setStorage()">
+    存储数据
+</button>
 
+<button type="button" onclick="getStorage()">
+    获取数据
+</button>
+
+<button type="button" onclick="getStorageInfo()">
+    getStorageInfo
+</button>
+<button type="button" onclick="removeStorage()">
+    removeStorage
+</button>
+<button type="button" onclick="clearStorage()">
+    clearStorage
+</button>
+<button type="button" onclick="setClipboardData()">
+    setClipboardData
+</button>
+<button type="button" onclick="getClipboardData()">
+    getClipboardData
+</button>
+<button type="button" onclick="showToast()">
+    showToast
+</button>
+
+<button type="button" onclick="showLoading()">
+    showLoading
+</button>
+
+<button type="button" onclick="hideLoading()">
+    hideLoading
+</button>
 <script>
-			
+
 
 			/**
 			 * 使用之前要先初始化 lr 框架*/
@@ -66,7 +100,17 @@
                     'shareToQQ',
                     'shareToQZone',
                     'shareToWechat',
-                    'shareToWechatMoment'
+                    'shareToWechatMoment',
+                    'setStorage',
+                    'getStorage',
+                    'getStorageInfo',
+                    'removeStorage',
+                    'clearStorage',
+                    'setClipboardData',
+                    'getClipboardData',
+                    'showToast',
+                    'showLoading',
+                    'hideLoading'
                 ]
             });
 
@@ -186,6 +230,86 @@
 			            alert('用户取消了分享')
 			        }
 			    });
+			}
+
+			/**存储数据*/
+			function setStorage(){
+			    lr.setStorage({
+			        key: 'keep',
+			        data: 100,
+			        success: function(){
+			            alert('存储成功');
+			        }
+			    });
+			}
+
+			function getStorage(){
+			    lr.getStorage({
+			        key: 'keep',
+			        success: function(res){
+			            alert('getStorage: ' + JSON.stringify(res.data))
+			        }
+			    });
+			}
+
+			function getStorageInfo(){
+			    lr.getStorageInfo({
+			        success:function(res){
+			            alert('currentSize: ' + res.currentSize + " KB" + " limitSize: " + res.limitSize + 'KB');
+			        }
+			    });
+			}
+
+			function removeStorage(){
+			    lr.removeStorage({
+			        key: 'keep',
+			        success: function(res){
+			            alert('removeStorage: ' + res.data.name);
+			        }
+			    });
+			}
+
+			function clearStorage(){
+			    lr.clearStorage({
+			        success: function(){
+			            alert('clearStorage: success');
+			        }
+			    });
+			}
+
+			function setClipboardData(){
+			    lr.setClipboardData({
+			        data: '孔子的学生：自贡，君子做事可以移风易俗',
+			        success: function(){
+			            alert('设置成功');
+			        }
+			    });
+			}
+
+			function getClipboardData(){
+			    lr.getClipboardData({
+			        success: function(res){
+			            alert(res.data);
+			        }
+			    });
+			}
+
+			function showToast(){
+			    lr.showToast({
+			        title: '测试 Toast',
+			        duration: 4000,
+			        icon: 'fail'
+			    });
+			}
+
+			function showLoading(){
+			    lr.showLoading({
+			        title: '加载中...',
+			    });
+			}
+
+			function hideLoading(){
+			    lr.hideLoading();
 			}
 
 </script>

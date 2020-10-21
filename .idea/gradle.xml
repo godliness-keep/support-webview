@@ -15,7 +15,9 @@
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/basic-component" />
             <option value="$PROJECT_DIR$/basic-component/lib-activity-result" />
-            <option value="$PROJECT_DIR$/basic-component/lib-request-permission" />
+            <option value="$PROJECT_DIR$/basic-component/module.compattoast" />
+            <option value="$PROJECT_DIR$/basic-component/module.mmkv" />
+            <option value="$PROJECT_DIR$/basic-component/module.permission" />
             <option value="$PROJECT_DIR$/business-component" />
             <option value="$PROJECT_DIR$/business-component/lib-album" />
             <option value="$PROJECT_DIR$/business-component/lib-location" />

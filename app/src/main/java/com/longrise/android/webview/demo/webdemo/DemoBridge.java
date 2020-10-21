@@ -9,8 +9,4 @@ import com.longrise.android.web.internal.bridge.BaseWebBridge;
  */
 public final class DemoBridge extends BaseWebBridge<WebDemoActivity> {
 
-    @Override
-    protected void onShowPermissionRationale(int what, String desc) {
-    }
-
 }

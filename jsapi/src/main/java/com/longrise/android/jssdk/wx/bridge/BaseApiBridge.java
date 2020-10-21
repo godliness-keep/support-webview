@@ -4,40 +4,50 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
-import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
-import android.widget.Toast;
 
 import com.baidu.location.BDLocation;
+import com.google.gson.reflect.TypeToken;
+import com.longrise.android.compattoast.TipsManager;
 import com.longrise.android.jssdk.Request;
 import com.longrise.android.jssdk.Response;
 import com.longrise.android.jssdk.core.bridge.BaseBridge;
+import com.longrise.android.jssdk.gson.JsonHelper;
 import com.longrise.android.jssdk.wx.BridgeApi;
-import com.longrise.android.jssdk.wx.PermissionConst;
 import com.longrise.android.jssdk.wx.R;
 import com.longrise.android.jssdk.wx.mode.ChooseImage;
+import com.longrise.android.jssdk.wx.mode.ClipInfo;
 import com.longrise.android.jssdk.wx.mode.CropImage;
 import com.longrise.android.jssdk.wx.mode.GetLocation;
 import com.longrise.android.jssdk.wx.mode.LocationFailed;
 import com.longrise.android.jssdk.wx.mode.LocationResult;
 import com.longrise.android.jssdk.wx.mode.PreviewImage;
 import com.longrise.android.jssdk.wx.mode.QrCode;
+import com.longrise.android.jssdk.wx.mode.SetStorage;
 import com.longrise.android.jssdk.wx.mode.ShareTo;
+import com.longrise.android.jssdk.wx.mode.StorageInfo;
+import com.longrise.android.jssdk.wx.mode.Tips;
+import com.longrise.android.jssdk.wx.utils.ClipboardUtil;
 import com.longrise.android.jssdk.wx.utils.NetUtil;
 import com.longrise.android.jssdk.wx.utils.ResUtil;
 import com.longrise.android.location.ILocationListener;
 import com.longrise.android.location.LocationManager;
 import com.longrise.android.location.mode.LocationParams;
+import com.longrise.android.mmkv.KV;
+import com.longrise.android.mmkv.KVManager;
 import com.longrise.android.permission.IPermissionHelper;
 import com.longrise.android.permission.RequestPermission;
 import com.longrise.android.photowall.Album;
 import com.longrise.android.qr.scan.IScanResultCallback;
 import com.longrise.android.qr.scan.QrScan;
 import com.longrise.android.share.onekeyshare.OneKeyShare;
+
+import java.util.Map;
+
 
 /**
  * Created by godliness on 2020-04-16.
@@ -56,16 +66,6 @@ public abstract class BaseApiBridge<T> extends BaseBridge<T> {
     protected abstract void post(Runnable task);
 
     protected abstract void postDelayed(Runnable task, int delayMillis);
-
-    /**
-     * 权限提示，重写该方法实现自定义权限提示
-     *
-     * @param what {@link com.longrise.android.jssdk.wx.PermissionConst} 权限类型
-     * @param desc 默认权限提示
-     */
-    protected void onShowPermissionRationale(int what, String desc) {
-        Toast.makeText(BridgeApi.get(), desc, Toast.LENGTH_LONG).show();
-    }
 
     @JavascriptInterface
     public final void closeWindow() {
@@ -417,13 +417,6 @@ public abstract class BaseApiBridge<T> extends BaseBridge<T> {
         final Runnable task = new Runnable() {
             @Override
             public void run() {
-                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
-                    final android.location.LocationManager lm = (android.location.LocationManager) BridgeApi.get().getSystemService(Context.LOCATION_SERVICE);
-                    if (!lm.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER)) {
-                        onShowPermissionRationale(PermissionConst.LOCATION_SERVICE, ResUtil.getString(R.string.string_service_location));
-                        return;
-                    }
-                }
                 RequestPermission.of(getActivity())
                         .onPermissionResult(new IPermissionHelper() {
                             @Override
@@ -488,9 +481,228 @@ public abstract class BaseApiBridge<T> extends BaseBridge<T> {
         post(task);
     }
 
+    @JavascriptInterface
+    public final void setStorage(String message) {
+        final Request<SetStorage> request = Request.parseRequest(message, SetStorage.class);
+        if (KV.totalSize() > SetStorage.LIMIT_STORAGE_SIZE_B) {
+            Response.create(request.getCallbackId())
+                    .desc("Over limit size")
+                    .state(0).notify(getWebView());
+            return;
+        }
+        final SetStorage storage = request.getParams();
+
+        final Runnable task = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    KV.putString(storage.key, JsonHelper.toJson(storage.data));
+                    Response.create(request.getCallbackId()).state(Response.RESULT_OK).notify(getWebView());
+                } catch (Exception e) {
+                    Response.create(request.getCallbackId()).state(0).desc(e.getMessage()).notify(getWebView());
+                }
+            }
+        };
+        post(task);
+    }
+
+    @JavascriptInterface
+    public final void getStorage(String message) {
+        final Request<SetStorage> request = Request.parseRequest(message, SetStorage.class);
+        final SetStorage storage = request.getParams();
+
+        final Runnable task = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    final String data = KV.getString(storage.key, "");
+                    Response.create(request.getCallbackId())
+                            .result(JsonHelper.fromJson(data, new TypeToken<Map<String, Object>>() {
+                            }.getType())).notify(getWebView());
+                } catch (Exception e) {
+                    Response.create(request.getCallbackId())
+                            .desc(e.getMessage()).state(0).desc(e.getMessage()).notify(getWebView());
+                }
+            }
+        };
+        post(task);
+    }
+
+    @JavascriptInterface
+    public final void removeStorage(String message) {
+        final Request<SetStorage> request = Request.parseRequest(message, SetStorage.class);
+        final SetStorage storage = request.getParams();
+
+        final Runnable task = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    final String old = KV.getString(storage.key, "");
+                    KV.removeValueForKey(storage.key);
+                    Response.create(request.getCallbackId())
+                            .result(old).state(Response.RESULT_OK).notify(getWebView());
+                } catch (Exception e) {
+                    Response.create(request.getCallbackId())
+                            .desc(e.getMessage()).state(0).notify(getWebView());
+                }
+            }
+        };
+        post(task);
+    }
+
+    @JavascriptInterface
+    public final void getStorageInfo(String message) {
+        final Request<?> request = Request.parseRequest(message);
+
+        final Runnable task = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    final StorageInfo info = new StorageInfo();
+                    info.keys = KV.allKeys();
+                    info.currentSize = (float) KV.totalSize() / 1024;
+                    info.limitSize = SetStorage.LIMIT_STORAGE_SIZE_KB; // 10M
+                    Response.create(request.getCallbackId())
+                            .result(info).notify(getWebView());
+                } catch (Exception e) {
+                    Response.create(request.getCallbackId())
+                            .desc(e.getMessage()).state(0).notify(getWebView());
+                }
+            }
+        };
+        post(task);
+    }
+
+    @JavascriptInterface
+    public void clearStorage(String message) {
+        final Request<?> request = Request.parseRequest(message);
+
+        final Runnable task = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    KV.clear();
+                    Response.create(request.getCallbackId())
+                            .state(Response.RESULT_OK).notify(getWebView());
+                } catch (Exception e) {
+                    Response.create(request.getCallbackId())
+                            .desc(e.getMessage()).state(0).notify(getWebView());
+                }
+            }
+        };
+        post(task);
+    }
+
+    @JavascriptInterface
+    public void setClipboardData(String message) {
+        final Request<ClipInfo> request = Request.parseRequest(message, ClipInfo.class);
+        final ClipInfo info = request.getParams();
+
+        final Runnable task = new Runnable() {
+            @Override
+            public void run() {
+                final boolean result = ClipboardUtil.setClipboardData(info.data);
+                if (result) {
+                    Response.create(request.getCallbackId())
+                            .state(Response.RESULT_OK).notify(getWebView());
+                } else {
+                    Response.create(request.getCallbackId())
+                            .state(0).notify(getWebView());
+                }
+            }
+        };
+        post(task);
+    }
+
+    @JavascriptInterface
+    public void getClipboardData(String message) {
+        final Request<?> request = Request.parseRequest(message);
+
+        final Runnable task = new Runnable() {
+            @Override
+            public void run() {
+                final String data = ClipboardUtil.getClipboardData();
+                if (data != null) {
+                    Response.create(request.getCallbackId())
+                            .result(data.replace("\n", "")).notify(getWebView());
+                } else {
+                    Response.create(request.getCallbackId())
+                            .state(0).notify(getWebView());
+                }
+            }
+        };
+        post(task);
+    }
+
+    @JavascriptInterface
+    public void showToast(String message) {
+        final Request<Tips> request = Request.parseRequest(message, Tips.class);
+        final Tips tips = request.getParams();
+
+        final Runnable task = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    TipsManager.hideLoading();
+                    if (tips.mask) {
+                        TipsManager.showMaskToast(getActivity(), tips.title, tips.duration, tips.icon);
+                    } else {
+                        TipsManager.showToast(getActivity(), tips.title, tips.duration, tips.icon);
+                    }
+                    Response.create(request.getCallbackId()).state(Response.RESULT_OK).notify(getWebView());
+                } catch (Exception e) {
+                    Response.create(request.getCallbackId()).desc(e.getMessage()).state(0).notify(getWebView());
+                }
+            }
+        };
+        post(task);
+    }
+
+    @JavascriptInterface
+    public void showLoading(String message) {
+        final Request<Tips> request = Request.parseRequest(message, Tips.class);
+        final Tips tips = request.getParams();
+
+        final Runnable task = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    TipsManager.hideToast();
+                    if (tips.mask) {
+                        TipsManager.showMaskLoading(getActivity(), tips.title);
+                    } else {
+                        TipsManager.showLoading(getActivity(), tips.title);
+                    }
+                    Response.create(request.getCallbackId()).state(Response.RESULT_OK).notify(getWebView());
+                } catch (Exception e) {
+                    Response.create(request.getCallbackId()).desc(e.getMessage()).state(0).notify(getWebView());
+                }
+            }
+        };
+        post(task);
+    }
+
+    @JavascriptInterface
+    public void hideLoading(String message) {
+        final Request<?> request = Request.parseRequest(message);
+        final Runnable task = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    TipsManager.hideLoading();
+                    Response.create(request.getCallbackId()).state(Response.RESULT_OK).notify(getWebView());
+                } catch (Exception e) {
+                    Response.create(request.getCallbackId()).desc(e.getMessage()).state(0).notify(getWebView());
+                }
+            }
+        };
+        post(task);
+    }
+
     public final void attachTarget(T target) {
         super.bindTarget(target);
         BridgeApi.register(getContext());
+        KVManager.initialize(getContext());
     }
 
     private FragmentActivity getActivity() {

@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.mob.sdk'
 
 def cfg = rootProject.ext.android
 def dep = rootProject.ext.dependencies

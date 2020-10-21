@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name"></string>
+    <string name="string_permission_cancel">取消</string>
+    <string name="string_permission_confirm">去设置</string>
+
+    <string name="string_permission_public_title">%s权限已关闭</string>
+    <string name="string_permission_guide">在手机设置-应用-%s-权限，开启%s权限</string>
+    <string name="string_permission_content_default">为了使应用的功能正常使用，请根据以下指引授权%s使用%s权限：</string>
+    <string name="string_permission_content_custom">%s，请根据以下指引授权%s使用%s权限：</string>
+
+    <string name="CALENDAR">日历</string>
+    <string name="CAMERA">相机</string>
+    <string name="CONTACTS">联系人</string>
+    <string name="LOCATION">定位</string>
+    <string name="AUDIO">麦克风</string>
+    <string name="PHONE">电话</string>
+    <string name="SMS">短信</string>
+    <string name="STORAGE">存储</string>
+    <string name="SENSORS">传感器</string>
+</resources>

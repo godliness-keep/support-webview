@@ -32,6 +32,10 @@ dependencies {
     implementation project(':business-component:lib-location')
     implementation project(':business-component:lib-album')
 
-    implementation fileTree('libs/lib-request-permission.aar')
+    implementation project(':basic-component:module.permission')
+    implementation project(':basic-component:module.compattoast')
+    implementation project(':basic-component:module.mmkv')
+
+//    implementation fileTree('libs/lib-request-permission.aar')
     api fileTree('libs/jssdk_v1.0.1.aar')
 }
