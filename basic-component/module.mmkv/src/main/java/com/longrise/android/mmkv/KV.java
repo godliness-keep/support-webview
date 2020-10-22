@@ -131,8 +131,7 @@ public final class KV {
     }
 
     public static long totalSize(){
-        MMKV mmkv = MMKV.defaultMMKV();
-        return mmkv.totalSize();
+        return KV.totalSize();
     }
 
     private KV() {

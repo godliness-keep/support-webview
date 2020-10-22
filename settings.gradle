@@ -10,7 +10,7 @@ include ':business-component:lib-scan'
 include ':business-component:lib-share'
 include ':business-component:lib-album'
 
-include ':basic-component:lib-activity-result'
+include ':basic-component:module.activity-result'
 include ':basic-component:module.permission'
 include ':basic-component:module.compattoast'
 include ':basic-component:module.mmkv'

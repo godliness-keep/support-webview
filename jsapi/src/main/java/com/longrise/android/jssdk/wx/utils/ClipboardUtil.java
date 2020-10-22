@@ -37,7 +37,11 @@ public final class ClipboardUtil {
         if (manager != null) {
             final ClipData data = manager.getPrimaryClip();
             if (data != null && data.getItemCount() > 0) {
-                return data.getItemAt(0).getText().toString();
+                final CharSequence cs = data.getItemAt(0).getText();
+                if (cs == null) {
+                    return "";
+                }
+                return cs.toString();
             }
         }
         return null;
