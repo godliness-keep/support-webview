@@ -484,7 +484,17 @@ var wx = (function() {
     		lr.callNative({
     			methodName: 'setClipboardData',
     			params: params,
-    			success: message.success,
+    			success: function() {
+                	try {
+                		showToast({
+                			title: '内容已复制',
+                			icon: 'success',
+                			duration: 1500
+                		});
+                	} finally {
+                		message.success();
+                	}
+                },
     			failed: message.failed,
     			complete: message.complete
     		});
