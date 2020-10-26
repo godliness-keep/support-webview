@@ -5,7 +5,11 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
+import android.support.v4.app.FragmentActivity;
 
+import com.longrise.android.jsapi_x5.wx.BridgeApi;
+import com.longrise.android.result.ActivityResult;
+import com.longrise.android.result.IActivityOnResultListener;
 import com.longrise.android.x5web.X5;
 import com.tencent.smtt.sdk.ValueCallback;
 import com.tencent.smtt.sdk.WebChromeClient;
@@ -16,10 +20,7 @@ import com.tencent.smtt.sdk.WebChromeClient;
  * @author godliness
  * 负责响应 HTML 中符合 W3C 的动作语义，例如相册、拍照等
  */
-public final class FileChooser<T extends IBridgeAgent<T>> {
-
-    private static final int REQUEST_CODE_VERSION_LESS_LOLLIPOP = 20;
-    private static final int REQUEST_CODE_VERSION_LOLLIPOP = 21;
+public final class FileChooser<T extends IBridgeAgent<T>> implements IActivityOnResultListener {
 
     private ValueCallback<Uri> mUploadFile;
     private ValueCallback<Uri[]> mFilePathCallback;
@@ -30,7 +31,8 @@ public final class FileChooser<T extends IBridgeAgent<T>> {
         this.mTarget = target;
     }
 
-    public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+    @Override
+    public void onActivityResult(int resultCode, Intent data) {
         if (data == null) {
             onReceiveValueEnd();
             return;
@@ -61,7 +63,8 @@ public final class FileChooser<T extends IBridgeAgent<T>> {
 
         if (mTarget != null) {
             try {
-                mTarget.startActivityForResult(Intent.createChooser(chooser, "File Browser"), REQUEST_CODE_VERSION_LESS_LOLLIPOP);
+                ActivityResult.from(getActivity())
+                        .onResult(this).to(Intent.createChooser(chooser, "File Browser"));
             } catch (Exception e) {
                 onReceiveValueEnd();
                 X5.print(e);
@@ -79,7 +82,8 @@ public final class FileChooser<T extends IBridgeAgent<T>> {
         final Intent chooser = fileChooserParams.createIntent();
         if (mTarget != null) {
             try {
-                mTarget.startActivityForResult(chooser, REQUEST_CODE_VERSION_LOLLIPOP);
+                ActivityResult.from(getActivity())
+                        .onResult(this).to(chooser);
             } catch (Exception e) {
                 onReceiveValueEnd();
                 X5.print(e);
@@ -96,5 +100,9 @@ public final class FileChooser<T extends IBridgeAgent<T>> {
             mFilePathCallback.onReceiveValue(null);
             mFilePathCallback = null;
         }
+    }
+
+    private FragmentActivity getActivity() {
+        return BridgeApi.getCurrentActivity(mTarget);
     }
 }

@@ -34,7 +34,6 @@ public abstract class BaseWebFragment<T extends BaseWebFragment<T>> extends Frag
 
     private final Handler mHandler = new Handler(this);
     private BaseWebView mWebView;
-    private FileChooser<T> mFileChooser;
 
     /**
      * Returns the current layout resource id
@@ -128,14 +127,6 @@ public abstract class BaseWebFragment<T extends BaseWebFragment<T>> extends Frag
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (mFileChooser != null) {
-            mFileChooser.onActivityResult(requestCode, resultCode, data);
-        }
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
         if (mWebView != null) {
@@ -158,7 +149,6 @@ public abstract class BaseWebFragment<T extends BaseWebFragment<T>> extends Frag
             mWebView = null;
         }
         regEvent(false);
-        mFileChooser = null;
         mHandler.removeCallbacksAndMessages(null);
         super.onDestroy();
     }
@@ -195,15 +185,6 @@ public abstract class BaseWebFragment<T extends BaseWebFragment<T>> extends Frag
         if (mWebView != null) {
             mWebView.reload();
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public final FileChooser<T> createOrGetFileChooser() {
-        if (mFileChooser == null) {
-            mFileChooser = new FileChooser<>((T) this);
-        }
-        return mFileChooser;
     }
 
     @Override

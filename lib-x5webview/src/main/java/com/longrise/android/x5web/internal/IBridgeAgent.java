@@ -1,7 +1,6 @@
 package com.longrise.android.x5web.internal;
 
 
-import android.content.Intent;
 import android.os.Handler;
 
 import com.longrise.android.x5web.internal.bridge.BaseDownloader;
@@ -20,10 +19,6 @@ public interface IBridgeAgent<T extends IBridgeAgent<T>> {
     Handler getHandler();
 
     boolean isFinishing();
-
-    void startActivityForResult(Intent intent, int requestCode);
-
-    FileChooser<T> createOrGetFileChooser();
 
     BaseWebBridge<T> getBridge();
 

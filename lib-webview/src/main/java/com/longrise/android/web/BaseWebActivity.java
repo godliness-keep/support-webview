@@ -1,6 +1,5 @@
 package com.longrise.android.web;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -11,7 +10,6 @@ import android.webkit.DownloadListener;
 import android.webkit.WebView;
 
 import com.longrise.android.web.internal.BaseWebView;
-import com.longrise.android.web.internal.FileChooser;
 import com.longrise.android.web.internal.IBridgeAgent;
 import com.longrise.android.web.internal.IWebLoadListener;
 import com.longrise.android.web.internal.Internal;
@@ -31,7 +29,6 @@ public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppC
 
     private final Handler mHandler = new Handler(this);
     private BaseWebView mWebView;
-    private FileChooser<T> mFileChooser;
 
     /**
      * Returns the current layout resource id
@@ -143,14 +140,6 @@ public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppC
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (mFileChooser != null) {
-            mFileChooser.onActivityResult(requestCode, resultCode, data);
-        }
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
         if (mWebView != null) {
@@ -181,7 +170,6 @@ public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppC
             mWebView = null;
         }
         regEvent(false);
-        mFileChooser = null;
         mHandler.removeCallbacksAndMessages(null);
         super.onDestroy();
     }
@@ -214,15 +202,6 @@ public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppC
         if (mWebView != null) {
             mWebView.reload();
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public final FileChooser<T> createOrGetFileChooser() {
-        if (mFileChooser == null) {
-            mFileChooser = new FileChooser<>((T) this);
-        }
-        return mFileChooser;
     }
 
     @Override

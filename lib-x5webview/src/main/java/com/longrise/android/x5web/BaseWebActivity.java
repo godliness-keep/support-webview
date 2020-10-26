@@ -1,6 +1,5 @@
 package com.longrise.android.x5web;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -9,7 +8,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 
 import com.longrise.android.jssdk_x5.core.bridge.BaseBridge;
-import com.longrise.android.x5web.internal.FileChooser;
 import com.longrise.android.x5web.internal.IBridgeAgent;
 import com.longrise.android.x5web.internal.Internal;
 import com.longrise.android.x5web.internal.SchemeConsts;
@@ -35,7 +33,6 @@ public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppC
 
     private final Handler mHandler = new Handler(this);
     private X5WebView mWebView;
-    private FileChooser<T> mFileChooser;
 
     /**
      * Returns the current layout resource id
@@ -179,18 +176,6 @@ public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppC
         }
     }
 
-    /**
-     * {@link BaseWebChromeClient#openFileChooser}
-     */
-    @SuppressWarnings("unchecked")
-    @Override
-    public final FileChooser<T> createOrGetFileChooser() {
-        if (mFileChooser == null) {
-            mFileChooser = new FileChooser<>((T) this);
-        }
-        return mFileChooser;
-    }
-
     @Override
     public final boolean handleMessage(Message msg) {
         if (isFinishing()) {
@@ -248,17 +233,8 @@ public abstract class BaseWebActivity<T extends BaseWebActivity<T>> extends AppC
             mWebView = null;
         }
         regEvent(false);
-        mFileChooser = null;
         mHandler.removeCallbacksAndMessages(null);
         super.onDestroy();
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (mFileChooser != null) {
-            mFileChooser.onActivityResult(requestCode, resultCode, data);
-        }
     }
 
     @SuppressWarnings("unchecked")

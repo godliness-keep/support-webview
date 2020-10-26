@@ -38,6 +38,7 @@ public abstract class BaseWebChromeClient<T extends IBridgeAgent<T>> extends Web
     private Handler mHandler;
     private WeakReference<T> mTarget;
     private OnBridgeListener mClientBridge;
+    private FileChooser<?> mFileChooser;
 
     private boolean mFirstLoad = true;
 
@@ -142,7 +143,7 @@ public abstract class BaseWebChromeClient<T extends IBridgeAgent<T>> extends Web
             public void run() {
                 final T target = getTarget();
                 if (target != null) {
-                    final FileChooser<?> fileChooser = target.createOrGetFileChooser();
+                    final FileChooser<?> fileChooser = createOrGetFileChooser();
                     if (fileChooser != null) {
                         fileChooser.openFileChooser(uploadMsg, acceptType, capture);
                     }
@@ -165,7 +166,7 @@ public abstract class BaseWebChromeClient<T extends IBridgeAgent<T>> extends Web
             public void run() {
                 final T target = getTarget();
                 if (target != null) {
-                    final FileChooser<T> fileChooser = target.createOrGetFileChooser();
+                    final FileChooser<?> fileChooser = createOrGetFileChooser();
                     if (fileChooser != null) {
                         fileChooser.onShowFileChooser(filePathCallback, fileChooserParams);
                     }
@@ -240,5 +241,12 @@ public abstract class BaseWebChromeClient<T extends IBridgeAgent<T>> extends Web
             return cxt;
         }
         return null;
+    }
+
+    private FileChooser<?> createOrGetFileChooser(){
+        if (mFileChooser == null) {
+            mFileChooser = new FileChooser<>((T) this);
+        }
+        return mFileChooser;
     }
 }

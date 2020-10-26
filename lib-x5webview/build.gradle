@@ -30,6 +30,7 @@ dependencies {
 //    api fileTree(dir: "libs", include: ["*.jar", "*.aar"])
     compileOnly dep['appcompat-v7']
     api project(':jsapi-x5')
+    implementation project(':basic-component:module.activity-result')
 
     // 根据情况选择是否需要在此依赖
     api dep['gson']
