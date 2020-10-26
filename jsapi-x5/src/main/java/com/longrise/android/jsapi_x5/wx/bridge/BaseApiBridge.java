@@ -46,6 +46,8 @@ import com.longrise.android.qr.scan.QrScan;
 import com.longrise.android.share.onekeyshare.OneKeyShare;
 import com.tencent.smtt.sdk.WebView;
 
+import org.json.JSONObject;
+
 import java.util.Map;
 
 /**
@@ -538,8 +540,14 @@ public abstract class BaseApiBridge<T> extends BaseBridge<T> {
                 try {
                     final String old = KV.getString(storage.key, "");
                     KV.removeValueForKey(storage.key);
+
+                    Object result = null;
+                    if (old != null) {
+                        result = JsonHelper.fromJson(old, new TypeToken<Map<String, Object>>() {
+                        }.getType());
+                    }
                     Response.create(request.getCallbackId())
-                            .result(old).state(Response.RESULT_OK).notify(getWebView());
+                            .result(result).state(Response.RESULT_OK).notify(getWebView());
                 } catch (Exception e) {
                     Response.create(request.getCallbackId())
                             .desc(e.getMessage()).state(0).notify(getWebView());
