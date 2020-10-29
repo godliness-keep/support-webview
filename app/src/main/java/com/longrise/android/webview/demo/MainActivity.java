@@ -6,8 +6,8 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
-import com.longrise.android.webview.demo.webdemo.WebDemoFragment;
 import com.longrise.android.webview.demo.webdemo.WebDemoActivity;
+import com.longrise.android.webview.demo.webdemo.WebDemoFragment;
 import com.longrise.android.webview.demo.x5demo.DemoX5Fragment;
 import com.longrise.android.webview.demo.x5demo.WebX5DemoActivity;
 

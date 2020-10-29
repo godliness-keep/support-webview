@@ -90,8 +90,8 @@
 			        count: 6,
 			        success: function(res){
 			            var localIds = res.localIds;
-			            for(let i=0;i<localIds.length;i++){
-                            console.log(localIds[i]);
+			            for(var i=0;i<localIds.length;i++){
+                            console.error(localIds[i]);
                         }
 			        }
 			    });
@@ -105,7 +105,8 @@
 			/**图片预览*/
 			function previewImage(){
 				lr.previewImage({
-				    current: 'content://media/external/images/media/402054',
+				    current: 'file:///storage/emulated/0/Tencent/QQ_Images/-33600748577247a4.jpg',
+				    urls:['file:///storage/emulated/0/Tencent/QQ_Images/-33600748577247a4.jpg']
 				});
 			}
 </script>

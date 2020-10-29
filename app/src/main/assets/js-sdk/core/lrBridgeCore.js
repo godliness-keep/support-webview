@@ -3,18 +3,27 @@ var lr = (function() {
 	const JAVASCRIPT_CALL_FINISHED = 'onJavaScriptCallFinished'
 	const CALL_NATIVE_FROM_JAVASCRIPT = 'callNativeFromJavaScript'
 
-	var RESULT_OK = 1
+	const RESULT_OK = 1
 
-	var jsVersion = 1
-	var jsCallbacks = {}
+	const jsVersion = 1
+	const jsCallbacks = {}
 	var jsCallbackCurrentId = -1
 
-	function callNativeInternal(mapObject, message) {
+	const loops = {};
+	const Type = {
+		ONCE: 0,
+		ON: 1,
+		OFF: 2
+	}
+
+	function sendNativeInternal(mapObject, message) {
 		var hasParams = (message.params != null ||
 			message.eventName != null ||
 			message.success != null ||
 			message.failed != null)
+
 		var request
+
 		if (hasParams) {
 			request = packageRequest(message)
 		}
@@ -28,9 +37,31 @@ var lr = (function() {
 		}
 	}
 
+	function sendToAndroid(mapObject, methodName, request) {
+		if (request != null) {
+			mapObject[methodName](JSON.stringify(request))
+		} else {
+			mapObject[methodName]()
+		}
+	}
+
+	function sendToiOS(methodName, request) {
+		if (request != null) {
+			webkit.messageHandlers[methodName].postMessage(JSON.stringify(request));
+		} else {
+			webkit.messageHandlers[methodName].postMessage(null);
+		}
+	}
+
+	function callNativeInternal(mapObject, message) {
+		message.loop = Type.ONCE;
+		sendNativeInternal(mapObject, message);
+	}
+
 	function callEventInternal(mapObject, message) {
 		message.methodName = CALL_NATIVE_FROM_JAVASCRIPT
-		callNativeInternal(mapObject, message)
+		message.loop = Type.ONCE;
+		sendNativeInternal(mapObject, message)
 	}
 
 	function notifyNativeInternal(mapObject, message) {
@@ -63,7 +94,7 @@ var lr = (function() {
 
 	function onNativeCallInternalFinished(response) {
 		var responseJson
-		if (typeof response === 'object' && response != null) {
+		if (typeof response === 'object' && response) {
 			responseJson = response;
 		} else {
 			responseJson = JSON.parse(response);
@@ -72,38 +103,55 @@ var lr = (function() {
 		var protocolVersion = responseJson.version;
 
 		var callbacks = jsCallbacks[protocolId];
+		if (!callbacks || typeof callbacks !== 'object') {
+			return;
+		}
 		var result = responseJson.result;
-		if (result.state == RESULT_OK) {
-			var successCallback = callbacks.successCallback;
-			if (successCallback.length > 0) {
-				successCallback(result)
-			} else {
-				successCallback();
-			}
-		} else {
-			var failedCallback = callbacks.failedCallback;
-			if (failedCallback.length > 0) {
-				failedCallback(result);
-			} else {
-				failedCallback();
-			}
-		}
-		delete jsCallbacks[protocolId];
-	}
 
-	function sendToAndroid(mapObject, methodName, request) {
-		if (request != null) {
-			mapObject[methodName](JSON.stringify(request))
-		} else {
-			mapObject[methodName]()
+		try {
+			if (result.state == RESULT_OK) {
+				onSucceedFromNative(callbacks.successCallback, result);
+			} else {
+				onFailedFromNative(callbacks.failedCallback, result);
+			}
+			onCompleteFromNative(callbacks.completeCallback);
+		} finally {
+			var chain = callbacks.loop;
+			if (chain.loop) {
+				return
+			}
+			// 如果非持续性监听事件则直接移除
+			delete jsCallbacks[protocolId];
+			if (typeof chain.id === 'number' && chain.id >= 0) {
+				// 此时为持续监听事件的取消
+				delete jsCallbacks[chain.id]
+			}
 		}
 	}
 
-	function sendToiOS(methodName, request) {
-		if (request != null) {
-			webkit.messageHandlers[methodName].postMessage(JSON.stringify(request));
-		} else {
-			webkit.messageHandlers[methodName].postMessage(null);
+	function onSucceedFromNative(sck, result) {
+		if (sck && typeof sck === 'function') {
+			if (sck.length > 0) {
+				sck(result);
+			} else {
+				sck();
+			}
+		}
+	}
+
+	function onFailedFromNative(fck, result) {
+		if (fck && typeof fck === 'function') {
+			if (fck.length > 0) {
+				fck(result);
+			} else {
+				fck();
+			}
+		}
+	}
+
+	function onCompleteFromNative(cck) {
+		if (cck && typeof cck === 'function') {
+			cck()
 		}
 	}
 
@@ -113,12 +161,47 @@ var lr = (function() {
 			eventName: message.eventName,
 			params: message.params
 		}
-		if ((message.success != null && typeof message.success === 'function') ||
-			(message.failed != null) && typeof message.failed === 'function') {
+		if (typeof message.success === 'function' ||
+			typeof message.failed === 'function' ||
+			typeof message.complete === 'function') {
+
 			request.id = ++jsCallbackCurrentId
-			jsCallbacks[request.id] = {
+			var chain = {
 				successCallback: message.success,
-				failedCallback: message.failed
+				failedCallback: message.failed,
+				completeCallback: message.complete
+			}
+			jsCallbacks[request.id] = chain;
+
+			if (message.loop === Type.ONCE) {
+				chain.loop = {
+					loop: false,
+					id: -1
+				}
+			} else if (message.loop === Type.ON) {
+				chain.loop = {
+					loop: true
+				}
+				var name = message.methodName === CALL_NATIVE_FROM_JAVASCRIPT ? message.eventName : message.methodName;
+				if (message.methodName === CALL_NATIVE_FROM_JAVASCRIPT) {
+					message.eventName = 'on' + convertInitialsToUpperCase(name);
+				} else {
+					message.methodName = 'on' + convertInitialsToUpperCase(name);
+				}
+				loops[name] = request.id;
+			} else if (message.loop === Type.OFF) {
+				var name = message.methodName === CALL_NATIVE_FROM_JAVASCRIPT ? message.eventName : message.methodName;
+				if (message.methodName == CALL_NATIVE_FROM_JAVASCRIPT) {
+					message.eventName = 'off' + convertInitialsToUpperCase(name);
+				} else {
+					message.methodName = 'off' + convertInitialsToUpperCase(name);
+				}
+				chain.loop = {
+					loop: false,
+					id: loops[name]
+				}
+				// 删除这个链条
+				delete loops[name]
 			}
 		}
 		return request
@@ -143,6 +226,46 @@ var lr = (function() {
 		}
 	}
 
+	function sendLoopMessage(mapObject, message, to) {
+		message.loop = Type.ON;
+		to(mapObject, message);
+	}
+
+	function sendUnLoopMessage(mapObject, message, to) {
+		message.loop = Type.OFF;
+		to(mapObject, message);
+	}
+
+	function convertInitialsToUpperCase(str) {
+		var firstChar = str.charAt(0);
+		var regexp = firstChar;
+		return str.replace(regexp, firstChar.toUpperCase());
+	}
+
+	function onNativeInternal(mapObject, message) {
+		if (loops[message.methodName] >= 0) {
+			// 首先判断是否已经存在该持续监听的方法
+			throw 'There is already listening for this event : ' + message.methodName;
+		}
+		sendLoopMessage(mapObject, message, sendNativeInternal);
+	}
+
+	function offNativeInternal(mapObject, message) {
+		sendUnLoopMessage(mapObject, message, sendNativeInternal);
+	}
+
+	function onEventInternal(mapObject, message) {
+		if (loops[message.eventName] >= 0) {
+			// 首先判断是否已经存在该持续监听的方法
+			throw 'There is already listening for this event : ' + message.methodName;
+		}
+		sendLoopMessage(mapObject, message, sendNativeInternal);
+	}
+
+	function offEventInternal(mapObject, message) {
+		sendUnLoopMessage(mapObject, message, sendNativeInternal);
+	}
+
 	return {
 
 		ready: function() {
@@ -153,7 +276,10 @@ var lr = (function() {
 			 * @param {failed} message.failed - Native 回调（失败回调，取决于业务）选填
 			 * */
 			addMethod(lr, 'callNative', function(message) {
-				lr.callNative(lrBridge, message)
+				if (typeof lrBridge === 'undefined') {
+					lrBridge = null;
+				}
+				lr.callNative(lrBridge, message);
 			})
 
 			/**
@@ -161,7 +287,7 @@ var lr = (function() {
 			 * @param {object} message 参照上面方法message
 			 * */
 			addMethod(lr, 'callNative', function(mapObject, message) {
-				callNativeInternal(mapObject, message)
+				callNativeInternal(mapObject, message);
 			})
 
 			/**
@@ -171,7 +297,10 @@ var lr = (function() {
 			 * @param {function} message.failed - Native 回调（失败回调，取决于业务）选填
 			 * */
 			addMethod(lr, 'callEvent', function(message) {
-				lr.callEvent(lrBridge, message)
+				if (typeof lrBridge === 'undefined') {
+					lrBridge = null;
+				}
+				lr.callEvent(lrBridge, message);
 			})
 
 			/**
@@ -179,7 +308,7 @@ var lr = (function() {
 			 * @param {object} message 参照上面方法message
 			 * */
 			addMethod(lr, 'callEvent', function(mapObject, message) {
-				callEventInternal(mapObject, message)
+				callEventInternal(mapObject, message);
 			})
 
 			/**
@@ -192,6 +321,9 @@ var lr = (function() {
 			 * 	}
 			 * */
 			addMethod(lr, 'notifyNative', function(message) {
+				if (typeof lrBridge === 'undefined') {
+					lrBridge = null;
+				}
 				lr.notifyNative(lrBridge, message)
 			})
 
@@ -202,10 +334,70 @@ var lr = (function() {
 			addMethod(lr, 'notifyNative', function(mapObject, message) {
 				notifyNativeInternal(mapObject, message)
 			})
+
+			/**
+			 * 区别与 call 类型，可以持续监听方法*/
+			addMethod(lr, 'onNative', function(message) {
+				if (typeof lrBridge === 'undefined') {
+					lrBridge = null;
+				}
+				lr.onNative(lrBridge, message);
+			})
+
+			/**
+			 * 区别与 call 类型，可以持续监听方法*/
+			addMethod(lr, 'onNative', function(mapObject, message) {
+				onNativeInternal(mapObject, message);
+			})
+
+			/**
+			 * 与 onNative 对应，移除持续监听的方法*/
+			addMethod(lr, 'offNative', function(message) {
+				if (typeof lrBridge === 'undefined') {
+					lrBridge = null;
+				}
+				lr.offNative(lrBridge, message);
+			})
+
+			/**
+			 * 与 onNative 对应，移除持续监听的方法*/
+			addMethod(lr, 'offNative', function(mapObject, message) {
+				offNativeInternal(mapObject, message);
+			})
+
+			/**
+			 * 区别于 call 类型，可以持续监听事件*/
+			addMethod(lr, 'onEvent', function(message) {
+				if (typeof lrBridge === 'undefined') {
+					lrBridge = null;
+				}
+				lr.onEvent(lrBridge, message);
+			})
+
+			/**
+			 * 区别于 call 类型，可以持续监听事件*/
+			addMethod(lr, 'onEvent', function(mapObject, message) {
+				onEventInternal(mapObject, message);
+			})
+
+			/**
+			 * 与 onEvent 对应，移除持续监听的事件*/
+			addMethod(lr, 'offEvent', function(message) {
+				if (typeof lrBridge === 'undefined') {
+					lrBridge = null;
+				}
+				lr.offEvent(lrBridge, message);
+			})
+
+			/**
+			 * 与 onEvent 对应，移除持续监听的事件*/
+			addMethod(lr, 'offEvent', function(mapObject, message) {
+				offEventInternal(mapObject, message);
+			})
 		},
 
-		config: function(message){
-		    wx.config(lr, message);
+		config: function(message) {
+			wx.config(lr, message);
 		},
 
 		dispatchCallNativeCallback: function(response) {

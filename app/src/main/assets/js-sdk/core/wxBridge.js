@@ -326,6 +326,7 @@ var wx = (function() {
 	function getNetworkType(message) {
 		var request = {
 			methodName: 'getNetworkType',
+			loop: true,
 			success: function(res) {
 				message.success({
 					networkType: res.result
