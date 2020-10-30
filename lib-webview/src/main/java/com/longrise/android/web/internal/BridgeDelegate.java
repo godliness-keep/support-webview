@@ -7,8 +7,8 @@ package com.longrise.android.web.internal;
  */
 public final class BridgeDelegate implements IBridgeListener {
 
-    private static final byte LOAD_FAILED = 0;
-    private static final byte LOAD_COMPLETED = 1;
+    private static final int LOAD_FAILED = 0;
+    private static final int LOAD_COMPLETED = 1;
 
     private IWebLoadListener mLoadCallback;
 
