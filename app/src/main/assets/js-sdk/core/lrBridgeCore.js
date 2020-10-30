@@ -178,30 +178,26 @@ var lr = (function() {
 					loop: false,
 					id: -1
 				}
-			} else if (message.loop === Type.ON) {
-				chain.loop = {
-					loop: true
+			} else {
+				var isEvent = message.methodName === CALL_NATIVE_FROM_JAVASCRIPT;
+				var realName = isEvent ? message.eventName : message.methodName;
+				var typeName = isEvent ? 'eventName' : 'methodName';
+
+				if (message.loop === Type.ON) {
+					chain.loop = {
+						loop: true
+					}
+					message[typeName] = 'on' + convertInitialsToUpperCase(realName);
+					loops[realName] = request.id;
+				} else if (message.loop === Type.OFF) {
+					chain.loop = {
+						loop: false,
+						id: loops[realName]
+					}
+					message[typeName] = 'off' + convertInitialsToUpperCase(realName);
+					// 删除这个链条
+					delete loops[realName]
 				}
-				var name = message.methodName === CALL_NATIVE_FROM_JAVASCRIPT ? message.eventName : message.methodName;
-				if (message.methodName === CALL_NATIVE_FROM_JAVASCRIPT) {
-					message.eventName = 'on' + convertInitialsToUpperCase(name);
-				} else {
-					message.methodName = 'on' + convertInitialsToUpperCase(name);
-				}
-				loops[name] = request.id;
-			} else if (message.loop === Type.OFF) {
-				var name = message.methodName === CALL_NATIVE_FROM_JAVASCRIPT ? message.eventName : message.methodName;
-				if (message.methodName == CALL_NATIVE_FROM_JAVASCRIPT) {
-					message.eventName = 'off' + convertInitialsToUpperCase(name);
-				} else {
-					message.methodName = 'off' + convertInitialsToUpperCase(name);
-				}
-				chain.loop = {
-					loop: false,
-					id: loops[name]
-				}
-				// 删除这个链条
-				delete loops[name]
 			}
 		}
 		return request

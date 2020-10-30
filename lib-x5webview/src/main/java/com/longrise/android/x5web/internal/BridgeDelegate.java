@@ -19,8 +19,8 @@ public final class BridgeDelegate implements OnBridgeListener{
     private IWebLoadListener mLoadCallback;
 
     private boolean mLoadFailed;
-    private byte mLoadActor;
-    private byte mCurrentLoadStatus = -1;
+    private int mLoadActor;
+    private int mCurrentLoadStatus = -1;
 
     @Override
     public boolean beforeUrlLoading(String url) {

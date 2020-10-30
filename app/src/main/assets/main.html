@@ -238,7 +238,17 @@
 			function setStorage(){
 			    lr.setStorage({
 			        key: 'keep',
-			        data: 100,
+			        data: {
+			            name: 'godliness',
+			            age: 100,
+			            from: 'China',
+			            obj: {
+			                key: '记录'
+			            },
+			            type: {
+			                key: 'start'
+			            }
+			        },
 			        success: function(){
 			            alert('存储成功');
 			        }
