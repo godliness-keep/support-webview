@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
@@ -575,7 +574,7 @@ public abstract class BaseApiBridge<T> extends BaseBridge<T> {
     }
 
     @JavascriptInterface
-    public void clearStorage(String message) {
+    public final void clearStorage(String message) {
         final Request<?> request = Request.parseRequest(message);
 
         final Runnable task = new Runnable() {
@@ -595,7 +594,7 @@ public abstract class BaseApiBridge<T> extends BaseBridge<T> {
     }
 
     @JavascriptInterface
-    public void setClipboardData(String message) {
+    public final void setClipboardData(String message) {
         final Request<ClipInfo> request = Request.parseRequest(message, ClipInfo.class);
         final ClipInfo info = request.getParams();
 
@@ -616,7 +615,7 @@ public abstract class BaseApiBridge<T> extends BaseBridge<T> {
     }
 
     @JavascriptInterface
-    public void getClipboardData(String message) {
+    public final void getClipboardData(String message) {
         final Request<?> request = Request.parseRequest(message);
 
         final Runnable task = new Runnable() {
@@ -636,7 +635,7 @@ public abstract class BaseApiBridge<T> extends BaseBridge<T> {
     }
 
     @JavascriptInterface
-    public void showToast(String message) {
+    public final void showToast(String message) {
         final Request<Tips> request = Request.parseRequest(message, Tips.class);
         final Tips tips = request.getParams();
 
@@ -660,7 +659,7 @@ public abstract class BaseApiBridge<T> extends BaseBridge<T> {
     }
 
     @JavascriptInterface
-    public void showLoading(String message) {
+    public final void showLoading(String message) {
         final Request<Tips> request = Request.parseRequest(message, Tips.class);
         final Tips tips = request.getParams();
 
@@ -684,7 +683,7 @@ public abstract class BaseApiBridge<T> extends BaseBridge<T> {
     }
 
     @JavascriptInterface
-    public void hideLoading(String message) {
+    public final void hideLoading(String message) {
         final Request<?> request = Request.parseRequest(message);
         final Runnable task = new Runnable() {
             @Override

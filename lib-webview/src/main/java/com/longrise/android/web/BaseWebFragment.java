@@ -1,6 +1,5 @@
 package com.longrise.android.web;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -15,7 +14,6 @@ import android.webkit.DownloadListener;
 import android.webkit.WebView;
 
 import com.longrise.android.web.internal.BaseWebView;
-import com.longrise.android.web.internal.FileChooser;
 import com.longrise.android.web.internal.IBridgeAgent;
 import com.longrise.android.web.internal.IWebLoadListener;
 import com.longrise.android.web.internal.Internal;

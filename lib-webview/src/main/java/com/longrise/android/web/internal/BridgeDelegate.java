@@ -5,7 +5,7 @@ package com.longrise.android.web.internal;
  *
  * @author godliness
  */
-public final class BridgeDelegate implements IBridgeListener {
+final class BridgeDelegate implements IBridgeListener {
 
     private static final int LOAD_FAILED = 0;
     private static final int LOAD_COMPLETED = 1;

@@ -9,7 +9,7 @@ import com.longrise.android.x5web.internal.webcallback.IWebLoadListener;
  *
  * @author godliness
  */
-public final class BridgeDelegate implements OnBridgeListener{
+final class BridgeDelegate implements OnBridgeListener{
 
     private static final String TAG = "ClientBridgeAgent";
 
