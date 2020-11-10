@@ -20,7 +20,3 @@
 .idea/modules/jssdk/
 .idea/modules/web-internal/
 .idea/modules/x5-internal/
-app/libs/
-basic-component/module.mmkv/src/main/res/drawable/
-lib-webview/src/androidTest/libs/
-src/main/res/drawable/
