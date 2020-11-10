@@ -1,4 +1,29 @@
-var lr = (function() {
+const files = [
+	"/core/wxBridge.js",
+	"/utils/platform.js",
+	"/core/chunkParse.js",
+	"/core/receiver.js"
+]
+
+var lr = (function(files) {
+
+	(function() {
+		const scripts = document.getElementsByTagName("script");
+		var path = null;
+		for (var key of scripts) {
+			const script = key.getAttribute("src");
+			if (script.lastIndexOf("lrBridgeCore.js") > 0) {
+				const lastIndexOf = script.lastIndexOf("/");
+				const temp = script.substr(0, lastIndexOf);
+				const secLastIndexOf = temp.lastIndexOf("/");
+				path = temp.substr(0, secLastIndexOf);
+				break;
+			}
+		}
+		for (var key of files) {
+			document.write("<script language=javascript src=" + path + key + "></script>");
+		}
+	})()
 
 	const JAVASCRIPT_CALL_FINISHED = 'onJavaScriptCallFinished'
 	const CALL_NATIVE_FROM_JAVASCRIPT = 'callNativeFromJavaScript'
@@ -400,7 +425,7 @@ var lr = (function() {
 			onNativeCallFinished(response)
 		}
 	}
-})()
+})(files);
 
 /**
  * 接收来自Native的通知, Native返回Response

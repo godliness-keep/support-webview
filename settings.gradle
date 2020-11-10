@@ -1,9 +1,9 @@
-include ':jsapi-x5'
 include ':app',
         ':lib-webview',
         ':lib-x5webview'
 
 include ':jsapi'
+include ':jsapi-x5'
 
 include ':business-component:lib-location'
 include ':business-component:lib-scan'

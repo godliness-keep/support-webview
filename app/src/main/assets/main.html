@@ -4,20 +4,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="main.css">
     <title>callEvent</title>
-    <script type="text/javascript" src="js-sdk/core/wxBridge.js"></script>
-    <script type="text/javascript" src="js-sdk/utils/platform.js"></script>
-    <script type="text/javascript" src="js-sdk/core/chunkParse.js"></script>
     <script type="text/javascript" src="js-sdk/core/lrBridgeCore.js"></script>
-    <script type="text/javascript" src="js-sdk/core/receiver.js"></script>
     <style type="text/css">
 			button {
 				width: 100%;
 				height: 2.5rem;
 				margin-top: 0.5rem;
 			}
-
-
-
     </style>
 </head>
 <body>
@@ -88,6 +81,7 @@
 </button>
 <script>
 
+        console.error('路径是：' + window.location);
 
 			/**
 			 * 使用之前要先初始化 lr 框架*/
