@@ -245,7 +245,7 @@ public abstract class BaseWebChromeClient<T extends IBridgeAgent<T>> extends Web
 
     private FileChooser<?> createOrGetFileChooser(){
         if (mFileChooser == null) {
-            mFileChooser = new FileChooser<>((T) this);
+            mFileChooser = new FileChooser<>(getTarget());
         }
         return mFileChooser;
     }

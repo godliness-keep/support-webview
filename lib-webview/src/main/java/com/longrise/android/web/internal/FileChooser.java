@@ -6,7 +6,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 
