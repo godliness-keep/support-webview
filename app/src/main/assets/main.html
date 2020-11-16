@@ -4,7 +4,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="main.css">
     <title>callEvent</title>
+
     <script type="text/javascript" src="js-sdk/core/lrBridgeCore.js"></script>
+
     <style type="text/css">
 			button {
 				width: 100%;
@@ -79,6 +81,12 @@
 <button type="button" onclick="hideLoading()">
     hideLoading
 </button>
+
+<!--<input id="fileId2" type="file" multiple="multiple" name="file" accept="*/*" />-->
+<input  type="file"  accept="video/*"  capture="camera">
+<!--<input type="file" accept="video/*" capture="camcorder">-->
+<!--<input type="file" accept="audio/*" capture="microphone">-->
+
 <script>
 
         console.error('路径是：' + window.location);
