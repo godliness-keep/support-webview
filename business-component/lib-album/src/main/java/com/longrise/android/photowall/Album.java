@@ -4,6 +4,8 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.longrise.android.result.IActivityOnResultListener;
+
 import java.io.File;
 
 /**
@@ -108,10 +110,17 @@ public final class Album {
     }
 
     /**
-     * 调用系统拍照
+     * 调用系统拍照，通过 {@link ITakeListener} 回调返回
      */
     public static Take takeOf(@NonNull ITakeListener takeListener) {
         return new Take(takeListener);
+    }
+
+    /**
+     * 调用系统相册
+     */
+    public static Gallery galleryOf() {
+        return new Gallery();
     }
 
     /**

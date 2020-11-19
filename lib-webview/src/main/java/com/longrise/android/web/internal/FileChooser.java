@@ -1,17 +1,22 @@
 package com.longrise.android.web.internal;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
+import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AlertDialog;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 
 import com.longrise.android.jssdk.wx.BridgeApi;
+import com.longrise.android.photowall.Album;
 import com.longrise.android.result.ActivityResult;
 import com.longrise.android.result.IActivityOnResultListener;
+import com.longrise.android.web.R;
 import com.longrise.android.web.WebLog;
 
 /**
@@ -57,14 +62,15 @@ public final class FileChooser<T extends IBridgeAgent<T>> implements IActivityOn
         onReceiveValueEnd();
         this.mUploadFile = uploadFile;
 
-        final Intent chooser = new Intent(Intent.ACTION_GET_CONTENT);
-        chooser.addCategory(Intent.CATEGORY_OPENABLE);
-        chooser.setType(acceptType);
+//        final Intent chooser = new Intent(Intent.ACTION_GET_CONTENT);
+//        chooser.addCategory(Intent.CATEGORY_OPENABLE);
+//        chooser.setType(acceptType);
 
         if (mTarget != null) {
             try {
-                ActivityResult.from(getActivity())
-                        .onResult(this).to(Intent.createChooser(chooser, "File Browser"));
+//                ActivityResult.from(getActivity())
+//                        .onResult(this).to(Intent.createChooser(chooser, "File Browser"));
+                FileHelper.showFileChooser(getActivity(), this);
             } catch (Exception e) {
                 onReceiveValueEnd();
                 WebLog.print(e);
@@ -79,11 +85,12 @@ public final class FileChooser<T extends IBridgeAgent<T>> implements IActivityOn
     public void onShowFileChooser(ValueCallback<Uri[]> filePathCallback, WebChromeClient.FileChooserParams fileChooserParams) {
         onReceiveValueEnd();
         this.mFilePathCallback = filePathCallback;
-        final Intent chooser = fileChooserParams.createIntent();
+//        final Intent chooser = fileChooserParams.createIntent();
         if (mTarget != null) {
             try {
-                ActivityResult.from(getActivity())
-                        .onResult(this).to(chooser);
+//                ActivityResult.from(getActivity())
+//                        .onResult(this).to(chooser);
+                FileHelper.showFileChooser(getActivity(), this);
             } catch (Exception e) {
                 onReceiveValueEnd();
                 WebLog.print(e);
@@ -104,5 +111,54 @@ public final class FileChooser<T extends IBridgeAgent<T>> implements IActivityOn
 
     private FragmentActivity getActivity() {
         return BridgeApi.getCurrentActivity(mTarget);
+    }
+
+    static final class FileHelper {
+
+        /**
+         * todo 暂时写死的方式
+         */
+        static void showFileChooser(final Activity cxt, final FileChooser<?> onResultListener) {
+            final String[] items = cxt.getResources().getStringArray(R.array.web_string_file_chooser);
+
+            new AlertDialog.Builder(cxt)
+                    .setTitle(R.string.web_string_file_chooser_title)
+                    .setItems(items, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            switch (which) {
+                                case 0: // 手机相册
+                                    Album.galleryOf().start(cxt, onResultListener);
+                                    break;
+
+                                case 1: // 相机拍照
+                                    Album.takeOf(new Album.ITakeListener() {
+                                        @Override
+                                        public void onTaken(@Nullable Uri uri) {
+                                            final Intent intent = new Intent();
+                                            intent.setData(uri);
+                                            onResultListener.onActivityResult(Activity.RESULT_OK, intent);
+                                        }
+                                    }).start(cxt);
+                                    break;
+
+                                case 2: // 文件管理器
+                                    final Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                                    intent.addCategory(Intent.CATEGORY_OPENABLE);
+                                    intent.setType("*/*");
+                                    ActivityResult.from((FragmentActivity) cxt).onResult(onResultListener).to(intent);
+                                    break;
+
+                                default:
+                                    break;
+                            }
+                        }
+                    }).setOnCancelListener(new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialog) {
+                    onResultListener.onReceiveValueEnd();
+                }
+            }).create().show();
+        }
     }
 }

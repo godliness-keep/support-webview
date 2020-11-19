@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="web_string_positive">确认</string>
+
+    <string name="web_string_file_chooser_title">上传方式选择</string>
+    <string-array name="web_string_file_chooser">
+        <item>手机相册</item>
+        <item>相机拍照</item>
+        <item>文件管理器</item>
+    </string-array>
 </resources>

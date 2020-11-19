@@ -16,18 +16,26 @@ import com.longrise.android.result.IActivityOnResultListener;
  */
 public final class Gallery {
 
-    private final Album.IGalleryListener mGalleryCallback;
+    private Album.IGalleryListener mGalleryCallback;
 
     public void start(Activity host) {
+        start(host, new IActivityOnResultListener() {
+            @Override
+            public void onActivityResult(int resultCode, Intent data) {
+                if (mGalleryCallback != null) {
+                    mGalleryCallback.onSelected(resultCode == Activity.RESULT_OK ? data.getData() : null);
+                }
+            }
+        });
+    }
+
+    public void start(Activity host, IActivityOnResultListener onResultListener) {
         ActivityResult.from((FragmentActivity) host)
-                .onResult(new IActivityOnResultListener() {
-                    @Override
-                    public void onActivityResult(int resultCode, Intent data) {
-                        if (mGalleryCallback != null) {
-                            mGalleryCallback.onSelected(resultCode == Activity.RESULT_OK ? data.getData() : null);
-                        }
-                    }
-                }).to(getIntent());
+                .onResult(onResultListener).to(getIntent());
+    }
+
+    Gallery() {
+
     }
 
     Gallery(Album.IGalleryListener callback) {

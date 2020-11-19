@@ -33,6 +33,7 @@ dependencies {
     compileOnly dep['appcompat-v7']
     api project(':jsapi')
     implementation project(':basic-component:module.activity-result')
+    implementation project(':business-component:lib-album')
 
     // 根据情况选择是否需要在此依赖
     api dep['gson']
