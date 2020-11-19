@@ -44,8 +44,8 @@ public final class PermissionDelegate extends Fragment {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         final BaseRequestPermissionListener permissionListener = PERMISSION_LISTENER.remove(requestCode);
         if (permissionListener != null) {
-            permissionListener.onPermissionResultInternal(permissions, grantResults);
             permissionListener.attachHost((FragmentActivity) mHost);
+            permissionListener.onPermissionResultInternal(permissions, grantResults);
         }
     }
 

@@ -1,10 +1,12 @@
 package com.longrise.android.web.internal;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.FragmentActivity;
@@ -13,6 +15,8 @@ import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 
 import com.longrise.android.jssdk.wx.BridgeApi;
+import com.longrise.android.permission.IPermissionHelper;
+import com.longrise.android.permission.RequestPermission;
 import com.longrise.android.photowall.Album;
 import com.longrise.android.result.ActivityResult;
 import com.longrise.android.result.IActivityOnResultListener;
@@ -132,14 +136,24 @@ public final class FileChooser<T extends IBridgeAgent<T>> implements IActivityOn
                                     break;
 
                                 case 1: // 相机拍照
-                                    Album.takeOf(new Album.ITakeListener() {
+                                    RequestPermission.of((FragmentActivity) cxt).onPermissionResult(new IPermissionHelper() {
                                         @Override
-                                        public void onTaken(@Nullable Uri uri) {
-                                            final Intent intent = new Intent();
-                                            intent.setData(uri);
-                                            onResultListener.onActivityResult(Activity.RESULT_OK, intent);
+                                        protected boolean onPermissionResult(@NonNull String[] permissions, @NonNull int[] grantResults) {
+                                            if (isGranted()) {
+                                                Album.takeOf(new Album.ITakeListener() {
+                                                    @Override
+                                                    public void onTaken(@Nullable Uri uri) {
+                                                        final Intent intent = new Intent();
+                                                        intent.setData(uri);
+                                                        onResultListener.onActivityResult(Activity.RESULT_OK, intent);
+                                                    }
+                                                }).start(cxt);
+                                            }else{
+                                                onResultListener.onReceiveValueEnd();
+                                            }
+                                            return false;
                                         }
-                                    }).start(cxt);
+                                    }).request(Manifest.permission.CAMERA);
                                     break;
 
                                 case 2: // 文件管理器

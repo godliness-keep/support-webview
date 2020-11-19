@@ -32,6 +32,7 @@ dependencies {
     api project(':jsapi-x5')
     implementation project(':basic-component:module.activity-result')
     implementation project(':business-component:lib-album')
+    implementation project(':basic-component:module.permission')
 
     // 根据情况选择是否需要在此依赖
     api dep['gson']
