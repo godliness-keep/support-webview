@@ -17,7 +17,6 @@ import com.longrise.android.x5web.BaseWebActivity;
 import com.longrise.android.x5web.X5;
 import com.longrise.android.x5web.internal.X5WebView;
 import com.longrise.android.x5web.internal.bridge.BaseDownloader;
-import com.longrise.android.x5web.internal.FileChooser;
 import com.longrise.android.x5web.internal.bridge.BaseWebBridge;
 import com.longrise.android.x5web.internal.bridge.BaseWebChromeClient;
 import com.longrise.android.x5web.internal.bridge.BaseWebViewClient;

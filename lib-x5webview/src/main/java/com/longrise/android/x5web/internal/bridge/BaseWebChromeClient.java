@@ -12,10 +12,10 @@ import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 
 import com.longrise.android.x5web.X5;
-import com.longrise.android.x5web.internal.FileChooser;
 import com.longrise.android.x5web.internal.IBridgeAgent;
 import com.longrise.android.x5web.internal.OnBridgeListener;
 import com.longrise.android.x5web.internal.SchemeConsts;
+import com.longrise.android.x5web.internal.filer.FileChooser;
 import com.tencent.smtt.export.external.interfaces.ConsoleMessage;
 import com.tencent.smtt.export.external.interfaces.JsPromptResult;
 import com.tencent.smtt.export.external.interfaces.JsResult;
