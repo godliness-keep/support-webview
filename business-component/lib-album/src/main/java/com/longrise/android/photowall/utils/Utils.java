@@ -1,4 +1,4 @@
-package com.longrise.android.photowall;
+package com.longrise.android.photowall.utils;
 
 import android.content.Context;
 import android.net.Uri;
@@ -9,6 +9,8 @@ import android.support.v4.content.FileProvider;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.longrise.android.photowall.BuildConfig;
+
 import java.io.File;
 
 /**
@@ -16,15 +18,15 @@ import java.io.File;
  *
  * @author godliness
  */
-class Utils {
+public final class Utils {
 
     private static final String ALBUM = "album";
 
-    static Uri getLocalUri(Context cxt, String name) {
+    public static Uri getLocalUri(Context cxt, String name) {
         return Uri.fromFile(getLocalFile(cxt, name));
     }
 
-    static File getLocalFile(Context cxt, String name) {
+    public static File getLocalFile(Context cxt, String name) {
         final File tempFile = new File(getTempFile(cxt), name);
         if (tempFile.exists()) {
             final boolean delete = tempFile.delete();
@@ -36,7 +38,7 @@ class Utils {
         return tempFile;
     }
 
-    static Uri transformProviderUri(@NonNull Context cxt, @NonNull File file) {
+    public static Uri transformProviderUri(@NonNull Context cxt, @NonNull File file) {
         final Uri uri;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             uri = FileProvider.getUriForFile(cxt.getApplicationContext(), cxt.getPackageName() + ".fileprovider", file);

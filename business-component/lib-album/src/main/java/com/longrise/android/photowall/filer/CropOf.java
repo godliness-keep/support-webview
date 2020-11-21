@@ -1,4 +1,4 @@
-package com.longrise.android.photowall;
+package com.longrise.android.photowall.filer;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -9,6 +9,9 @@ import android.support.v4.app.FragmentActivity;
 
 import com.longrise.android.image.crop.Crop;
 import com.longrise.android.image.crop.CropImageActivity;
+import com.longrise.android.photowall.Filer;
+import com.longrise.android.photowall.R;
+import com.longrise.android.photowall.utils.Utils;
 import com.longrise.android.result.ActivityResult;
 import com.longrise.android.result.IActivityOnResultListener;
 
@@ -41,12 +44,12 @@ public final class CropOf {
     private int mTips = R.string.album_string_choose_box;
     private boolean mPng;
 
-    CropOf(@NonNull Uri src, @NonNull Uri out) {
+    public CropOf(@NonNull Uri src, @NonNull Uri out) {
         this.mSrc = src;
         this.mOut = out;
     }
 
-    CropOf(@NonNull Uri src, @NonNull Filer.ICropListener cropListener) {
+    public CropOf(@NonNull Uri src, @NonNull Filer.ICropListener cropListener) {
         this.mSrc = src;
         this.mCropCallback = cropListener;
     }

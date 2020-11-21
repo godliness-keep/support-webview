@@ -1,4 +1,4 @@
-package com.longrise.android.photowall;
+package com.longrise.android.photowall.filer;
 
 import android.os.Parcel;
 import android.os.Parcelable;

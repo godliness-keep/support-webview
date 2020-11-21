@@ -4,6 +4,15 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.longrise.android.photowall.filer.AudioOf;
+import com.longrise.android.photowall.filer.Chooser;
+import com.longrise.android.photowall.filer.CropOf;
+import com.longrise.android.photowall.filer.FilerOf;
+import com.longrise.android.photowall.filer.Gallery;
+import com.longrise.android.photowall.filer.Preview;
+import com.longrise.android.photowall.filer.Take;
+import com.longrise.android.photowall.filer.VideoOf;
+import com.longrise.android.photowall.filer.VideoRecorder;
 import com.longrise.android.result.IActivityOnResultListener;
 
 import java.io.File;

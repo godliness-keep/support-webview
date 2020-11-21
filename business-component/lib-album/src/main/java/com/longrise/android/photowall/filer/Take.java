@@ -1,4 +1,4 @@
-package com.longrise.android.photowall;
+package com.longrise.android.photowall.filer;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -7,6 +7,8 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 
+import com.longrise.android.photowall.Filer;
+import com.longrise.android.photowall.utils.Utils;
 import com.longrise.android.result.ActivityResult;
 import com.longrise.android.result.IActivityOnResultListener;
 
@@ -24,11 +26,11 @@ public final class Take {
 
     private File mOut;
 
-    Take(File out) {
+    public Take(File out) {
         this.mOut = out;
     }
 
-    Take(@NonNull Filer.ITakeListener takeListener) {
+    public Take(@NonNull Filer.ITakeListener takeListener) {
         this.mTakeCallback = takeListener;
     }
 

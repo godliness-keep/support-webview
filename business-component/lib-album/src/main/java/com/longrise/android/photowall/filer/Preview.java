@@ -1,4 +1,4 @@
-package com.longrise.android.photowall;
+package com.longrise.android.photowall.filer;
 
 import android.content.Context;
 import android.content.Intent;
@@ -18,7 +18,7 @@ public final class Preview {
 
     private String[] mValues;
 
-    Preview(String current, @Nullable String[] values) {
+    public Preview(String current, @Nullable String[] values) {
         if (TextUtils.isEmpty(current)) {
             throw new NullPointerException("Current path must not be null");
         }

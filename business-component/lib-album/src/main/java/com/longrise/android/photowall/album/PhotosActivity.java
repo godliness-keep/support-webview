@@ -14,8 +14,8 @@ import android.view.View;
 import android.view.Window;
 import android.widget.TextView;
 
-import com.longrise.android.photowall.AlbumParams;
-import com.longrise.android.photowall.Chooser;
+import com.longrise.android.photowall.filer.AlbumParams;
+import com.longrise.android.photowall.filer.Chooser;
 import com.longrise.android.photowall.R;
 
 import java.util.List;

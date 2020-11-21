@@ -1,10 +1,11 @@
-package com.longrise.android.photowall;
+package com.longrise.android.photowall.filer;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
 
+import com.longrise.android.photowall.Filer;
 import com.longrise.android.result.ActivityResult;
 import com.longrise.android.result.IActivityOnResultListener;
 
@@ -34,11 +35,11 @@ public final class Gallery {
                 .onResult(onResultListener).to(getIntent());
     }
 
-    Gallery() {
+    public Gallery() {
 
     }
 
-    Gallery(Filer.IGalleryListener callback) {
+    public Gallery(Filer.IGalleryListener callback) {
         this.mGalleryCallback = callback;
     }
 

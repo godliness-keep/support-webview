@@ -1,11 +1,11 @@
-package com.longrise.android.photowall;
+package com.longrise.android.photowall.filer;
 
 import android.content.Intent;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.content.FileProvider;
 
+import com.longrise.android.photowall.utils.Utils;
 import com.longrise.android.result.ActivityResult;
 import com.longrise.android.result.IActivityOnResultListener;
 

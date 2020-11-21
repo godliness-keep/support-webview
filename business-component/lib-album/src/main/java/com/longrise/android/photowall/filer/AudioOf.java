@@ -1,8 +1,6 @@
-package com.longrise.android.photowall;
+package com.longrise.android.photowall.filer;
 
-import android.Manifest;
 import android.content.Intent;
-import android.os.Build;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
@@ -15,7 +13,7 @@ import com.longrise.android.result.IActivityOnResultListener;
  *
  * @author godliness
  */
-abstract class AudioOf {
+public abstract class AudioOf {
 
     IActivityOnResultListener mResultListener;
     final Intent mIntent;
