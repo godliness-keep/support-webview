@@ -20,7 +20,7 @@ import java.io.File;
  */
 public final class Take {
 
-    private Album.ITakeListener mTakeCallback;
+    private Filer.ITakeListener mTakeCallback;
 
     private File mOut;
 
@@ -28,11 +28,11 @@ public final class Take {
         this.mOut = out;
     }
 
-    Take(@NonNull Album.ITakeListener takeListener) {
+    Take(@NonNull Filer.ITakeListener takeListener) {
         this.mTakeCallback = takeListener;
     }
 
-    public Take callback(Album.ITakeListener callback) {
+    public Take callback(Filer.ITakeListener callback) {
         this.mTakeCallback = callback;
         return this;
     }

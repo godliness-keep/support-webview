@@ -12,8 +12,9 @@ import java.io.File;
  * Created by godliness on 2020/9/9.
  *
  * @author godliness
+ * 系统文件资源管理器
  */
-public final class Album {
+public final class Filer {
 
     public static final String RESULT = "result";
 
@@ -91,7 +92,7 @@ public final class Album {
     /**
      * 选择图片，通过 Callback 返回选择结果
      */
-    public static Chooser.ChooserCallback chooseOf(@NonNull Album.IChooserCallback chooserCallback) {
+    public static Chooser.ChooserCallback chooseOf(@NonNull Filer.IChooserCallback chooserCallback) {
         return Chooser.choose(chooserCallback);
     }
 
@@ -144,6 +145,69 @@ public final class Album {
         return new CropOf(src, cropListener);
     }
 
-    private Album() {
+    /**
+     * 手机视频目录
+     */
+    public static VideoOf videoFiler(@NonNull IActivityOnResultListener onResultListener) {
+        return new VideoOf(onResultListener);
+    }
+
+    /**
+     * 手机视频目录
+     */
+    public static VideoOf videoFiler(@NonNull String mimeType) {
+        return new VideoOf(mimeType);
+    }
+
+    /**
+     * 录像机
+     */
+    public static VideoRecorder videoRecorder(@NonNull IActivityOnResultListener resultListener) {
+        return new VideoRecorder().onResult(resultListener);
+    }
+
+    /**
+     * 录像机
+     */
+    public static VideoRecorder videoRecorder(@NonNull File out) {
+        return new VideoRecorder(out);
+    }
+
+    /**
+     * 手机音频目录
+     */
+    public static AudioOf.AudioFiler audioFiler(@NonNull IActivityOnResultListener resultListener) {
+        return new AudioOf.AudioFiler(resultListener);
+    }
+
+    /**
+     * 手机音频目录
+     */
+    public static AudioOf.AudioFiler audioFiler(@NonNull String mimeType) {
+        return new AudioOf.AudioFiler(mimeType);
+    }
+
+    /**
+     * 录音机
+     */
+    public static AudioOf.AudioRecorder audioRecorder(@NonNull IActivityOnResultListener resultListener) {
+        return new AudioOf.AudioRecorder(resultListener);
+    }
+
+    /**
+     * 文件管理器
+     */
+    public static FilerOf filer(@NonNull String mimeType) {
+        return new FilerOf(mimeType);
+    }
+
+    /**
+     * 文件管理器
+     */
+    public static FilerOf filer(@NonNull IActivityOnResultListener resultListener) {
+        return new FilerOf(resultListener);
+    }
+
+    private Filer() {
     }
 }

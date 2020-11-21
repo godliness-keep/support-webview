@@ -16,7 +16,7 @@ import com.longrise.android.result.IActivityOnResultListener;
  */
 public final class Gallery {
 
-    private Album.IGalleryListener mGalleryCallback;
+    private Filer.IGalleryListener mGalleryCallback;
 
     public void start(Activity host) {
         start(host, new IActivityOnResultListener() {
@@ -38,7 +38,7 @@ public final class Gallery {
 
     }
 
-    Gallery(Album.IGalleryListener callback) {
+    Gallery(Filer.IGalleryListener callback) {
         this.mGalleryCallback = callback;
     }
 

@@ -18,7 +18,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 
 import com.longrise.android.web.WebLog;
-import com.longrise.android.web.internal.FileChooser;
+import com.longrise.android.web.internal.filer.FileChooser;
 import com.longrise.android.web.internal.IBridgeAgent;
 import com.longrise.android.web.internal.IBridgeListener;
 import com.longrise.android.web.internal.SchemeConsts;

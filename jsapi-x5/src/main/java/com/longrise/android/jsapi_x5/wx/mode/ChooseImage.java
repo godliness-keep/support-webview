@@ -4,7 +4,7 @@ import android.text.TextUtils;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import com.longrise.android.photowall.Album;
+import com.longrise.android.photowall.Filer;
 
 import java.util.Arrays;
 
@@ -38,7 +38,7 @@ public final class ChooseImage {
 
     public int getSizeType() {
         if (sizeType == null) {
-            return Album.SizeType.ALL;
+            return Filer.SizeType.ALL;
         }
         if (sizeType.length > 2) {
             throw new IllegalArgumentException("sizeType params is illegal");
@@ -56,11 +56,11 @@ public final class ChooseImage {
         }
 
         if (original && compressed) {
-            return Album.SizeType.ALL;
+            return Filer.SizeType.ALL;
         } else if (original) {
-            return Album.SizeType.ORIGINAL;
+            return Filer.SizeType.ORIGINAL;
         } else if (compressed) {
-            return Album.SizeType.COMPRESSED;
+            return Filer.SizeType.COMPRESSED;
         } else {
             throw new IllegalArgumentException("sizeType params is illegal");
         }
@@ -68,7 +68,7 @@ public final class ChooseImage {
 
     public int getSourceType() {
         if (sourceType == null) {
-            return Album.SourceType.ALL;
+            return Filer.SourceType.ALL;
         }
         if (sourceType.length > 2) {
             throw new IllegalArgumentException("sourceType params is illegal");
@@ -85,11 +85,11 @@ public final class ChooseImage {
         }
 
         if (album && camera) {
-            return Album.SourceType.ALL;
+            return Filer.SourceType.ALL;
         } else if (album) {
-            return Album.SourceType.ALBUM;
+            return Filer.SourceType.ALBUM;
         } else if (camera) {
-            return Album.SourceType.CAMERA;
+            return Filer.SourceType.CAMERA;
         } else {
             throw new IllegalArgumentException("sourceType params is illegal");
         }

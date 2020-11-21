@@ -41,7 +41,7 @@ import com.longrise.android.mmkv.KV;
 import com.longrise.android.mmkv.KVManager;
 import com.longrise.android.permission.IPermissionHelper;
 import com.longrise.android.permission.RequestPermission;
-import com.longrise.android.photowall.Album;
+import com.longrise.android.photowall.Filer;
 import com.longrise.android.qr.scan.IScanResultCallback;
 import com.longrise.android.qr.scan.QrScan;
 import com.longrise.android.share.onekeyshare.OneKeyShare;
@@ -241,7 +241,7 @@ public abstract class BaseApiBridge<T> extends BaseBridge<T> {
         final Runnable task = new Runnable() {
             @Override
             public void run() {
-                Album.galleryOf(new Album.IGalleryListener() {
+                Filer.galleryOf(new Filer.IGalleryListener() {
                     @Override
                     public void onSelected(@Nullable Uri uri) {
                         final int id = request.getCallbackId();
@@ -277,7 +277,7 @@ public abstract class BaseApiBridge<T> extends BaseBridge<T> {
                             @Override
                             protected boolean onPermissionResult(@NonNull String[] strings, @NonNull int[] ints) {
                                 if (isGranted()) {
-                                    Album.takeOf(new Album.ITakeListener() {
+                                    Filer.takeOf(new Filer.ITakeListener() {
                                         @Override
                                         public void onTaken(@Nullable Uri uri) {
                                             final int id = request.getCallbackId();
@@ -323,7 +323,7 @@ public abstract class BaseApiBridge<T> extends BaseBridge<T> {
     }
 
     private void cropOf(final int id, @NonNull Uri src, CropImage crop) {
-        Album.cropOf(src, new Album.ICropListener() {
+        Filer.cropOf(src, new Filer.ICropListener() {
             @Override
             public void onCrop(@Nullable Uri uri) {
                 if (uri == null) {
@@ -350,7 +350,7 @@ public abstract class BaseApiBridge<T> extends BaseBridge<T> {
                             @Override
                             protected boolean onPermissionResult(@NonNull String[] strings, @NonNull int[] ints) {
                                 if (isGranted()) {
-                                    Album.previewOf(previewImage.getCurrent(), previewImage.getUrls()).start(getActivity());
+                                    Filer.previewOf(previewImage.getCurrent(), previewImage.getUrls()).start(getActivity());
                                 }
                                 return false;
                             }
@@ -373,7 +373,7 @@ public abstract class BaseApiBridge<T> extends BaseBridge<T> {
                             @Override
                             protected boolean onPermissionResult(@NonNull String[] strings, @NonNull int[] ints) {
                                 if (isGranted()) {
-                                    Album.chooseOf(new Album.IChooserCallback() {
+                                    Filer.chooseOf(new Filer.IChooserCallback() {
                                         @Override
                                         public void onSelected(String[] values) {
                                             if (values == null) {
@@ -381,7 +381,7 @@ public abstract class BaseApiBridge<T> extends BaseBridge<T> {
                                             }
                                             Response.create(request.getCallbackId()).result(values).notify(getWebView());
                                         }
-                                    }).params(chooseImage.getCount(), Album.SizeType.ALL, Album.SourceType.ALL)
+                                    }).params(chooseImage.getCount(), Filer.SizeType.ALL, Filer.SourceType.ALL)
                                             .to(getActivity());
                                 }
                                 return false;

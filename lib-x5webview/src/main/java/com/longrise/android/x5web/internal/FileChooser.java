@@ -15,7 +15,7 @@ import android.support.v7.app.AlertDialog;
 import com.longrise.android.jsapi_x5.wx.BridgeApi;
 import com.longrise.android.permission.IPermissionHelper;
 import com.longrise.android.permission.RequestPermission;
-import com.longrise.android.photowall.Album;
+import com.longrise.android.photowall.Filer;
 import com.longrise.android.result.ActivityResult;
 import com.longrise.android.result.IActivityOnResultListener;
 import com.longrise.android.x5web.R;
@@ -132,7 +132,7 @@ public final class FileChooser<T extends IBridgeAgent<T>> implements IActivityOn
                         public void onClick(DialogInterface dialog, int which) {
                             switch (which) {
                                 case 0: // 手机相册
-                                    Album.galleryOf().start(cxt, onResultListener);
+                                    Filer.galleryOf().start(cxt, onResultListener);
                                     break;
 
                                 case 1: // 相机拍照
@@ -140,7 +140,7 @@ public final class FileChooser<T extends IBridgeAgent<T>> implements IActivityOn
                                         @Override
                                         protected boolean onPermissionResult(@NonNull String[] permissions, @NonNull int[] grantResults) {
                                             if (isGranted()) {
-                                                Album.takeOf(new Album.ITakeListener() {
+                                                Filer.takeOf(new Filer.ITakeListener() {
                                                     @Override
                                                     public void onTaken(@Nullable Uri uri) {
                                                         final Intent intent = new Intent();
@@ -148,7 +148,7 @@ public final class FileChooser<T extends IBridgeAgent<T>> implements IActivityOn
                                                         onResultListener.onActivityResult(Activity.RESULT_OK, intent);
                                                     }
                                                 }).start(cxt);
-                                            }else{
+                                            } else {
                                                 onResultListener.onReceiveValueEnd();
                                             }
                                             return false;

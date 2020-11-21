@@ -17,7 +17,7 @@ public abstract class Chooser<T> {
 
     private AlbumParams mParams;
 
-    public static ChooserCallback choose(Album.IChooserCallback chooserCallback) {
+    public static ChooserCallback choose(Filer.IChooserCallback chooserCallback) {
         return new ChooserCallback(chooserCallback);
     }
 
@@ -42,9 +42,9 @@ public abstract class Chooser<T> {
     public static final class ChooserCallback extends Chooser<ChooserCallback> {
 
         static volatile ChooserCallback sChooser;
-        private final Album.IChooserCallback mCallback;
+        private final Filer.IChooserCallback mCallback;
 
-        ChooserCallback(Album.IChooserCallback chooserCallback) {
+        ChooserCallback(Filer.IChooserCallback chooserCallback) {
             this.mCallback = chooserCallback;
         }
 
@@ -79,7 +79,7 @@ public abstract class Chooser<T> {
 
         static void setResultToFinish(Activity target, String[] values) {
             final Intent intent = new Intent();
-            intent.putExtra(Album.RESULT, values);
+            intent.putExtra(Filer.RESULT, values);
             target.setResult(Activity.RESULT_OK, intent);
             target.finish();
         }

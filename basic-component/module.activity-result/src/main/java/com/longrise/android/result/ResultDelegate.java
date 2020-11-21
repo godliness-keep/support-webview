@@ -37,7 +37,11 @@ public final class ResultDelegate extends Fragment {
 
     @Override
     public void startActivityForResult(Intent intent, int requestCode) {
-        super.startActivityForResult(intent, requestCode);
+        try {
+            super.startActivityForResult(intent, requestCode);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         if (BuildConfig.DEBUG) {
             Log.e(TAG, "startActivityForResult");
         }

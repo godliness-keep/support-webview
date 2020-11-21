@@ -20,7 +20,7 @@ import com.longrise.android.result.IActivityOnResultListener;
  */
 public final class CropOf {
 
-    private Album.ICropListener mCropCallback;
+    private Filer.ICropListener mCropCallback;
 
     private final Uri mSrc;
     private Uri mOut;
@@ -46,12 +46,12 @@ public final class CropOf {
         this.mOut = out;
     }
 
-    CropOf(@NonNull Uri src, @NonNull Album.ICropListener cropListener) {
+    CropOf(@NonNull Uri src, @NonNull Filer.ICropListener cropListener) {
         this.mSrc = src;
         this.mCropCallback = cropListener;
     }
 
-    public CropOf cropCallback(Album.ICropListener cropCallback) {
+    public CropOf cropCallback(Filer.ICropListener cropCallback) {
         this.mCropCallback = cropCallback;
         return this;
     }
