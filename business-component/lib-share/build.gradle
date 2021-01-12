@@ -37,6 +37,7 @@ MobSDK {
 
     ShareSDK {
         loopShare true
+        version '3.8.3'
 
         devInfo {
             Wechat {

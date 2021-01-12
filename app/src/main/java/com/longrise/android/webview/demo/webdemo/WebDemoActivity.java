@@ -55,7 +55,6 @@ public final class WebDemoActivity extends BaseWebActivity<WebDemoActivity> impl
         mWebView = findViewById(R.id.webview);
 
         loadUrl("file:///android_asset/main.html");
-
         /*这里简单示例在加载出错时处理方式*/
         mWebContent = findViewById(R.id.web_content);
         mLoadFailedView = LayoutInflater.from(this).inflate(R.layout.load_failed, mWebView, false);
@@ -109,6 +108,7 @@ public final class WebDemoActivity extends BaseWebActivity<WebDemoActivity> impl
         } else {
             mProgress.setVisibility(View.VISIBLE);
         }
+        Log.e(TAG, "newProgress: " + newProgress);
     }
 
     /**
