@@ -11,7 +11,12 @@ import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import com.longrise.android.jssdk.receiver.IParamsReceiver;
+import com.longrise.android.jssdk.receiver.IParamsReturnReceiver;
+import com.longrise.android.jssdk.receiver.IReceiver;
+import com.longrise.android.jssdk.receiver.IReturnReceiver;
 import com.longrise.android.jssdk.receiver.base.EventName;
 import com.longrise.android.web.BaseWebActivity;
 import com.longrise.android.web.internal.BaseWebView;
@@ -61,6 +66,7 @@ public final class WebDemoActivity extends BaseWebActivity<WebDemoActivity> impl
 
         /* 注册事件 */
         mParamsReceiver.alive().lifecycle(this);
+        mStatusReceiver.alive().lifecycle(this);
     }
 
 
@@ -171,4 +177,35 @@ public final class WebDemoActivity extends BaseWebActivity<WebDemoActivity> impl
         }
     };
 
+
+    private final IParamsReturnReceiver<Desc, UserInfo> mStatusReceiver = new IParamsReturnReceiver<Desc, UserInfo>() {
+        @EventName("getUserInfo")
+        @Override
+        public UserInfo onEvent(Desc desc) {
+            Log.e(TAG, "onEvent: " + desc.desc);
+
+            return new UserInfo();
+        }
+    };
+
+    public static final class Desc {
+        @Expose
+        @SerializedName("desc")
+        public String desc;
+    }
+
+    public static final class UserInfo {
+
+        @Expose
+        @SerializedName("name")
+        public String name = "godliness";
+
+        @Expose
+        @SerializedName("age")
+        public int age = 100;
+
+        @Expose
+        @SerializedName("sex")
+        public String sex = "boy";
+    }
 }

@@ -2,7 +2,6 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="main.css">
     <title>callEvent</title>
 
     <script type="text/javascript" src="js-sdk/core/lrBridgeCore.js"></script>
@@ -82,8 +81,12 @@
     hideLoading
 </button>
 
+<button type="button" onclick="getUserInfo()">
+    自定义事件类型
+</button>
+
 <!--<input id="fileId2" type="file" multiple="multiple" name="file" accept="*/*" />-->
-<input  type="file" accept="*/*">
+<input type="file" accept="*/*">
 <!--<input type="file" accept="video/*" capture="camcorder">-->
 <!--<input type="file" accept="audio/*" capture="microphone">-->
 
@@ -93,8 +96,11 @@
 
 			/**
 			 * 使用之前要先初始化 lr 框架*/
-			lr.ready();
+<!--			lr.ready();-->
 
+            // 配置你要使用的方法列表
+            // methodList 属于 js-sdk 基础提供
+            // eventList 属于项目组自定义
             lr.config({
                 methodList:[
                     'scanQRCode',
@@ -115,6 +121,10 @@
                     'showToast',
                     'showLoading',
                     'hideLoading'
+                ],
+                // 自定义事件
+                eventList:[
+                    'getUserInfo'
                 ]
             });
 
@@ -323,6 +333,19 @@
 
 			function hideLoading(){
 			    lr.hideLoading();
+			}
+
+			function getUserInfo(){
+			    lr.getUserInfo({
+			        params: {
+			            desc: '我要获取用户信息'
+			        },
+			        success:function(res){
+			            alert('调用自定义事件成功: ' + JSON.stringify(res.result))
+			        },
+			        failed:function(){
+			        }
+			    })
 			}
 
 </script>

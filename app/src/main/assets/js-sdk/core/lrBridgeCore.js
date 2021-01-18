@@ -1,38 +1,76 @@
-const files = [
-	"/core/wxBridge.js",
-	"/utils/platform.js",
-	"/core/chunkParse.js",
-	"/core/receiver.js"
-]
+var lr = (function() {
 
-var lr = (function(files) {
-
-	(function() {
+	function parseSdkPath() {
 		const scripts = document.getElementsByTagName("script");
-		var path = null;
-		for (var key of scripts) {
-			const script = key.getAttribute("src");
-			if (script.lastIndexOf("lrBridgeCore.js") > 0) {
-				const lastIndexOf = script.lastIndexOf("/");
-				const temp = script.substr(0, lastIndexOf);
+		for (var script of scripts) {
+			const src = script.getAttribute("src");
+			if (src.lastIndexOf("lrBridgeCore.js") > 0) {
+				const lastIndexOf = src.lastIndexOf("/");
+				const temp = src.substr(0, lastIndexOf);
 				const secLastIndexOf = temp.lastIndexOf("/");
-				path = temp.substr(0, secLastIndexOf);
-				break;
+				return temp.substr(0, secLastIndexOf + 1);
 			}
 		}
-		for (var key of files) {
-			document.write("<script language=javascript src=" + path + key + "></script>");
+	}
+
+	var lazyLoader = (function(sdkPointer) {
+
+		var moduleList = {};
+		var sdkPath = null;
+
+		function LoaderHelper(moduleName, callback) {
+			this.moduleName = moduleName;
+			this.callback = callback;
+
+			if (!sdkPath) {
+				sdkPath = sdkPointer();
+			}
 		}
-	})()
 
-	const JAVASCRIPT_CALL_FINISHED = 'onJavaScriptCallFinished'
-	const CALL_NATIVE_FROM_JAVASCRIPT = 'callNativeFromJavaScript'
+		LoaderHelper.prototype = {
 
-	const RESULT_OK = 1
+			load: function() {
+				this.moduleName = sdkPath + this.moduleName;
 
-	const jsVersion = 1
-	const jsCallbacks = {}
+				if (this.isLoad()) {
+					this.callback();
+				} else {
+					var script = document.createElement('script');
+					script.src = this.moduleName;
+					script.type = 'text/javascript';
+					document.getElementsByTagName('head')[0].appendChild(script)
+
+					var that = this;
+					script.onload = function() {
+						moduleList[that.moduleName] = that.moduleName
+						that.callback();
+					}
+				}
+			},
+
+			isLoad: function() {
+				var key = this.moduleName;
+				return typeof moduleList[key] !== 'undefined' && moduleList[key] === key
+			}
+		}
+
+		return {
+			load: function(moduleName, callback) {
+				var loaderHelper = new LoaderHelper(moduleName, callback);
+				loaderHelper.load();
+			}
+		}
+
+	})(parseSdkPath)
+
+	var JAVASCRIPT_CALL_FINISHED = 'onJavaScriptCallFinished'
+	var CALL_NATIVE_FROM_JAVASCRIPT = 'callNativeFromJavaScript'
+	var RESULT_OK = 1
+
+	var jsVersion = 1
+	var jsCallbacks = {}
 	var jsCallbackCurrentId = -1
+	var isReady = false
 
 	const loops = {};
 	const Type = {
@@ -53,13 +91,15 @@ var lr = (function(files) {
 			request = packageRequest(message)
 		}
 
-		if (isAndroid()) {
-			sendToAndroid(mapObject, message.methodName, request)
-		} else if (isIos()) {
-			sendToiOS(message.methodName, request)
-		} else {
-			alert('Unknown platform');
-		}
+		lazyLoader.load('utils/platform.js', () => {
+			if (isAndroid()) {
+				sendToAndroid(mapObject, message.methodName, request)
+			} else if (isIos()) {
+				sendToiOS(message.methodName, request)
+			} else {
+				alert('Unknown platform');
+			}
+		});
 	}
 
 	function sendToAndroid(mapObject, methodName, request) {
@@ -101,25 +141,44 @@ var lr = (function(files) {
 			response.result = packageDefaultResult(message.result)
 		}
 
-		if (isAndroid()) {
-			sendToAndroid(mapObject, JAVASCRIPT_CALL_FINISHED, response)
-		} else if (isIos()) {
-			sendToiOS(JAVASCRIPT_CALL_FINISHED, response)
-		} else {
-			alert('Unknown platform');
-		}
+		lazyLoader.load('utils/platform.js', () => {
+			if (isAndroid()) {
+				sendToAndroid(mapObject, JAVASCRIPT_CALL_FINISHED, response);
+			} else if (isIos()) {
+				sendToiOS(JAVASCRIPT_CALL_FINISHED, response);
+			} else {
+				alert('Unknown platform');
+			}
+		});
 	}
 
-	function onNativeCallFinished(response) {
-		if (chunkParse.onChunk(response)) {
-			return;
+	function onBridgeConfigInternal(message) {
+		if (!isReady) {
+			ready();
 		}
-		onNativeCallInternalFinished(response);
+		lazyLoader.load('core/wxBridge.js', () => {
+			wx.config(lr, message)
+		});
+	}
+
+	function dispatchReceiverInternal(request) {
+		lazyLoader.load('core/receiver.js', () => {
+			receiverManager.dispatchReceiver(request)
+		});
+	}
+
+	function onNativeCallFinishedInternal(response) {
+		lazyLoader.load('core/chunkParse.js', () => {
+			if (chunkParse.onChunk(response)) {
+				return
+			}
+			onNativeCallInternalFinished(response);
+		});
 	}
 
 	function onNativeCallInternalFinished(response) {
 		var responseJson
-		if (typeof response === 'object' && response) {
+		if (response && typeof response === 'object') {
 			responseJson = response;
 		} else {
 			responseJson = JSON.parse(response);
@@ -287,145 +346,153 @@ var lr = (function(files) {
 		sendUnLoopMessage(mapObject, message, sendNativeInternal);
 	}
 
+	function ready() {
+		/**
+		 * @param {string} message.methodName - Native 方法名称，必填
+		 * @param {object} message.params - Native 方法参数，选填（无参类型方法）
+		 * @param {function} message.success - Native 回调（成功回调，取决于业务）选填
+		 * @param {failed} message.failed - Native 回调（失败回调，取决于业务）选填
+		 * */
+		addMethod(lr, 'callNative', function(message) {
+			if (typeof lrBridge === 'undefined') {
+				lrBridge = null;
+			}
+			lr.callNative(lrBridge, message);
+		})
+
+		/**
+		 * @param {object} mapObject 来自原生的映射对象（Android可能会需要，iOS在使用WkWebView时则不需要）
+		 * @param {object} message 参照上面方法message
+		 * */
+		addMethod(lr, 'callNative', function(mapObject, message) {
+			callNativeInternal(mapObject, message);
+		})
+
+		/**
+		 * @param {string} message.eventName - Native 事件名称，必填
+		 * @param {object} message.params - Native 事件方法参数，选填（无参数类型）
+		 * @param {function} message.success - Native 回调（成功回调，取决于业务）选填
+		 * @param {function} message.failed - Native 回调（失败回调，取决于业务）选填
+		 * */
+		addMethod(lr, 'callEvent', function(message) {
+			if (typeof lrBridge === 'undefined') {
+				lrBridge = null;
+			}
+			lr.callEvent(lrBridge, message);
+		})
+
+		/**
+		 * @param {object} mapObject 来自原生的映射对象（Android可能会需要，iOS在使用WkWebView时则不需要）
+		 * @param {object} message 参照上面方法message
+		 * */
+		addMethod(lr, 'callEvent', function(mapObject, message) {
+			callEventInternal(mapObject, message);
+		})
+
+		/**
+		 * @param {int} message.id - Native 回调id，必填
+		 * @param {object} message.result - 返回值，选填
+		 * 	{
+		 * 		@param {int} message.result.state - 状态，必填
+		 * 		@param {string} message.result.desc - 说明，必填
+		 * 		@param {object} message.result.result - 返回参数，必填
+		 * 	}
+		 * */
+		addMethod(lr, 'notifyNative', function(message) {
+			if (typeof lrBridge === 'undefined') {
+				lrBridge = null;
+			}
+			lr.notifyNative(lrBridge, message)
+		})
+
+		/**
+		 * @param {object} mapObject 来自原生的映射对象（Android可能会需要，iOS在使用WkWebView时则不需要）
+		 * @param {object} message 参照上面方法message
+		 * */
+		addMethod(lr, 'notifyNative', function(mapObject, message) {
+			notifyNativeInternal(mapObject, message)
+		})
+
+		/**
+		 * 区别与 call 类型，可以持续监听方法*/
+		addMethod(lr, 'onNative', function(message) {
+			if (typeof lrBridge === 'undefined') {
+				lrBridge = null;
+			}
+			lr.onNative(lrBridge, message);
+		})
+
+		/**
+		 * 区别与 call 类型，可以持续监听方法*/
+		addMethod(lr, 'onNative', function(mapObject, message) {
+			onNativeInternal(mapObject, message);
+		})
+
+		/**
+		 * 与 onNative 对应，移除持续监听的方法*/
+		addMethod(lr, 'offNative', function(message) {
+			if (typeof lrBridge === 'undefined') {
+				lrBridge = null;
+			}
+			lr.offNative(lrBridge, message);
+		})
+
+		/**
+		 * 与 onNative 对应，移除持续监听的方法*/
+		addMethod(lr, 'offNative', function(mapObject, message) {
+			offNativeInternal(mapObject, message);
+		})
+
+		/**
+		 * 区别于 call 类型，可以持续监听事件*/
+		addMethod(lr, 'onEvent', function(message) {
+			if (typeof lrBridge === 'undefined') {
+				lrBridge = null;
+			}
+			lr.onEvent(lrBridge, message);
+		})
+
+		/**
+		 * 区别于 call 类型，可以持续监听事件*/
+		addMethod(lr, 'onEvent', function(mapObject, message) {
+			onEventInternal(mapObject, message);
+		})
+
+		/**
+		 * 与 onEvent 对应，移除持续监听的事件*/
+		addMethod(lr, 'offEvent', function(message) {
+			if (typeof lrBridge === 'undefined') {
+				lrBridge = null;
+			}
+			lr.offEvent(lrBridge, message);
+		})
+
+		/**
+		 * 与 onEvent 对应，移除持续监听的事件*/
+		addMethod(lr, 'offEvent', function(mapObject, message) {
+			offEventInternal(mapObject, message);
+		})
+	}
+
 	return {
 
 		ready: function() {
-			/**
-			 * @param {string} message.methodName - Native 方法名称，必填
-			 * @param {object} message.params - Native 方法参数，选填（无参类型方法）
-			 * @param {function} message.success - Native 回调（成功回调，取决于业务）选填
-			 * @param {failed} message.failed - Native 回调（失败回调，取决于业务）选填
-			 * */
-			addMethod(lr, 'callNative', function(message) {
-				if (typeof lrBridge === 'undefined') {
-					lrBridge = null;
-				}
-				lr.callNative(lrBridge, message);
-			})
-
-			/**
-			 * @param {object} mapObject 来自原生的映射对象（Android可能会需要，iOS在使用WkWebView时则不需要）
-			 * @param {object} message 参照上面方法message
-			 * */
-			addMethod(lr, 'callNative', function(mapObject, message) {
-				callNativeInternal(mapObject, message);
-			})
-
-			/**
-			 * @param {string} message.eventName - Native 事件名称，必填
-			 * @param {object} message.params - Native 事件方法参数，选填（无参数类型）
-			 * @param {function} message.success - Native 回调（成功回调，取决于业务）选填
-			 * @param {function} message.failed - Native 回调（失败回调，取决于业务）选填
-			 * */
-			addMethod(lr, 'callEvent', function(message) {
-				if (typeof lrBridge === 'undefined') {
-					lrBridge = null;
-				}
-				lr.callEvent(lrBridge, message);
-			})
-
-			/**
-			 * @param {object} mapObject 来自原生的映射对象（Android可能会需要，iOS在使用WkWebView时则不需要）
-			 * @param {object} message 参照上面方法message
-			 * */
-			addMethod(lr, 'callEvent', function(mapObject, message) {
-				callEventInternal(mapObject, message);
-			})
-
-			/**
-			 * @param {int} message.id - Native 回调id，必填
-			 * @param {object} message.result - 返回值，选填
-			 * 	{
-			 * 		@param {int} message.result.state - 状态，必填
-			 * 		@param {string} message.result.desc - 说明，必填
-			 * 		@param {object} message.result.result - 返回参数，必填
-			 * 	}
-			 * */
-			addMethod(lr, 'notifyNative', function(message) {
-				if (typeof lrBridge === 'undefined') {
-					lrBridge = null;
-				}
-				lr.notifyNative(lrBridge, message)
-			})
-
-			/**
-			 * @param {object} mapObject 来自原生的映射对象（Android可能会需要，iOS在使用WkWebView时则不需要）
-			 * @param {object} message 参照上面方法message
-			 * */
-			addMethod(lr, 'notifyNative', function(mapObject, message) {
-				notifyNativeInternal(mapObject, message)
-			})
-
-			/**
-			 * 区别与 call 类型，可以持续监听方法*/
-			addMethod(lr, 'onNative', function(message) {
-				if (typeof lrBridge === 'undefined') {
-					lrBridge = null;
-				}
-				lr.onNative(lrBridge, message);
-			})
-
-			/**
-			 * 区别与 call 类型，可以持续监听方法*/
-			addMethod(lr, 'onNative', function(mapObject, message) {
-				onNativeInternal(mapObject, message);
-			})
-
-			/**
-			 * 与 onNative 对应，移除持续监听的方法*/
-			addMethod(lr, 'offNative', function(message) {
-				if (typeof lrBridge === 'undefined') {
-					lrBridge = null;
-				}
-				lr.offNative(lrBridge, message);
-			})
-
-			/**
-			 * 与 onNative 对应，移除持续监听的方法*/
-			addMethod(lr, 'offNative', function(mapObject, message) {
-				offNativeInternal(mapObject, message);
-			})
-
-			/**
-			 * 区别于 call 类型，可以持续监听事件*/
-			addMethod(lr, 'onEvent', function(message) {
-				if (typeof lrBridge === 'undefined') {
-					lrBridge = null;
-				}
-				lr.onEvent(lrBridge, message);
-			})
-
-			/**
-			 * 区别于 call 类型，可以持续监听事件*/
-			addMethod(lr, 'onEvent', function(mapObject, message) {
-				onEventInternal(mapObject, message);
-			})
-
-			/**
-			 * 与 onEvent 对应，移除持续监听的事件*/
-			addMethod(lr, 'offEvent', function(message) {
-				if (typeof lrBridge === 'undefined') {
-					lrBridge = null;
-				}
-				lr.offEvent(lrBridge, message);
-			})
-
-			/**
-			 * 与 onEvent 对应，移除持续监听的事件*/
-			addMethod(lr, 'offEvent', function(mapObject, message) {
-				offEventInternal(mapObject, message);
-			})
+			// todo 历史遗留，不能移除
 		},
 
 		config: function(message) {
-			wx.config(lr, message);
+			onBridgeConfigInternal(message)
 		},
 
 		dispatchCallNativeCallback: function(response) {
-			onNativeCallFinished(response)
+			onNativeCallFinishedInternal(response)
+		},
+
+		dispatchReceiver: function(request) {
+			dispatchReceiverInternal(request);
 		}
 	}
-})(files);
+})();
 
 /**
  * 接收来自Native的通知, Native返回Response
@@ -438,5 +505,5 @@ function onNativeCallFinished(response) {
  * 接收来自Native的事件调用
  * */
 function callJavaScriptFromNative(request) {
-	receiverManager.dispatchReceiver(JSON.parse(request))
+	lr.dispatchReceiver(JSON.parse(request))
 }

@@ -69,5 +69,4 @@ public final class Internal<T extends IBridgeAgent<T>> {
         };
         webChromeClient.attachTarget(mTarget, mView);
     }
-
 }

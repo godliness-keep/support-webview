@@ -1,91 +1,94 @@
-var receiverManager = (function() {
+if (typeof receiverManager === 'undefined') {
 
-	var events = {}
-	var lifecycles = {}
+	console.error('load receiver')
 
-	function addEventInternal(eventName) {
-		events[eventName] = document;
-	}
+	var receiverManager = (function() {
+		var events = {}
+		var lifecycles = {}
 
-	function addLifecycleInternal(eventName, event) {
-		if (lifecycles[document] == null) {
-			lifecycles[document] = {}
+		function addEventInternal(eventName) {
+			events[eventName] = document;
 		}
-		var eventMap = lifecycles[document]
-		eventMap[eventName] = event
-	}
 
-	function dispatchReceiverInternal(request) {
-		var host = events[request.eventName];
-		var eventMap = lifecycles[host];
-		var targetMethod = eventMap[request.eventName];
-		var targetResult;
-		if (targetMethod.length > 0) {
-			targetResult = targetMethod(request.params);
-		} else {
-			targetResult = targetMethod();
-		}
-		if (targetResult != null) {
-			var message = {
-				id: request.id,
-				result: targetResult
+		function addLifecycleInternal(eventName, event) {
+			if (lifecycles[document] == null) {
+				lifecycles[document] = {}
 			}
-			lr.notifyNative(message);
+			var eventMap = lifecycles[document]
+			eventMap[eventName] = event
 		}
-	}
 
-	function removeLifecycleInternal(host) {
-		var eventMap = lifecycles[host]
-		if (eventMap != null) {
-			for (key in eventMap) {
-				delete events[key]
+		function dispatchReceiverInternal(request) {
+			var host = events[request.eventName];
+			var eventMap = lifecycles[host];
+			var targetMethod = eventMap[request.eventName];
+			var targetResult;
+			if (targetMethod.length > 0) {
+				targetResult = targetMethod(request.params);
+			} else {
+				targetResult = targetMethod();
 			}
-			delete lifecycles[host]
+			if (targetResult != null) {
+				var message = {
+					id: request.id,
+					result: targetResult
+				}
+				lr.notifyNative(message);
+			}
 		}
-	}
 
-	return {
-
-		/**
-		 * @param {string} eventName 事件名称
-		 * */
-		addEvent: function(eventName) {
-			addEventInternal(eventName)
-		},
-
-		/**
-		 * @param {string} eventName 事件名称
-		 * @param {function} event 事件
-		 * */
-		addLifecycle: function(eventName, event) {
-			addLifecycleInternal(eventName, event)
-		},
-
-		/**
-		 * @param {object} request 来自Native的请求体
-		 * */
-		dispatchReceiver: function(request) {
-			dispatchReceiverInternal(request)
-		},
-
-		/**
-		 * @param {object} host 事件宿主
-		 * */
-		removeLifecycle: function(host) {
-			removeLifecycleInternal(host)
+		function removeLifecycleInternal(host) {
+			var eventMap = lifecycles[host]
+			if (eventMap != null) {
+				for (key in eventMap) {
+					delete events[key]
+				}
+				delete lifecycles[host]
+			}
 		}
-	}
-})()
 
-//var receiver = new Proxy(receiverManager, {
-//
-//	set: function(target, key, value) {
-//		if (typeof value === 'function') {
-//			target.addEvent(key);
-//			target.addLifecycle(key, value);
-//		} else {
-//			throw 'The property \'' + key + '\' must function type'
-//		}
-//	}
-//});
+		return {
 
+			/**
+			 * @param {string} eventName 事件名称
+			 * */
+			addEvent: function(eventName) {
+				addEventInternal(eventName)
+			},
+
+			/**
+			 * @param {string} eventName 事件名称
+			 * @param {function} event 事件
+			 * */
+			addLifecycle: function(eventName, event) {
+				addLifecycleInternal(eventName, event)
+			},
+
+			/**
+			 * @param {object} request 来自Native的请求体
+			 * */
+			dispatchReceiver: function(request) {
+				dispatchReceiverInternal(request)
+			},
+
+			/**
+			 * @param {object} host 事件宿主
+			 * */
+			removeLifecycle: function(host) {
+				removeLifecycleInternal(host)
+			}
+		}
+	})()
+
+	var receiver = new Proxy(receiverManager, {
+
+		set: function(target, key, value) {
+			if (typeof value === 'function') {
+				target.addEvent(key);
+				target.addLifecycle(key, value);
+			} else {
+				throw 'The property \'' + key + '\' must function type'
+			}
+		}
+	});
+}

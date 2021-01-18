@@ -15,11 +15,13 @@ import com.longrise.android.webview.demo.mode.Bean;
 import com.longrise.android.webview.demo.mode.Params;
 import com.longrise.android.x5web.BaseWebActivity;
 import com.longrise.android.x5web.X5;
+import com.longrise.android.x5web.internal.IScrollChangeListener;
 import com.longrise.android.x5web.internal.X5WebView;
 import com.longrise.android.x5web.internal.bridge.BaseDownloader;
 import com.longrise.android.x5web.internal.bridge.BaseWebBridge;
 import com.longrise.android.x5web.internal.bridge.BaseWebChromeClient;
 import com.longrise.android.x5web.internal.bridge.BaseWebViewClient;
+import com.tencent.smtt.sdk.TbsReaderView;
 
 /**
  * Created by godliness on 2020/9/1.
@@ -72,6 +74,30 @@ public class WebX5DemoActivity extends BaseWebActivity<WebX5DemoActivity> implem
         loadUrl("file:///android_asset/main.html");
 
         mParamsReceiver.alive().lifecycle(this);
+
+//        TbsReaderView readerView = new TbsReaderView(this, new TbsReaderView.ReaderCallback() {
+//            @Override
+//            public void onCallBackAction(Integer integer, Object o, Object o1) {
+//
+//            }
+//        });
+
+        mWebView.setScrollChangedListener(new IScrollChangeListener() {
+            @Override
+            public void onScroll(int left, int top, int oldLeft, int oldTop) {
+                Log.e(TAG, "onScroll");
+            }
+
+            @Override
+            public void onScrollTop(int left, int top, int oldLeft, int oldTop) {
+                Log.e(TAG, "onScrollTop");
+            }
+
+            @Override
+            public void onScrollEnd(int left, int top, int oldLeft, int oldTop) {
+                Log.e(TAG, "onScrollTop");
+            }
+        });
     }
 
     /**
