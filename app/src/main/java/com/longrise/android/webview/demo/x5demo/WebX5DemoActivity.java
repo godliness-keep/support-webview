@@ -23,6 +23,8 @@ import com.longrise.android.x5web.internal.bridge.BaseWebChromeClient;
 import com.longrise.android.x5web.internal.bridge.BaseWebViewClient;
 import com.tencent.smtt.sdk.TbsReaderView;
 
+import java.io.File;
+
 /**
  * Created by godliness on 2020/9/1.
  *
@@ -74,13 +76,16 @@ public class WebX5DemoActivity extends BaseWebActivity<WebX5DemoActivity> implem
         loadUrl("file:///android_asset/main.html");
 
         mParamsReceiver.alive().lifecycle(this);
+    }
 
-//        TbsReaderView readerView = new TbsReaderView(this, new TbsReaderView.ReaderCallback() {
-//            @Override
-//            public void onCallBackAction(Integer integer, Object o, Object o1) {
-//
-//            }
-//        });
+    private TbsReaderWizard mWrizard;
+
+    /**
+     * 在这里注册相关事件，{@link #onDestroy()} 时自动回调为 false
+     */
+    @Override
+    protected void regEvent(boolean regEvent) {
+        mBack.setOnClickListener(regEvent ? this : null);
 
         mWebView.setScrollChangedListener(new IScrollChangeListener() {
             @Override
@@ -95,17 +100,9 @@ public class WebX5DemoActivity extends BaseWebActivity<WebX5DemoActivity> implem
 
             @Override
             public void onScrollEnd(int left, int top, int oldLeft, int oldTop) {
-                Log.e(TAG, "onScrollTop");
+                Log.e(TAG, "onScrollEnd");
             }
         });
-    }
-
-    /**
-     * 在这里注册相关事件，{@link #onDestroy()} 时自动回调为 false
-     */
-    @Override
-    protected void regEvent(boolean regEvent) {
-        mBack.setOnClickListener(regEvent ? this : null);
     }
 
     /**
