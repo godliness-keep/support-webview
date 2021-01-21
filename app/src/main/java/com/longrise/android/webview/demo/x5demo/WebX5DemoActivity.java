@@ -78,31 +78,12 @@ public class WebX5DemoActivity extends BaseWebActivity<WebX5DemoActivity> implem
         mParamsReceiver.alive().lifecycle(this);
     }
 
-    private TbsReaderWizard mWrizard;
-
     /**
      * 在这里注册相关事件，{@link #onDestroy()} 时自动回调为 false
      */
     @Override
     protected void regEvent(boolean regEvent) {
         mBack.setOnClickListener(regEvent ? this : null);
-
-        mWebView.setScrollChangedListener(new IScrollChangeListener() {
-            @Override
-            public void onScroll(int left, int top, int oldLeft, int oldTop) {
-                Log.e(TAG, "onScroll");
-            }
-
-            @Override
-            public void onScrollTop(int left, int top, int oldLeft, int oldTop) {
-                Log.e(TAG, "onScrollTop");
-            }
-
-            @Override
-            public void onScrollEnd(int left, int top, int oldLeft, int oldTop) {
-                Log.e(TAG, "onScrollEnd");
-            }
-        });
     }
 
     /**
