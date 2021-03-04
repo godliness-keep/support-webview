@@ -208,16 +208,10 @@ public final class BaseWebView extends WebView {
     }
 
     public final boolean onHandleMessage(Message msg) {
-        if (mBridge != null && mBridge.onHandleMessage(msg)) {
-            return true;
-        }
-        if (mWebViewClient != null && mWebViewClient.onHandleMessage(msg)) {
-            return true;
-        }
-        if (mWebChromeClient != null && mWebChromeClient.onHandleMessage(msg)) {
-            return true;
-        }
-        return mDownloader != null && mDownloader.onHandleMessage(msg);
+        return (mBridge != null && mBridge.onHandleMessage(msg)) ||
+                (mWebViewClient != null && mWebViewClient.onHandleMessage(msg)) ||
+                (mWebChromeClient != null && mWebChromeClient.onHandleMessage(msg)) ||
+                (mDownloader != null && mDownloader.onHandleMessage(msg));
     }
 
     @Override
