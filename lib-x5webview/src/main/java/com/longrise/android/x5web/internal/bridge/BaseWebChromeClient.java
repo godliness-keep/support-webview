@@ -109,7 +109,7 @@ public abstract class BaseWebChromeClient<T extends IBridgeAgent<T>> extends Web
             return;
         }
         if (mClientBridge != null) {
-            mClientBridge.onProgressChanged(newProgress);
+            mClientBridge.onProgressChanged(view, newProgress);
         }
         if (mFirstLoad) {
             view.clearHistory();
@@ -243,7 +243,7 @@ public abstract class BaseWebChromeClient<T extends IBridgeAgent<T>> extends Web
         return null;
     }
 
-    private FileChooser<?> createOrGetFileChooser(){
+    private FileChooser<?> createOrGetFileChooser() {
         if (mFileChooser == null) {
             mFileChooser = new FileChooser<>(getTarget());
         }

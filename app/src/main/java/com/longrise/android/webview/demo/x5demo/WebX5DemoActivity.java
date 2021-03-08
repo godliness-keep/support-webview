@@ -4,7 +4,11 @@ import android.os.Bundle;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewParent;
+import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -41,6 +45,9 @@ public class WebX5DemoActivity extends BaseWebActivity<WebX5DemoActivity> implem
 
     private X5WebView mWebView;
 
+    private FrameLayout mWebContent;
+    private View mLoadFailedView;
+
     /**
      * 返回布局资源 id
      */
@@ -73,7 +80,12 @@ public class WebX5DemoActivity extends BaseWebActivity<WebX5DemoActivity> implem
         mProgress = findViewById(R.id.progress);
         mWebView = findViewById(R.id.x5webview);
 
-        loadUrl("file:///android_asset/main.html");
+        loadUrl("https://www.sohu.com");
+//        loadUrl("file:///android_asset/main.html");
+
+        /*这里简单示例在加载出错时处理方式*/
+        mWebContent = findViewById(R.id.web_content);
+        mLoadFailedView = LayoutInflater.from(this).inflate(R.layout.load_failed, mWebView, false);
 
         mParamsReceiver.alive().lifecycle(this);
     }
@@ -126,6 +138,11 @@ public class WebX5DemoActivity extends BaseWebActivity<WebX5DemoActivity> implem
     @Override
     public void loadSucceed() {
         Log.e(TAG, "加载结束");
+
+        final ViewParent vp = mLoadFailedView.getParent();
+        if (vp instanceof ViewGroup) {
+            ((ViewGroup) vp).removeView(mLoadFailedView);
+        }
     }
 
     /**
@@ -134,7 +151,11 @@ public class WebX5DemoActivity extends BaseWebActivity<WebX5DemoActivity> implem
     @Override
     public void loadFailed() {
         Log.e(TAG, "加载失败");
-//        loadUrl(SchemeConsts.BLANK);
+
+        final ViewParent vp = mLoadFailedView.getParent();
+        if (vp == null) {
+            mWebContent.addView(mLoadFailedView);
+        }
     }
 
     @Override

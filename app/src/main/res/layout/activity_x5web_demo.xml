@@ -7,10 +7,17 @@
 
     <include layout="@layout/include_title_bar" />
 
-    <!-- X5 -->
-    <com.longrise.android.x5web.internal.X5WebView
-        android:id="@+id/x5webview"
+    <FrameLayout
+        android:id="@+id/web_content"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent">
+
+        <!-- X5 -->
+        <com.longrise.android.x5web.internal.X5WebView
+            android:id="@+id/x5webview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </FrameLayout>
 
 </LinearLayout>

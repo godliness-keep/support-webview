@@ -88,7 +88,7 @@ public abstract class BaseWebChromeClient<T extends IBridgeAgent<T>> extends Web
         }
 
         if (mClientBridge != null) {
-            mClientBridge.onProgressChanged(newProgress);
+            mClientBridge.onProgressChanged(view, newProgress);
         }
 
         if (mFirstLoad) {

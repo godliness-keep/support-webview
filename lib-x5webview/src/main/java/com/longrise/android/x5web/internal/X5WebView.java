@@ -156,6 +156,7 @@ public class X5WebView extends WebView {
         super.addJavascriptInterface(object, name);
         if (object instanceof BaseWebBridge) {
             this.mBridge = (BaseWebBridge<?>) object;
+            mBridge.invokeClientBridge(mClientBridge);
         }
     }
 

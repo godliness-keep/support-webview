@@ -1,5 +1,9 @@
 package com.longrise.android.web.internal;
 
+import android.support.annotation.Nullable;
+import android.text.TextUtils;
+import android.webkit.WebView;
+
 /**
  * Created by godliness on 2020/9/4.
  *
@@ -7,14 +11,22 @@ package com.longrise.android.web.internal;
  */
 final class BridgeDelegate implements IBridgeListener {
 
-    private static final int LOAD_FAILED = 0;
-    private static final int LOAD_COMPLETED = 1;
+    private static final int STATE_LOAD_FAILED = 0;
+    private static final int STATE_LOAD_COMPLETED = 1;
+    private int mCurrentLoadStatus = -1;
+
+    private static final String DOC_CALLBACK = "javaScript:function onPageLoaded(){" +
+            "if(typeof document.URL){" +
+            "if(document.URL.indexOf(\"data:text/html\") < 0){" +
+            "lrBridge.onPageLoaded();" +
+            "}" +
+            "}" +
+            "}" +
+            "javaScript:onPageLoaded();";
 
     private IWebLoadListener mLoadCallback;
-
-    private boolean mLoadFailed;
-    private int mLoadActor;
-    private int mCurrentLoadStatus = -1;
+    private String mCurrentUrl;
+    private boolean mPageLoaded;
 
     @Override
     public boolean beforeUrlLoading(String url) {
@@ -25,15 +37,25 @@ final class BridgeDelegate implements IBridgeListener {
     }
 
     @Override
-    public void onProgressChanged(int newProgress) {
+    public void onProgressChanged(WebView view, int newProgress) {
         if (mLoadCallback != null) {
             mLoadCallback.onProgressChanged(newProgress);
         }
 
-        caleLoadActor(newProgress);
+        onPageLoading(view, newProgress);
+    }
 
-        if (mLoadActor >= 2 && mLoadFailed) {
-            notifyLoadCompleted();
+    @Override
+    public void onPageLoaded(@Nullable WebView view) {
+        this.mPageLoaded = true;
+
+        if (view != null) {
+            view.post(new Runnable() {
+                @Override
+                public void run() {
+                    notifyLoadCompleted();
+                }
+            });
         }
     }
 
@@ -46,26 +68,14 @@ final class BridgeDelegate implements IBridgeListener {
 
     @Override
     public void onPageStarted() {
-        this.mLoadActor = 0;
-        this.mLoadFailed = false;
     }
 
     @Override
     public void onPageFinished() {
-        if (mLoadFailed) {
-            if (mLoadActor >= 2) {
-                notifyLoadCompleted();
-            } else {
-                notifyLoadFailed();
-            }
-        } else {
-            notifyLoadCompleted();
-        }
     }
 
     @Override
     public void onReceivedError() {
-        this.mLoadFailed = true;
     }
 
     @Override
@@ -83,38 +93,60 @@ final class BridgeDelegate implements IBridgeListener {
         return new BridgeDelegate();
     }
 
+    private String getPageUrl(WebView view) {
+        final String url = view.getUrl();
+        if (TextUtils.isEmpty(url)) {
+            return "";
+        }
+        final int index = url.indexOf("?");
+        if (index > 0) {
+            return url.substring(0, index);
+        }
+        return url;
+    }
+
+    private void onPageLoading(WebView view, int curProgress) {
+        final String url = getPageUrl(view);
+
+        if (!TextUtils.equals(url, mCurrentUrl)) {
+            if (curProgress >= 75) {
+                this.mCurrentUrl = url;
+                this.mPageLoaded = false;
+                view.loadUrl(DOC_CALLBACK);
+            }
+        } else if (curProgress >= 100) {
+            view.post(new Runnable() {
+                @Override
+                public void run() {
+                    if (mPageLoaded) {
+                        notifyLoadCompleted();
+                    } else {
+                        notifyLoadFailed();
+                        mCurrentUrl = null;
+                    }
+                }
+            });
+        }
+    }
+
     private void notifyLoadFailed() {
-        if (mCurrentLoadStatus == LOAD_FAILED) {
+        if (mCurrentLoadStatus == STATE_LOAD_FAILED) {
             return;
         }
         if (mLoadCallback != null) {
             mLoadCallback.loadFailed();
         }
-        this.mCurrentLoadStatus = LOAD_FAILED;
+        this.mCurrentLoadStatus = STATE_LOAD_FAILED;
     }
 
     private void notifyLoadCompleted() {
-        if (mCurrentLoadStatus == LOAD_COMPLETED) {
+        if (mCurrentLoadStatus == STATE_LOAD_COMPLETED) {
             return;
         }
         if (mLoadCallback != null) {
             mLoadCallback.loadSucceed();
         }
-        this.mCurrentLoadStatus = LOAD_COMPLETED;
-    }
-
-    private void caleLoadActor(int progress) {
-        if (progress >= 50) {
-            if (progress <= 60) {
-                mLoadActor++;
-            } else if (progress <= 70) {
-                mLoadActor++;
-            } else if (progress <= 80) {
-                mLoadActor++;
-            } else if (progress <= 90) {
-                mLoadActor++;
-            }
-        }
+        this.mCurrentLoadStatus = STATE_LOAD_COMPLETED;
     }
 
     private BridgeDelegate() {

@@ -3,9 +3,11 @@ package com.longrise.android.x5web.internal.bridge;
 import android.annotation.SuppressLint;
 import android.os.Handler;
 import android.os.Message;
+import android.webkit.JavascriptInterface;
 
 import com.longrise.android.jsapi_x5.wx.bridge.BaseApiBridge;
 import com.longrise.android.x5web.internal.IBridgeAgent;
+import com.longrise.android.x5web.internal.OnBridgeListener;
 import com.tencent.smtt.sdk.WebView;
 
 import java.lang.ref.WeakReference;
@@ -19,6 +21,8 @@ public abstract class BaseWebBridge<T extends IBridgeAgent<T>> extends BaseApiBr
 
     private Handler mHandler;
     private WeakReference<WebView> mView;
+
+    private OnBridgeListener mClientBridge;
 
     @Override
     protected void onDestroy() {
@@ -54,5 +58,17 @@ public abstract class BaseWebBridge<T extends IBridgeAgent<T>> extends BaseApiBr
         view.addJavascriptInterface(this, bridgeName());
         this.mHandler = target.getHandler();
         this.mView = new WeakReference<>(view);
+    }
+
+    @JavascriptInterface
+    public final void onPageLoaded() {
+        // 用于辅助完成页面加载成功的管理
+        if (mClientBridge != null) {
+            mClientBridge.onPageLoaded(mView.get());
+        }
+    }
+
+    public final void invokeClientBridge(OnBridgeListener agent) {
+        this.mClientBridge = agent;
     }
 }

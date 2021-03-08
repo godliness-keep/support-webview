@@ -15,8 +15,6 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.longrise.android.jssdk.receiver.IParamsReceiver;
 import com.longrise.android.jssdk.receiver.IParamsReturnReceiver;
-import com.longrise.android.jssdk.receiver.IReceiver;
-import com.longrise.android.jssdk.receiver.IReturnReceiver;
 import com.longrise.android.jssdk.receiver.base.EventName;
 import com.longrise.android.web.BaseWebActivity;
 import com.longrise.android.web.internal.BaseWebView;
@@ -59,7 +57,8 @@ public final class WebDemoActivity extends BaseWebActivity<WebDemoActivity> impl
         mProgress = findViewById(R.id.progress);
         mWebView = findViewById(R.id.webview);
 
-        loadUrl("file:///android_asset/main.html");
+        loadUrl("https://www.sohu.com");
+//        loadUrl("file:///android_asset/main.html");
         /*这里简单示例在加载出错时处理方式*/
         mWebContent = findViewById(R.id.web_content);
         mLoadFailedView = LayoutInflater.from(this).inflate(R.layout.load_failed, mWebView, false);

@@ -143,6 +143,7 @@ public final class BaseWebView extends WebView {
         super.addJavascriptInterface(object, name);
         if (object instanceof BaseWebBridge) {
             this.mBridge = (BaseWebBridge<?>) object;
+            this.mBridge.invokeClientBridge(mClientBridge);
         }
     }
 
