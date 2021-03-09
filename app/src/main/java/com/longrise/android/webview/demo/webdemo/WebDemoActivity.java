@@ -57,15 +57,17 @@ public final class WebDemoActivity extends BaseWebActivity<WebDemoActivity> impl
         mProgress = findViewById(R.id.progress);
         mWebView = findViewById(R.id.webview);
 
-        loadUrl("https://www.sohu.com");
-//        loadUrl("file:///android_asset/main.html");
+//        loadUrl("https://www.sohu.com");
+        loadUrl("file:///android_asset/main.html");
         /*这里简单示例在加载出错时处理方式*/
         mWebContent = findViewById(R.id.web_content);
         mLoadFailedView = LayoutInflater.from(this).inflate(R.layout.load_failed, mWebView, false);
 
         /* 注册事件 */
         mParamsReceiver.alive().lifecycle(this);
-        mStatusReceiver.alive().lifecycle(this);
+//        mStatusReceiver.alive().lifecycle(this);
+        mTestEvent.alive().lifecycle(this);
+        mStringEvents.alive().lifecycle(this);
     }
 
 
@@ -176,16 +178,34 @@ public final class WebDemoActivity extends BaseWebActivity<WebDemoActivity> impl
         }
     };
 
+    private final IParamsReceiver<String> mTestEvent = new IParamsReceiver<String>() {
 
-    private final IParamsReturnReceiver<Desc, UserInfo> mStatusReceiver = new IParamsReturnReceiver<Desc, UserInfo>() {
-        @EventName("getUserInfo")
         @Override
-        public UserInfo onEvent(Desc desc) {
-            Log.e(TAG, "onEvent: " + desc.desc);
+        @EventName("getUserInfo")
+        public void onEvent(String desc) {
+            Log.e(TAG, "onEvent: " + desc);
 
-            return new UserInfo();
+            callback("无返回值的事件中，可以通过 callback 回调返回到 JavaScript 调用者");
         }
     };
+
+    private final IParamsReceiver<String> mStringEvents = new IParamsReceiver<String>() {
+        @Override
+        @EventName("testEvent")
+        public void onEvent(String str) {
+            Log.e(TAG, "onEvent: " + str);
+        }
+    };
+
+//    private final IParamsReturnReceiver<String, UserInfo> mStatusReceiver = new IParamsReturnReceiver<String, UserInfo>() {
+//        @EventName("getUserInfo")
+//        @Override
+//        public UserInfo onEvent(String desc) {
+//            Log.e(TAG, "onEvent: " + desc);
+//
+//            return new UserInfo();
+//        }
+//    };
 
     public static final class Desc {
         @Expose

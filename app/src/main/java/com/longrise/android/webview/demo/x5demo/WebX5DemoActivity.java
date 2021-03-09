@@ -80,14 +80,15 @@ public class WebX5DemoActivity extends BaseWebActivity<WebX5DemoActivity> implem
         mProgress = findViewById(R.id.progress);
         mWebView = findViewById(R.id.x5webview);
 
-        loadUrl("https://www.sohu.com");
-//        loadUrl("file:///android_asset/main.html");
+//        loadUrl("https://www.sohu.com");
+        loadUrl("file:///android_asset/main.html");
 
         /*这里简单示例在加载出错时处理方式*/
         mWebContent = findViewById(R.id.web_content);
         mLoadFailedView = LayoutInflater.from(this).inflate(R.layout.load_failed, mWebView, false);
 
         mParamsReceiver.alive().lifecycle(this);
+        mStringEvents.alive().lifecycle(this);
     }
 
     /**
@@ -251,6 +252,14 @@ public class WebX5DemoActivity extends BaseWebActivity<WebX5DemoActivity> implem
             }
             // 如果需要返回，可以选择使用
             callback(beans);
+        }
+    };
+
+    private final IParamsReceiver<String> mStringEvents = new IParamsReceiver<String>() {
+        @Override
+        @EventName("testEvent")
+        public void onEvent(String str) {
+            Log.e(TAG, "onEvent: " + str);
         }
     };
 
