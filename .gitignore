@@ -1,22 +1,11 @@
 *.iml
 .gradle
 /local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-/.idea/misc.xml
 .DS_Store
 /build
 /captures
 .externalNativeBuild
 .cxx
 *.zip
+.idea
 
-.idea/modules/basic-component/lib-request-permission/
-.idea/modules/jssdk-x5/
-.idea/modules/jssdk/
-.idea/modules/web-internal/
-.idea/modules/x5-internal/
