@@ -59,6 +59,7 @@ public final class WebDemoActivity extends BaseWebActivity<WebDemoActivity> impl
 
 //        loadUrl("https://www.sohu.com");
         loadUrl("file:///android_asset/main.html");
+
         /*这里简单示例在加载出错时处理方式*/
         mWebContent = findViewById(R.id.web_content);
         mLoadFailedView = LayoutInflater.from(this).inflate(R.layout.load_failed, mWebView, false);
