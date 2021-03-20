@@ -223,7 +223,14 @@ public final class X5 {
                                     jsResult.confirm();
                                 }
                             }
-                        }).create().show();
+                        }).setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                        if (jsResult != null) {
+                            jsResult.confirm();
+                        }
+                    }
+                }).create().show();
                 return true;
             }
 
