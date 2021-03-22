@@ -3,16 +3,20 @@ package com.longrise.android.web.internal.filer.accept;
 import android.Manifest;
 import android.content.Intent;
 import android.net.Uri;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.app.FragmentActivity;
 
-import com.longrise.android.permission.IPermissionHelper;
+import com.longrise.android.permission.IResult;
+import com.longrise.android.permission.OnPermissionResultListener;
 import com.longrise.android.permission.RequestPermission;
-import com.longrise.android.photowall.Filer;
+import com.longrise.android.result.ActivityOnResult;
+import com.longrise.android.result.OnActivityResultListener;
 import com.longrise.android.web.R;
 import com.longrise.android.web.internal.filer.IFilerListener;
+
+import java.io.File;
 
 /**
  * Created by godliness on 2020/11/20.
@@ -24,7 +28,7 @@ public abstract class Accept {
     private final FragmentActivity mCxt;
     private final String mType;
 
-    public abstract void onClick(IFilerListener onResultListener);
+    public abstract void onClick(@NonNull IFilerListener onResultListener);
 
     public abstract String getName();
 
@@ -52,13 +56,13 @@ public abstract class Accept {
         }
 
         @Override
-        public void onClick(IFilerListener filerListener) {
-            Filer.galleryOf().start(getHost(), filerListener);
+        public void onClick(@NonNull final IFilerListener filerListener) {
+            ActivityOnResult.from(getHost()).onResult(filerListener).to(new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI));
         }
 
         @Override
         public String getName() {
-            return getHost().getString(R.string.filer_image);
+            return getString(R.string.filer_image);
         }
     }
 
@@ -69,26 +73,32 @@ public abstract class Accept {
         }
 
         @Override
-        public void onClick(final IFilerListener filerListener) {
-            RequestPermission.of(getHost())
-                    .onPermissionResult(new IPermissionHelper() {
-                        @Override
-                        protected boolean onPermissionResult(@NonNull String[] permissions, @NonNull int[] grantResults) {
-                            if (isGranted()) {
-                                Filer.takeOf(new Filer.ITakeListener() {
-                                    @Override
-                                    public void onTaken(@Nullable Uri uri) {
-                                        final Intent intent = new Intent();
-                                        intent.setData(uri);
-                                        filerListener.onActivityResult(FragmentActivity.RESULT_OK, intent);
-                                    }
-                                }).start(CameraAccept.this.getHost());
-                            } else {
-                                filerListener.onReceiveValueEnd();
+        public void onClick(@NonNull final IFilerListener callback) {
+            final FragmentActivity host = getHost();
+            RequestPermission.of(host).onResult(new OnPermissionResultListener() {
+                @Override
+                public void onResult(@NonNull IResult iResult) {
+                    if (iResult.isGranted()) {
+                        final Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                        final File outFile = Utils.getLocalFile(host, "temp_camera.jpg");
+                        intent.putExtra(MediaStore.EXTRA_OUTPUT, Utils.transformProviderUri(host, outFile));
+                        ActivityOnResult.from(host).onResult(new OnActivityResultListener() {
+                            @Override
+                            public void onActivityResult(int resultCode, Intent data) {
+                                final Intent intent = new Intent();
+                                intent.setData(Uri.fromFile(outFile));
+                                callback.onActivityResult(resultCode, intent);
                             }
-                            return false;
+                        }).to(intent);
+                    } else {
+                        callback.onReceiveValueEnd();
+
+                        if (iResult.isClosed()) {
+                            iResult.showSettingDialog();
                         }
-                    }).request(Manifest.permission.CAMERA);
+                    }
+                }
+            }).check(Manifest.permission.CAMERA);
         }
 
         @Override
@@ -104,8 +114,11 @@ public abstract class Accept {
         }
 
         @Override
-        public void onClick(IFilerListener filerListener) {
-            Filer.videoFiler(getType()).onResult(filerListener).start(getHost());
+        public void onClick(@NonNull IFilerListener filerListener) {
+            final Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType(getType());
+            ActivityOnResult.from(getHost()).onResult(filerListener).to(intent);
         }
 
         @Override
@@ -114,27 +127,32 @@ public abstract class Accept {
         }
     }
 
-    static class VideoRecorderAccept extends Accept {
+    static final class VideoRecorderAccept extends Accept {
 
         VideoRecorderAccept(FragmentActivity cxt, String type) {
             super(cxt, type);
         }
 
         @Override
-        public void onClick(final IFilerListener filerListener) {
-            RequestPermission.of(getHost()).onPermissionResult(new IPermissionHelper() {
+        public void onClick(@NonNull final IFilerListener callback) {
+            final FragmentActivity host = VideoRecorderAccept.this.getHost();
+            RequestPermission.of(host).onResult(new OnPermissionResultListener() {
                 @Override
-                protected boolean onPermissionResult(@NonNull String[] permissions, @NonNull int[] grantResults) {
-                    final FragmentActivity host = VideoRecorderAccept.this.getHost();
-                    if (isGranted()) {
-                        Filer.videoRecorder(filerListener).start(host);
-
+                public void onResult(@NonNull IResult iResult) {
+                    if (iResult.isGranted()) {
+                        final File outFile = new File(host.getExternalFilesDir("video"), System.currentTimeMillis() + ".mp4");
+                        final Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+                        intent.putExtra(MediaStore.EXTRA_OUTPUT, Utils.transformProviderUri(host, outFile));
+                        ActivityOnResult.from(host).onResult(callback).to(intent);
                     } else {
-                        filerListener.onReceiveValueEnd();
+                        callback.onReceiveValueEnd();
+
+                        if (iResult.isClosed()) {
+                            iResult.showSettingDialog();
+                        }
                     }
-                    return false;
                 }
-            }).request(Manifest.permission.CAMERA);
+            }).check(Manifest.permission.CAMERA);
         }
 
         @Override
@@ -143,26 +161,32 @@ public abstract class Accept {
         }
     }
 
-    static class Audio extends Accept {
+    static final class Audio extends Accept {
 
         Audio(FragmentActivity cxt, String type) {
             super(cxt, type);
         }
 
         @Override
-        public void onClick(final IFilerListener filerListener) {
-            RequestPermission.of(getHost())
-                    .onPermissionResult(new IPermissionHelper() {
-                        @Override
-                        protected boolean onPermissionResult(@NonNull String[] permissions, @NonNull int[] grantResults) {
-                            if (isGranted()) {
-                                Filer.audioFiler(getType()).onResult(filerListener).start(Audio.this.getHost());
-                            } else {
-                                filerListener.onReceiveValueEnd();
-                            }
-                            return false;
+        public void onClick(@NonNull final IFilerListener callback) {
+            final FragmentActivity host = getHost();
+            RequestPermission.of(host).onResult(new OnPermissionResultListener() {
+                @Override
+                public void onResult(@NonNull IResult iResult) {
+                    if (iResult.isGranted()) {
+                        final Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                        intent.addCategory(Intent.CATEGORY_OPENABLE);
+                        intent.setType(getType());
+                        ActivityOnResult.from(host).onResult(callback).to(intent);
+                    } else {
+                        callback.onReceiveValueEnd();
+
+                        if (iResult.isClosed()) {
+                            iResult.showSettingDialog();
                         }
-                    }).request(Manifest.permission.READ_EXTERNAL_STORAGE);
+                    }
+                }
+            }).check(Manifest.permission.READ_EXTERNAL_STORAGE);
         }
 
         @Override
@@ -171,15 +195,16 @@ public abstract class Accept {
         }
     }
 
-    static class AudioRecorderAccept extends Accept {
+    static final class AudioRecorderAccept extends Accept {
 
         AudioRecorderAccept(FragmentActivity cxt, String type) {
             super(cxt, type);
         }
 
         @Override
-        public void onClick(final IFilerListener filerListener) {
-            Filer.audioRecorder(filerListener).start(getHost());
+        public void onClick(@NonNull final IFilerListener filerListener) {
+            final Intent intent = new Intent(MediaStore.Audio.Media.RECORD_SOUND_ACTION);
+            ActivityOnResult.from(getHost()).onResult(filerListener).to(intent);
         }
 
         @Override
@@ -188,26 +213,32 @@ public abstract class Accept {
         }
     }
 
-    static class FilerAccept extends Accept {
+    static final class FilerAccept extends Accept {
 
         FilerAccept(FragmentActivity cxt, String type) {
             super(cxt, type);
         }
 
         @Override
-        public void onClick(final IFilerListener filerListener) {
-            RequestPermission.of(getHost())
-                    .onPermissionResult(new IPermissionHelper() {
-                        @Override
-                        protected boolean onPermissionResult(@NonNull String[] permissions, @NonNull int[] grantResults) {
-                            if (isGranted()) {
-                                Filer.filer(getType()).onResult(filerListener).start(FilerAccept.this.getHost());
-                            } else {
-                                filerListener.onReceiveValueEnd();
-                            }
-                            return false;
+        public void onClick(@NonNull final IFilerListener callback) {
+            final FragmentActivity host = getHost();
+            RequestPermission.of(host).onResult(new OnPermissionResultListener() {
+                @Override
+                public void onResult(@NonNull IResult iResult) {
+                    if (iResult.isGranted()) {
+                        final Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                        intent.addCategory(Intent.CATEGORY_OPENABLE);
+                        intent.setType(getType());
+                        ActivityOnResult.from(host).onResult(callback).to(intent);
+                    } else {
+                        callback.onReceiveValueEnd();
+
+                        if (iResult.isClosed()) {
+                            iResult.showSettingDialog();
                         }
-                    }).request(Manifest.permission.READ_EXTERNAL_STORAGE);
+                    }
+                }
+            }).check(Manifest.permission.READ_EXTERNAL_STORAGE);
         }
 
         @Override

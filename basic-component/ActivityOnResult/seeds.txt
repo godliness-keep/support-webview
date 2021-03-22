@@ -1,0 +1,11 @@
+com.longrise.android.result.R: R()
+com.longrise.android.result.ActivityOnResult: com.longrise.android.result.ActivityOnResult from(android.support.v4.app.Fragment)
+com.longrise.android.result.ActivityOnResult
+com.longrise.android.result.OnActivityResultListener
+com.longrise.android.result.OnActivityResultListener: void onActivityResult(int,android.content.Intent)
+com.longrise.android.result.R
+com.longrise.android.result.RequestNode
+com.longrise.android.result.RequestNode: void to(java.lang.Class)
+com.longrise.android.result.ActivityOnResult: com.longrise.android.result.ActivityOnResult from(android.support.v4.app.FragmentActivity)
+com.longrise.android.result.RequestNode: void to(android.content.Intent)
+com.longrise.android.result.ActivityOnResult: com.longrise.android.result.RequestNode onResult(com.longrise.android.result.OnActivityResultListener)

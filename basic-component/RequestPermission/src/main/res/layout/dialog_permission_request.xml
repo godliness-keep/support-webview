@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/shape_bg_permission_dialog"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tv_title_permission"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:ellipsize="end"
+        android:gravity="center"
+        android:maxLines="2"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:textColor="@android:color/black"
+        android:textSize="14sp"
+        tools:text="存储、电话权限已关闭" />
+
+    <TextView
+        android:id="@+id/tv_content_permission"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:ellipsize="end"
+        android:gravity="center"
+        android:maxLines="5"
+        android:minLines="2"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:textColor="#666666"
+        android:textSize="14sp"
+        tools:text="为了让程序账号能够在安全环境中登录，以及确保接收到的图片、视频能被正常浏览。请根据以下指引授权微信使用存储权限及电话权限" />
+
+    <TextView
+        android:id="@+id/tv_guide_permission"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:textColor="#666666"
+        android:textSize="14sp"
+        tools:text="手机设置-应用-程序-权限，开启存储及电话权限。" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_marginTop="24dp"
+        android:background="#DDDDDD" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tv_cancel_permission"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/selector_btn_cancel_permission_dialog"
+            android:gravity="center"
+            android:text="@string/string_permission_cancel"
+            android:textColor="#000000"
+            android:textSize="14sp" />
+
+        <View
+            android:layout_width="0.5dp"
+            android:layout_height="match_parent"
+            android:background="#DDDDDD" />
+
+        <TextView
+            android:id="@+id/tv_confirm_permission"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/selector_btn_confirm_permission_dialog"
+            android:gravity="center"
+            android:text="@string/string_permission_confirm"
+            android:textColor="@color/colorPrimary"
+            android:textSize="14sp" />
+
+    </LinearLayout>
+
+</LinearLayout>

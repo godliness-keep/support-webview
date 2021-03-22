@@ -12,22 +12,22 @@ import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import com.longrise.android.jssdk_x5.receiver.IParamsReceiver;
+import com.longrise.android.jssdk_x5.receiver.IParamsReturnReceiver;
 import com.longrise.android.jssdk_x5.receiver.base.EventName;
 import com.longrise.android.webview.demo.R;
 import com.longrise.android.webview.demo.mode.Bean;
 import com.longrise.android.webview.demo.mode.Params;
+import com.longrise.android.webview.demo.webdemo.WebDemoActivity;
 import com.longrise.android.x5web.BaseWebActivity;
 import com.longrise.android.x5web.X5;
-import com.longrise.android.x5web.internal.IScrollChangeListener;
 import com.longrise.android.x5web.internal.X5WebView;
 import com.longrise.android.x5web.internal.bridge.BaseDownloader;
 import com.longrise.android.x5web.internal.bridge.BaseWebBridge;
 import com.longrise.android.x5web.internal.bridge.BaseWebChromeClient;
 import com.longrise.android.x5web.internal.bridge.BaseWebViewClient;
-import com.tencent.smtt.sdk.TbsReaderView;
-
-import java.io.File;
 
 /**
  * Created by godliness on 2020/9/1.
@@ -86,7 +86,7 @@ public class WebX5DemoActivity extends BaseWebActivity<WebX5DemoActivity> implem
         /*这里简单示例在加载出错时处理方式*/
         mWebContent = findViewById(R.id.web_content);
         mLoadFailedView = LayoutInflater.from(this).inflate(R.layout.load_failed, mWebView, false);
-
+        mStatusReceiver.alive().lifecycle(this);
         mParamsReceiver.alive().lifecycle(this);
         mStringEvents.alive().lifecycle(this);
     }
@@ -262,5 +262,30 @@ public class WebX5DemoActivity extends BaseWebActivity<WebX5DemoActivity> implem
             Log.e(TAG, "onEvent: " + str);
         }
     };
+
+    private final IParamsReturnReceiver<String, UserInfo> mStatusReceiver = new IParamsReturnReceiver<String, UserInfo>() {
+        @EventName("getUserInfo")
+        @Override
+        public UserInfo onEvent(String desc) {
+            Log.e(TAG, "onEvent: " + desc);
+
+            return new UserInfo();
+        }
+    };
+
+    public static final class UserInfo {
+
+        @Expose
+        @SerializedName("name")
+        public String name = "godliness";
+
+        @Expose
+        @SerializedName("age")
+        public int age = 100;
+
+        @Expose
+        @SerializedName("sex")
+        public String sex = "boy";
+    }
 
 }

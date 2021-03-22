@@ -14,6 +14,8 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/basic-component" />
+            <option value="$PROJECT_DIR$/basic-component/ActivityOnResult" />
+            <option value="$PROJECT_DIR$/basic-component/RequestPermission" />
             <option value="$PROJECT_DIR$/basic-component/module.activity-result" />
             <option value="$PROJECT_DIR$/basic-component/module.compattoast" />
             <option value="$PROJECT_DIR$/basic-component/module.mmkv" />

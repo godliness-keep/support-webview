@@ -1,13 +1,14 @@
 package com.longrise.android.x5web.internal.filer;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 
-import com.longrise.android.jsapi_x5.wx.BridgeApi;
 import com.longrise.android.x5web.X5;
 import com.longrise.android.x5web.internal.IBridgeAgent;
 import com.tencent.smtt.sdk.ValueCallback;
@@ -103,8 +104,28 @@ public final class FileChooser<T extends IBridgeAgent<T>> implements IFilerListe
         }
     }
 
-    private FragmentActivity getActivity() {
-        return BridgeApi.getCurrentActivity(mTarget);
+    private FragmentActivity getActivity(){
+        return getCurrentActivity(mTarget);
     }
 
+    private FragmentActivity getCurrentActivity(Object host) {
+        final Context cxt = getCurrentContext(host);
+        if (cxt instanceof FragmentActivity) {
+            return (FragmentActivity) cxt;
+        }
+        throw new IllegalArgumentException("The bridge`s host must be <? extends FragmentActivity>");
+    }
+
+    private Context getCurrentContext(Object host) {
+        if (host instanceof FragmentActivity) {
+            return (FragmentActivity) host;
+        } else if (host instanceof Fragment) {
+            final FragmentActivity current = ((Fragment) host).getActivity();
+            if (current == null) {
+                return ((Fragment) host).getContext();
+            }
+            return current;
+        }
+        throw new IllegalArgumentException("The bridge`s host must be <? extends FragmentActivity> || <? extends android.v4.Fragment>");
+    }
 }

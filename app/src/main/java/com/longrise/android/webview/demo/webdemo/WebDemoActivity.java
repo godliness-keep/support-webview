@@ -66,7 +66,6 @@ public final class WebDemoActivity extends BaseWebActivity<WebDemoActivity> impl
 
         /* 注册事件 */
         mParamsReceiver.alive().lifecycle(this);
-//        mStatusReceiver.alive().lifecycle(this);
         mTestEvent.alive().lifecycle(this);
         mStringEvents.alive().lifecycle(this);
     }
@@ -197,35 +196,4 @@ public final class WebDemoActivity extends BaseWebActivity<WebDemoActivity> impl
             Log.e(TAG, "onEvent: " + str);
         }
     };
-
-//    private final IParamsReturnReceiver<String, UserInfo> mStatusReceiver = new IParamsReturnReceiver<String, UserInfo>() {
-//        @EventName("getUserInfo")
-//        @Override
-//        public UserInfo onEvent(String desc) {
-//            Log.e(TAG, "onEvent: " + desc);
-//
-//            return new UserInfo();
-//        }
-//    };
-
-    public static final class Desc {
-        @Expose
-        @SerializedName("desc")
-        public String desc;
-    }
-
-    public static final class UserInfo {
-
-        @Expose
-        @SerializedName("name")
-        public String name = "godliness";
-
-        @Expose
-        @SerializedName("age")
-        public int age = 100;
-
-        @Expose
-        @SerializedName("sex")
-        public String sex = "boy";
-    }
 }

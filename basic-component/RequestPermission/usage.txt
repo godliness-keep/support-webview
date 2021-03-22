@@ -1,0 +1,13 @@
+com.longrise.android.permission.dialog.Util
+    void <init>()
+    static void toSettings(android.content.Context)
+com.longrise.android.permission.BuildConfig
+com.longrise.android.permission.dialog.PermissionDialog
+    private static final java.lang.String KEY
+com.longrise.android.permission.PermissionsManager
+    private static final java.lang.String TAG
+com.longrise.android.permission.PermissionsManager$Holder
+    private void <init>()
+com.longrise.android.permission.PermissionMap
+    void <init>()
+    static java.lang.String getName(java.lang.String,android.content.Context)

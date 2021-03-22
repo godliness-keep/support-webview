@@ -1,0 +1,8 @@
+com.longrise.android.result.ResultsManager
+    private static final java.lang.String TAG
+com.longrise.android.result.BuildConfig
+com.longrise.android.result.ResultsManager$Holder
+    private void <init>()
+com.longrise.android.result.ResultDelegate
+    public static final java.lang.String KEY
+    private static final java.lang.String TAG
