@@ -12,8 +12,8 @@ import com.longrise.android.image.crop.CropImageActivity;
 import com.longrise.android.photowall.Filer;
 import com.longrise.android.photowall.R;
 import com.longrise.android.photowall.utils.Utils;
-import com.longrise.android.result.ActivityResult;
-import com.longrise.android.result.IActivityOnResultListener;
+import com.longrise.android.result.ActivityOnResult;
+import com.longrise.android.result.OnActivityResultListener;
 
 /**
  * Created by godliness on 2020/9/14.
@@ -88,15 +88,14 @@ public final class CropOf {
 
         final Intent intent = getIntent();
         intent.setClass(host, CropImageActivity.class);
-        ActivityResult.from((FragmentActivity) host)
-                .onResult(new IActivityOnResultListener() {
-                    @Override
-                    public void onActivityResult(int resultCode, Intent data) {
-                        if (mCropCallback != null) {
-                            mCropCallback.onCrop(resultCode == Activity.RESULT_OK ? Crop.getOutput(data) : null);
-                        }
-                    }
-                }).to(intent);
+        ActivityOnResult.from((FragmentActivity) host).onResult(new OnActivityResultListener() {
+            @Override
+            public void onActivityResult(int resultCode, @NonNull Intent data) {
+                if (mCropCallback != null) {
+                    mCropCallback.onCrop(resultCode == Activity.RESULT_OK ? Crop.getOutput(data) : null);
+                }
+            }
+        }).to(intent);
     }
 
     private Intent getIntent() {

@@ -6,8 +6,9 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 
-import com.longrise.android.result.ActivityResult;
-import com.longrise.android.result.IActivityOnResultListener;
+import com.longrise.android.result.ActivityOnResult;
+import com.longrise.android.result.OnActivityResultListener;
+
 
 /**
  * Created by godliness on 2020/9/16.
@@ -76,19 +77,18 @@ public final class QrScan {
         start.putExtras(mExtra);
         start.setClass(host, QrScanActivity.class);
 
-        ActivityResult.from(host)
-                .onResult(new IActivityOnResultListener() {
-                    @Override
-                    public void onActivityResult(int resultCode, Intent data) {
-                        if(mScanListener != null){
-                            if (resultCode == Activity.RESULT_OK) {
-                                mScanListener.onScanResult(data.getStringExtra(SCAN_RESULT));
-                            } else {
-                                mScanListener.onScanFailed(data != null);
-                            }
-                        }
+        ActivityOnResult.from(host).onResult(new OnActivityResultListener() {
+            @Override
+            public void onActivityResult(int resultCode, @NonNull Intent data) {
+                if (mScanListener != null) {
+                    if (resultCode == Activity.RESULT_OK) {
+                        mScanListener.onScanResult(data.getStringExtra(SCAN_RESULT));
+                    } else {
+                        mScanListener.onScanFailed(data != null);
                     }
-                }).to(start);
+                }
+            }
+        }).to(start);
     }
 
     private QrScan(IScanResultCallback scanResultListener) {

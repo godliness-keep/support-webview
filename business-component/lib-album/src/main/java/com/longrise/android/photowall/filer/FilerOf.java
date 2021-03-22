@@ -4,8 +4,8 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 
-import com.longrise.android.result.ActivityResult;
-import com.longrise.android.result.IActivityOnResultListener;
+import com.longrise.android.result.ActivityOnResult;
+import com.longrise.android.result.OnActivityResultListener;
 
 /**
  * Created by godliness on 2020/11/21.
@@ -15,9 +15,9 @@ import com.longrise.android.result.IActivityOnResultListener;
 public final class FilerOf {
 
     private Intent mIntent;
-    private IActivityOnResultListener mResultListener;
+    private OnActivityResultListener mResultListener;
 
-    public FilerOf(@NonNull IActivityOnResultListener resultListener) {
+    public FilerOf(@NonNull OnActivityResultListener resultListener) {
         this.mResultListener = resultListener;
         create("*/*");
     }
@@ -26,13 +26,13 @@ public final class FilerOf {
         create(mimeType);
     }
 
-    public FilerOf onResult(@NonNull IActivityOnResultListener resultListener) {
+    public FilerOf onResult(@NonNull OnActivityResultListener resultListener) {
         this.mResultListener = resultListener;
         return this;
     }
 
     public void start(FragmentActivity host) {
-        ActivityResult.from(host).onResult(mResultListener).to(mIntent);
+        ActivityOnResult.from(host).onResult(mResultListener).to(mIntent);
     }
 
     private void create(String mimeType) {

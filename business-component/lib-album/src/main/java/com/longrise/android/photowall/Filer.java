@@ -13,7 +13,7 @@ import com.longrise.android.photowall.filer.Preview;
 import com.longrise.android.photowall.filer.Take;
 import com.longrise.android.photowall.filer.VideoOf;
 import com.longrise.android.photowall.filer.VideoRecorder;
-import com.longrise.android.result.IActivityOnResultListener;
+import com.longrise.android.result.OnActivityResultListener;
 
 import java.io.File;
 
@@ -157,7 +157,7 @@ public final class Filer {
     /**
      * 手机视频目录
      */
-    public static VideoOf videoFiler(@NonNull IActivityOnResultListener onResultListener) {
+    public static VideoOf videoFiler(@NonNull OnActivityResultListener onResultListener) {
         return new VideoOf(onResultListener);
     }
 
@@ -171,7 +171,7 @@ public final class Filer {
     /**
      * 录像机
      */
-    public static VideoRecorder videoRecorder(@NonNull IActivityOnResultListener resultListener) {
+    public static VideoRecorder videoRecorder(@NonNull OnActivityResultListener resultListener) {
         return new VideoRecorder().onResult(resultListener);
     }
 
@@ -185,7 +185,7 @@ public final class Filer {
     /**
      * 手机音频目录
      */
-    public static AudioOf.AudioFiler audioFiler(@NonNull IActivityOnResultListener resultListener) {
+    public static AudioOf.AudioFiler audioFiler(@NonNull OnActivityResultListener resultListener) {
         return new AudioOf.AudioFiler(resultListener);
     }
 
@@ -199,7 +199,7 @@ public final class Filer {
     /**
      * 录音机
      */
-    public static AudioOf.AudioRecorder audioRecorder(@NonNull IActivityOnResultListener resultListener) {
+    public static AudioOf.AudioRecorder audioRecorder(@NonNull OnActivityResultListener resultListener) {
         return new AudioOf.AudioRecorder(resultListener);
     }
 
@@ -213,7 +213,7 @@ public final class Filer {
     /**
      * 文件管理器
      */
-    public static FilerOf filer(@NonNull IActivityOnResultListener resultListener) {
+    public static FilerOf filer(@NonNull OnActivityResultListener resultListener) {
         return new FilerOf(resultListener);
     }
 

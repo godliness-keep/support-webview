@@ -9,8 +9,8 @@ import android.support.v4.app.FragmentActivity;
 
 import com.longrise.android.photowall.Filer;
 import com.longrise.android.photowall.utils.Utils;
-import com.longrise.android.result.ActivityResult;
-import com.longrise.android.result.IActivityOnResultListener;
+import com.longrise.android.result.ActivityOnResult;
+import com.longrise.android.result.OnActivityResultListener;
 
 import java.io.File;
 
@@ -44,15 +44,14 @@ public final class Take {
             mOut = Utils.getLocalFile(host, "temp_camera.jpg");
         }
         final Uri outUri = Utils.transformProviderUri(host, mOut);
-        ActivityResult.from((FragmentActivity) host)
-                .onResult(new IActivityOnResultListener() {
-                    @Override
-                    public void onActivityResult(int resultCode, Intent data) {
-                        if (mTakeCallback != null) {
-                            mTakeCallback.onTaken(resultCode == Activity.RESULT_OK ? Uri.fromFile(mOut) : null);
-                        }
-                    }
-                }).to(getIntent(outUri));
+        ActivityOnResult.from((FragmentActivity) host).onResult(new OnActivityResultListener() {
+            @Override
+            public void onActivityResult(int resultCode, @NonNull Intent data) {
+                if (mTakeCallback != null) {
+                    mTakeCallback.onTaken(resultCode == Activity.RESULT_OK ? Uri.fromFile(mOut) : null);
+                }
+            }
+        }).to(getIntent(outUri));
     }
 
     private Intent getIntent(Uri outUri) {

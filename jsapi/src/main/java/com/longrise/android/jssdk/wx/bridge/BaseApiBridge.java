@@ -39,7 +39,8 @@ import com.longrise.android.location.LocationManager;
 import com.longrise.android.location.mode.LocationParams;
 import com.longrise.android.mmkv.KV;
 import com.longrise.android.mmkv.KVManager;
-import com.longrise.android.permission.IPermissionHelper;
+import com.longrise.android.permission.IResult;
+import com.longrise.android.permission.OnPermissionResultListener;
 import com.longrise.android.permission.RequestPermission;
 import com.longrise.android.photowall.Filer;
 import com.longrise.android.qr.scan.IScanResultCallback;
@@ -272,30 +273,32 @@ public abstract class BaseApiBridge<T> extends BaseBridge<T> {
         final Runnable task = new Runnable() {
             @Override
             public void run() {
-                RequestPermission.of(getActivity())
-                        .onPermissionResult(new IPermissionHelper() {
-                            @Override
-                            protected boolean onPermissionResult(@NonNull String[] strings, @NonNull int[] ints) {
-                                if (isGranted()) {
-                                    Filer.takeOf(new Filer.ITakeListener() {
-                                        @Override
-                                        public void onTaken(@Nullable Uri uri) {
-                                            final int id = request.getCallbackId();
-                                            if (uri == null) {
-                                                Response.create(id).state(0).desc(ResUtil.getString(R.string.take_failed_to_get)).notify(getWebView());
-                                                return;
-                                            }
-                                            if (picture.crop) {
-                                                cropOf(id, uri, picture);
-                                            } else {
-                                                Response.create(id).result(uri.toString()).notify(getWebView());
-                                            }
-                                        }
-                                    }).start(getActivity());
+                RequestPermission.of(getActivity()).onResult(new OnPermissionResultListener() {
+                    @Override
+                    public void onResult(@NonNull IResult result) {
+                        if (result.isClosed()) {
+                            result.showSettingDialog();
+                            return;
+                        }
+                        if (result.isGranted()) {
+                            Filer.takeOf(new Filer.ITakeListener() {
+                                @Override
+                                public void onTaken(@Nullable Uri uri) {
+                                    final int id = request.getCallbackId();
+                                    if (uri == null) {
+                                        Response.create(id).state(0).desc(ResUtil.getString(R.string.take_failed_to_get)).notify(getWebView());
+                                        return;
+                                    }
+                                    if (picture.crop) {
+                                        cropOf(id, uri, picture);
+                                    } else {
+                                        Response.create(id).result(uri.toString()).notify(getWebView());
+                                    }
                                 }
-                                return false;
-                            }
-                        }).request(Manifest.permission.CAMERA);
+                            }).start(getActivity());
+                        }
+                    }
+                }).check(Manifest.permission.CAMERA);
             }
         };
         post(task);
@@ -345,16 +348,18 @@ public abstract class BaseApiBridge<T> extends BaseBridge<T> {
         final Runnable task = new Runnable() {
             @Override
             public void run() {
-                RequestPermission.of(getActivity())
-                        .onPermissionResult(new IPermissionHelper() {
-                            @Override
-                            protected boolean onPermissionResult(@NonNull String[] strings, @NonNull int[] ints) {
-                                if (isGranted()) {
-                                    Filer.previewOf(previewImage.getCurrent(), previewImage.getUrls()).start(getActivity());
-                                }
-                                return false;
-                            }
-                        }).request(Manifest.permission.READ_EXTERNAL_STORAGE);
+                RequestPermission.of(getActivity()).onResult(new OnPermissionResultListener() {
+                    @Override
+                    public void onResult(@NonNull IResult result) {
+                        if (result.isClosed()) {
+                            result.showSettingDialog();
+                            return;
+                        }
+                        if (result.isGranted()) {
+                            Filer.previewOf(previewImage.getCurrent(), previewImage.getUrls()).start(getActivity());
+                        }
+                    }
+                }).check(Manifest.permission.READ_EXTERNAL_STORAGE);
             }
         };
         post(task);
@@ -369,10 +374,14 @@ public abstract class BaseApiBridge<T> extends BaseBridge<T> {
             @Override
             public void run() {
                 RequestPermission.of(getActivity())
-                        .onPermissionResult(new IPermissionHelper() {
+                        .onResult(new OnPermissionResultListener() {
                             @Override
-                            protected boolean onPermissionResult(@NonNull String[] strings, @NonNull int[] ints) {
-                                if (isGranted()) {
+                            public void onResult(@NonNull IResult result) {
+                                if (result.isClosed()) {
+                                    result.showSettingDialog();
+                                    return;
+                                }
+                                if (result.isGranted()) {
                                     Filer.chooseOf(new Filer.IChooserCallback() {
                                         @Override
                                         public void onSelected(String[] values) {
@@ -384,9 +393,8 @@ public abstract class BaseApiBridge<T> extends BaseBridge<T> {
                                     }).params(chooseImage.getCount(), Filer.SizeType.ALL, Filer.SourceType.ALL)
                                             .to(getActivity());
                                 }
-                                return false;
                             }
-                        }).request(Manifest.permission.READ_EXTERNAL_STORAGE);
+                        }).check(Manifest.permission.READ_EXTERNAL_STORAGE);
             }
         };
         post(task);
@@ -417,34 +425,36 @@ public abstract class BaseApiBridge<T> extends BaseBridge<T> {
         final Runnable task = new Runnable() {
             @Override
             public void run() {
-                RequestPermission.of(getActivity())
-                        .onPermissionResult(new IPermissionHelper() {
-                            @Override
-                            protected boolean onPermissionResult(@NonNull String[] strings, @NonNull int[] ints) {
-                                if (isGranted()) {
-                                    final LocationManager manager = new LocationManager(getActivity(), params);
-                                    manager.onLocationChange(new ILocationListener() {
-                                        @Override
-                                        public void onReceiveLocation(BDLocation location) {
-                                            final LocationResult result = LocationResult.toResult(location);
-                                            Response.create(request.getCallbackId())
-                                                    .result(result).notify(getWebView());
-                                        }
-
-                                        @Override
-                                        public void onLocationFailed(int what, int type, String desc) {
-                                            final LocationFailed failed = new LocationFailed();
-                                            failed.what = what;
-                                            failed.type = type;
-                                            failed.desc = desc;
-                                            Response.create(request.getCallbackId())
-                                                    .result(failed).notify(getWebView());
-                                        }
-                                    }).start();
+                RequestPermission.of(getActivity()).onResult(new OnPermissionResultListener() {
+                    @Override
+                    public void onResult(@NonNull IResult result) {
+                        if (result.isClosed()) {
+                            result.showSettingDialog();
+                            return;
+                        }
+                        if (result.isGranted()) {
+                            final LocationManager manager = new LocationManager(getActivity(), params);
+                            manager.onLocationChange(new ILocationListener() {
+                                @Override
+                                public void onReceiveLocation(BDLocation location) {
+                                    final LocationResult result = LocationResult.toResult(location);
+                                    Response.create(request.getCallbackId())
+                                            .result(result).notify(getWebView());
                                 }
-                                return false;
-                            }
-                        }).request(Manifest.permission.ACCESS_FINE_LOCATION);
+
+                                @Override
+                                public void onLocationFailed(int what, int type, String desc) {
+                                    final LocationFailed failed = new LocationFailed();
+                                    failed.what = what;
+                                    failed.type = type;
+                                    failed.desc = desc;
+                                    Response.create(request.getCallbackId())
+                                            .result(failed).notify(getWebView());
+                                }
+                            }).start();
+                        }
+                    }
+                }).check(Manifest.permission.ACCESS_FINE_LOCATION);
             }
         };
         post(task);
@@ -458,24 +468,26 @@ public abstract class BaseApiBridge<T> extends BaseBridge<T> {
         final Runnable task = new Runnable() {
             @Override
             public void run() {
-                RequestPermission.of(getActivity())
-                        .onPermissionResult(new IPermissionHelper() {
-                            @Override
-                            protected boolean onPermissionResult(@NonNull String[] strings, @NonNull int[] ints) {
-                                if (isGranted()) {
-                                    QrScan.of(new IScanResultCallback() {
-                                        @Override
-                                        public void onScanResult(String result) {
-                                            Response.create(request.getCallbackId()).result(result).notify(getWebView());
-                                        }
-                                    }).withTip(qrCode.tip).withAnimTime(qrCode.animTime)
-                                            .withBarCode(qrCode.barCode)
-                                            .withWidth(qrCode.width)
-                                            .start(getActivity());
+                RequestPermission.of(getActivity()).onResult(new OnPermissionResultListener() {
+                    @Override
+                    public void onResult(@NonNull IResult result) {
+                        if (result.isClosed()) {
+                            result.showSettingDialog();
+                            return;
+                        }
+                        if (result.isGranted()) {
+                            QrScan.of(new IScanResultCallback() {
+                                @Override
+                                public void onScanResult(String result) {
+                                    Response.create(request.getCallbackId()).result(result).notify(getWebView());
                                 }
-                                return false;
-                            }
-                        }).request(Manifest.permission.CAMERA);
+                            }).withTip(qrCode.tip).withAnimTime(qrCode.animTime)
+                                    .withBarCode(qrCode.barCode)
+                                    .withWidth(qrCode.width)
+                                    .start(getActivity());
+                        }
+                    }
+                }).check(Manifest.permission.CAMERA);
             }
         };
         post(task);

@@ -27,5 +27,5 @@ dependencies {
     implementation 'cn.bingoogolapple:bga-qrcodecore:1.1.6@aar'
     implementation 'cn.bingoogolapple:bga-zbar:1.1.6@aar'
 
-    implementation project(':basic-component:module.activity-result')
+    implementation project(':basic-component:ActivityOnResult')
 }

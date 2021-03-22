@@ -12,8 +12,6 @@ include ':business-component:lib-album'
 
 include ':basic-component:ActivityOnResult'
 include ':basic-component:RequestPermission'
-include ':basic-component:module.activity-result'
-include ':basic-component:module.permission'
 include ':basic-component:module.compattoast'
 include ':basic-component:module.mmkv'
 

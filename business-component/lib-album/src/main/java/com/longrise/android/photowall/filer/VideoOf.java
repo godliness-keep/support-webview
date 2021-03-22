@@ -3,8 +3,8 @@ package com.longrise.android.photowall.filer;
 import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
 
-import com.longrise.android.result.ActivityResult;
-import com.longrise.android.result.IActivityOnResultListener;
+import com.longrise.android.result.ActivityOnResult;
+import com.longrise.android.result.OnActivityResultListener;
 
 /**
  * Created by godliness on 2020/11/21.
@@ -14,9 +14,9 @@ import com.longrise.android.result.IActivityOnResultListener;
 public final class VideoOf {
 
     private final Intent mIntent;
-    private IActivityOnResultListener mResultListener;
+    private OnActivityResultListener mResultListener;
 
-    public VideoOf(IActivityOnResultListener onResultListener) {
+    public VideoOf(OnActivityResultListener onResultListener) {
         this("video/*");
         this.mResultListener = onResultListener;
     }
@@ -27,12 +27,12 @@ public final class VideoOf {
         this.mIntent.setType(mimeType);
     }
 
-    public VideoOf onResult(IActivityOnResultListener onResultListener) {
+    public VideoOf onResult(OnActivityResultListener onResultListener) {
         this.mResultListener = onResultListener;
         return this;
     }
 
     public void start(FragmentActivity host) {
-        ActivityResult.from(host).onResult(mResultListener).to(mIntent);
+        ActivityOnResult.from(host).onResult(mResultListener).to(mIntent);
     }
 }

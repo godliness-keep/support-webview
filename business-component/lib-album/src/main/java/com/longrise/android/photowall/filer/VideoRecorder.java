@@ -6,8 +6,8 @@ import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
 
 import com.longrise.android.photowall.utils.Utils;
-import com.longrise.android.result.ActivityResult;
-import com.longrise.android.result.IActivityOnResultListener;
+import com.longrise.android.result.ActivityOnResult;
+import com.longrise.android.result.OnActivityResultListener;
 
 import java.io.File;
 
@@ -20,7 +20,7 @@ public final class VideoRecorder {
 
     private final Intent mIntent;
     private File mOut;
-    private IActivityOnResultListener mResultListener;
+    private OnActivityResultListener mResultListener;
 
     public VideoRecorder() {
         this(null);
@@ -31,7 +31,7 @@ public final class VideoRecorder {
         this.mIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
     }
 
-    public VideoRecorder onResult(IActivityOnResultListener onResultListener) {
+    public VideoRecorder onResult(OnActivityResultListener onResultListener) {
         this.mResultListener = onResultListener;
         return this;
     }
@@ -43,6 +43,6 @@ public final class VideoRecorder {
 //        final Uri fileUri = FileProvider.getUriForFile(host.getApplicationContext(), host.getPackageName() + ".fileprovider", mOut);
         final Uri fileUri = Utils.transformProviderUri(host, mOut);
         mIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
-        ActivityResult.from(host).onResult(mResultListener).to(mIntent);
+        ActivityOnResult.from(host).onResult(mResultListener).to(mIntent);
     }
 }
