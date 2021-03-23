@@ -50,6 +50,8 @@ dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation 'com.android.support:appcompat-v7:28.0.0'
 
+//    implementation 'com.github.godliness-keep.support-webview:webview:1.0.0'
+
     // 基于原生 WebView
     implementation project(':webview')
     // 基于腾讯 X5 kernel
