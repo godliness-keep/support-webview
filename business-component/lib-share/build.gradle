@@ -1,5 +1,5 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.mob.sdk'
+//apply plugin: 'com.mob.sdk'
 
 def shareSdk = rootProject.ext.shareSdk
 def cfg = rootProject.ext.android
@@ -31,39 +31,39 @@ dependencies {
     implementation dep["constraint-layout"]
 }
 
-MobSDK {
-    appKey shareSdk.mobSdk.appKey
-    appSecret shareSdk.mobSdk.appSecret
-
-    ShareSDK {
-        loopShare true
-        version '3.8.3'
-
-        devInfo {
-            Wechat {
-                appId shareSdk.wechat.appId
-                appSecret shareSdk.wechat.appSecret
-                userName "gh_afb25ac019c9"
-                path "pages/index/index.html?id=1"
-                withShareTicket true
-                miniprogramType 2
-            }
-            WechatMoments {
-                appId shareSdk.wechat.appId
-                appSecret shareSdk.wechat.appSecret
-            }
-            WechatFavorite {
-                appId shareSdk.wechat.appId
-                appSecret shareSdk.wechat.appSecret
-            }
-            QQ {
-                appId shareSdk.qq.appId
-                appKey shareSdk.qq.appKey
-            }
-            QZone {
-                appId shareSdk.qq.appId
-                appKey shareSdk.qq.appKey
-            }
-        }
-    }
-}
+//MobSDK {
+//    appKey shareSdk.mobSdk.appKey
+//    appSecret shareSdk.mobSdk.appSecret
+//
+//    ShareSDK {
+//        loopShare true
+//        version '3.8.3'
+//
+//        devInfo {
+//            Wechat {
+//                appId shareSdk.wechat.appId
+//                appSecret shareSdk.wechat.appSecret
+//                userName "gh_afb25ac019c9"
+//                path "pages/index/index.html?id=1"
+//                withShareTicket true
+//                miniprogramType 2
+//            }
+//            WechatMoments {
+//                appId shareSdk.wechat.appId
+//                appSecret shareSdk.wechat.appSecret
+//            }
+//            WechatFavorite {
+//                appId shareSdk.wechat.appId
+//                appSecret shareSdk.wechat.appSecret
+//            }
+//            QQ {
+//                appId shareSdk.qq.appId
+//                appKey shareSdk.qq.appKey
+//            }
+//            QZone {
+//                appId shareSdk.qq.appId
+//                appKey shareSdk.qq.appKey
+//            }
+//        }
+//    }
+//}

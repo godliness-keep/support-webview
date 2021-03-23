@@ -84,7 +84,7 @@ public abstract class Accept {
                         intent.putExtra(MediaStore.EXTRA_OUTPUT, Utils.transformProviderUri(host, outFile));
                         ActivityOnResult.from(host).onResult(new OnActivityResultListener() {
                             @Override
-                            public void onActivityResult(int resultCode, Intent data) {
+                            public void onActivityResult(int resultCode, @NonNull Intent data) {
                                 final Intent intent = new Intent();
                                 intent.setData(Uri.fromFile(outFile));
                                 callback.onActivityResult(resultCode, intent);

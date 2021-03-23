@@ -324,7 +324,11 @@
 <!--			        }-->
 <!--			    });-->
 			    lr.getUserInfo({
-			        params: '这里携带参数，可以是基本数据类型，也可以是对象类型，具体取决于你的业务场景',
+			        params: {
+			            name: 'godliness',
+			            age: 100,
+			            sex: 'boy'
+			        },
 			        success:function(res){
 			            alert('调用自定义事件成功: ' + JSON.stringify(res.result))
 			        },
@@ -332,7 +336,6 @@
 			        }
 			    })
 			}
-
 </script>
 
 </body>

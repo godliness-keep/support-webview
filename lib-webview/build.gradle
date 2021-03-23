@@ -1,6 +1,10 @@
 apply plugin: 'com.android.library'
 //apply plugin: 'com.mob.sdk'
 
+apply plugin: 'com.github.dcendents.android-maven'
+group='com.github.godliness-keep'
+
+
 def cfg = rootProject.ext.android
 def dep = rootProject.ext.dependencies
 
@@ -29,7 +33,6 @@ repositories {
 }
 
 dependencies {
-//    api fileTree(dir: "libs", include: ["*.jar", "*.aar"])
     compileOnly dep['appcompat-v7']
     api fileTree('libs/jssdk_v1.0.1.aar')
     implementation project(':basic-component:ActivityOnResult')

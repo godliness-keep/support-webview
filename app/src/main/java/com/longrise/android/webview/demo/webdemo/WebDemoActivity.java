@@ -11,10 +11,7 @@ import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
 import com.longrise.android.jssdk.receiver.IParamsReceiver;
-import com.longrise.android.jssdk.receiver.IParamsReturnReceiver;
 import com.longrise.android.jssdk.receiver.base.EventName;
 import com.longrise.android.web.BaseWebActivity;
 import com.longrise.android.web.internal.BaseWebView;
@@ -178,11 +175,12 @@ public final class WebDemoActivity extends BaseWebActivity<WebDemoActivity> impl
         }
     };
 
-    private final IParamsReceiver<String> mTestEvent = new IParamsReceiver<String>() {
+    private final IParamsReceiver<Params> mTestEvent = new IParamsReceiver<Params>() {
 
         @Override
         @EventName("getUserInfo")
-        public void onEvent(String desc) {
+        public void onEvent(Params desc) {
+
             Log.e(TAG, "onEvent: " + desc);
 
             callback("无返回值的事件中，可以通过 callback 回调返回到 JavaScript 调用者");
