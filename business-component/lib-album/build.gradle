@@ -30,5 +30,5 @@ dependencies {
     implementation dep["glide"]
 
     implementation fileTree('libs/image-crop-1.0.0.aar')
-    implementation project(':basic-component:ActivityOnResult')
+    implementation project(':ActivityOnResult')
 }

@@ -12,10 +12,10 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/ActivityOnResult" />
+            <option value="$PROJECT_DIR$/RequestPermission" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/basic-component" />
-            <option value="$PROJECT_DIR$/basic-component/ActivityOnResult" />
-            <option value="$PROJECT_DIR$/basic-component/RequestPermission" />
             <option value="$PROJECT_DIR$/basic-component/module.compattoast" />
             <option value="$PROJECT_DIR$/basic-component/module.mmkv" />
             <option value="$PROJECT_DIR$/business-component" />

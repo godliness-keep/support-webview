@@ -32,7 +32,7 @@ dependencies {
     implementation project(':business-component:lib-location')
     implementation project(':business-component:lib-album')
 
-    implementation project(':basic-component:RequestPermission')
+    implementation project(':RequestPermission')
     implementation project(':basic-component:module.compattoast')
     implementation project(':basic-component:module.mmkv')
 
