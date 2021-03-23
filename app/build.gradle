@@ -51,7 +51,7 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:28.0.0'
 
     // 基于原生 WebView
-    implementation project(':lib-webview')
+    implementation project(':webview')
     // 基于腾讯 X5 kernel
-    implementation project(':lib-x5webview')
+    implementation project(':x5webview')
 }

@@ -25,8 +25,8 @@
             <option value="$PROJECT_DIR$/business-component/lib-share" />
             <option value="$PROJECT_DIR$/jsapi" />
             <option value="$PROJECT_DIR$/jsapi-x5" />
-            <option value="$PROJECT_DIR$/lib-webview" />
-            <option value="$PROJECT_DIR$/lib-x5webview" />
+            <option value="$PROJECT_DIR$/webview" />
+            <option value="$PROJECT_DIR$/x5webview" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />
