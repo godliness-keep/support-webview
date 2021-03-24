@@ -20,7 +20,6 @@ import com.longrise.android.jssdk_x5.receiver.base.EventName;
 import com.longrise.android.webview.demo.R;
 import com.longrise.android.webview.demo.mode.Bean;
 import com.longrise.android.webview.demo.mode.Params;
-import com.longrise.android.webview.demo.webdemo.WebDemoActivity;
 import com.longrise.android.x5web.BaseWebActivity;
 import com.longrise.android.x5web.X5;
 import com.longrise.android.x5web.internal.X5WebView;

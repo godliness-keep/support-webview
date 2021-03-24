@@ -210,7 +210,7 @@
 -keep class com.longrise.android.jssdk_x5.core.bridge.BaseBridge{
     getWebView();
     bindTarget(**);
-    bridgeName();
+    public final ** bridgeName();
 }
 
 -keepclassmembers class com.longrise.android.jssdk_x5.core.bridge.BridgeLifecyle{
