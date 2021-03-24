@@ -1,0 +1,40 @@
+com.longrise.android.jssdk_x5.BuildConfig
+com.longrise.android.jssdk_x5.lifecycle.LifecycleManager
+    void unregisterLifecycle()
+com.longrise.android.jssdk_x5.gson.StringRequestDeserializer$1
+com.longrise.android.jssdk_x5.gson.ParameterizedTypeImpl
+    public static com.longrise.android.jssdk_x5.gson.ParameterizedTypeImpl getTypeImpl(java.lang.reflect.Type,java.lang.reflect.Type[])
+    public void <init>(java.lang.reflect.Type,java.lang.reflect.Type[])
+com.longrise.android.jssdk_x5.receiver.base.BaseReceiver
+    protected final int getVersion()
+com.longrise.android.jssdk_x5.receiver.base.ReceiversManager$Holder
+    private void <init>()
+com.longrise.android.jssdk_x5.sender.base.SendersManager
+    private static final java.lang.String TAG
+com.longrise.android.jssdk_x5.gson.GenericHelper
+    public void <init>()
+    public static java.lang.Class getClassOfT(java.lang.Object,int)
+    public static java.lang.Class getClassOfT(java.lang.Class,int)
+com.longrise.android.jssdk_x5.stream.StreamSender
+    public void <init>()
+    public static void sendStream(com.longrise.android.jssdk_x5.Response,int,com.tencent.smtt.sdk.WebView)
+    private static final int DEFAULT_CHUNK_LENGTH
+com.longrise.android.jssdk_x5.gson.StringRequestDeserializer
+    static java.lang.reflect.Type getType()
+com.longrise.android.jssdk_x5.sender.base.SendersManager$Holder
+    private void <init>()
+com.longrise.android.jssdk_x5.lifecycle.LifecycleManager$Holder
+    private void <init>()
+com.longrise.android.jssdk_x5.stream.BaseStream$Chunk
+    private static final java.lang.String SCHEMA
+com.longrise.android.jssdk_x5.core.JsCallManager
+    public void <init>()
+    public static void notifyJavaScriptCallNativeFinished(com.tencent.smtt.sdk.WebView,com.longrise.android.jssdk_x5.Response)
+com.longrise.android.jssdk_x5.core.bridge.BaseBridge
+    public final java.lang.String bridgeName()
+    private static final java.lang.String TAG
+    private static final int MSG_NOTIFY_NATIVE
+    private static final int MSG_CALL_NATIVE
+    private static final int MSG_CONFIG
+com.longrise.android.jssdk_x5.receiver.base.ReceiversManager
+    private static final java.lang.String TAG

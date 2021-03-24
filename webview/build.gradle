@@ -34,7 +34,8 @@ repositories {
 
 dependencies {
     compileOnly dep['appcompat-v7']
-    api fileTree('libs/jssdk_v1.0.1.aar')
+//    api fileTree('libs/jssdk_v1.0.1.aar')
+    api project(':jssdk')
     implementation project(':ActivityOnResult')
     implementation project(':RequestPermission')
 

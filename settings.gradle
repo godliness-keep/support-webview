@@ -4,6 +4,8 @@ include ':app',
 
 include ':jsapi'
 include ':jsapi-x5'
+include ':jssdk'
+include ':jssdk-x5'
 
 include ':business-component:lib-location'
 include ':business-component:lib-scan'
